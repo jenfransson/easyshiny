@@ -4,10 +4,12 @@
 \alias{wrUIsingle}
 \title{Write code for front portion of ui.R}
 \usage{
-wrUIsingle(title, ganalytics)
+wrUIsingle(title, theme = "flatly", ganalytics = NA)
 }
 \arguments{
 \item{title}{shiny app title}
+
+\item{theme}{bootstrap theme}
 
 \item{ganalytics}{Google analytics tracking ID (e.g. "UA-123456789-0")}
 }

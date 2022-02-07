@@ -44,6 +44,8 @@
 #'   show in bubbleplot / heatmap
 #' @param default.dimred character vector specifying the two default dimension 
 #'   reductions. Default is to use UMAP if not TSNE embeddings
+#' @param theme Bootstrap theme
+#' @param extra_css Should extra css file be created?
 #'
 #' @return directory containing shiny app
 #'
@@ -52,6 +54,7 @@
 #' @import data.table
 #'
 #' @examples
+#' \dontrun{
 #' # Example citation
 #' citation = list(
 #'   author  = "Liu X., Ouyang J.F., Rossello F.J. et al.",
@@ -69,6 +72,7 @@
 #'              default.multigene = c("ANPEP","NANOG","ZIC2","NLGN4X","DNMT3L",
 #'                                    "DPPA5","SLC7A2","GATA3","KRT19"),
 #'              default.dimred = c("UMAP_1", "UMAP_2")) 
+#'}
 #'
 #' @export
 makeShinyApp <- function(
@@ -77,7 +81,7 @@ makeShinyApp <- function(
   shiny.title = "scRNA-seq shiny app", shiny.footnotes = "",
   shiny.dir = "shinyApp/", enableSubset = TRUE, defPtSiz = 1.25, ganalytics=NA,
   default.gene1 = NA, default.gene2 = NA, default.multigene = NA, 
-  default.dimred = NA){
+  default.dimred = NA, theme = "flatly", extra_css = FALSE){
   
   # Checks are performed in respective functions
   # Wrapper for two main functions
@@ -88,8 +92,8 @@ makeShinyApp <- function(
                  default.gene1, default.gene2, default.multigene, default.dimred)
   makeShinyCodes(shiny.title = shiny.title, shiny.footnotes = shiny.footnotes,
                  shiny.prefix = "sc1", shiny.dir = shiny.dir, 
-                 enableSubset = enableSubset, defPtSiz = defPtSiz,
-                 ganalytics = ganalytics)
+                 theme = theme, enableSubset = enableSubset, defPtSiz = defPtSiz,
+                 ganalytics = ganalytics, extra_css = extra_css)
 
 }
 

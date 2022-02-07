@@ -13,10 +13,13 @@
 #' @author John F. Ouyang
 #'
 #' @import data.table
+#' @importFrom grDevices col2rgb
 #'
 #' @examples
+#' \dontrun{
 #' scConf = modColours(scConf, meta.to.mod = "library", 
 #'                     new.colours = c("black", "darkorange", "blue", "red"))
+#'}
 #'
 #' @export
 modColours <- function(scConf, meta.to.mod, new.colours){

@@ -8,6 +8,10 @@ wrUImain(prefix, subst = "", ptsiz = "1.25")
 }
 \arguments{
 \item{prefix}{file prefix}
+
+\item{subst}{Conditional}
+
+\item{ptsiz}{Point size}
 }
 \description{
 Write code for main block of ui.R

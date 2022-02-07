@@ -11,7 +11,9 @@ makeShinyCodes(
   shiny.dir,
   enableSubset = TRUE,
   defPtSiz = 1.25,
-  ganalytics = NA
+  theme = "flatly",
+  ganalytics = NA,
+  extra_css = FALSE
 )
 }
 \arguments{
@@ -31,7 +33,11 @@ functionality in the shiny app. Default is to enable this functionality}
 \item{defPtSiz}{specify default point size for single cells. For example, a 
 smaller size can be used if you have many cells in your dataset}
 
+\item{theme}{Bootsrap theme}
+
 \item{ganalytics}{Google analytics tracking ID (e.g. "UA-123456789-0")}
+
+\item{extra_css}{Logical indication if additional CSS is to be created.}
 }
 \value{
 server.R and ui.R required for shiny app
@@ -45,6 +51,7 @@ please use \code{makeShinyCodesMulti()} instead. Note that both
 running the wrapper function \code{makeShinyApp}.
 }
 \examples{
+\dontrun{
 # Example citation
 citation = list(
   author  = "Liu X., Ouyang J.F., Rossello F.J. et al.",
@@ -57,6 +64,7 @@ citation = list(
   link    = "https://www.nature.com/articles/s41586-020-2734-6")
 makeShinyCodes(shiny.title = "scRNA-seq shiny app", shiny.footnotes = "",
                shiny.prefix = "sc1", shiny.dir = "shinyApp/")
+}
 
 }
 \author{

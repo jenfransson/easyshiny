@@ -1,23 +1,19 @@
 #' Download example Seurat objects / single-cell data
-#'
-#' Download example Seurat objects / single-cell data required for 
-#' ShinyCell tutorials.
-#'
-#' @param type can be either "single" or "multi" or "h5ad" or "loom" 
-#'   or "plaintext"
-#' 
+#' Download example Seurat objects / single-cell data required for tutorials.
+#' @param type can be either "single" or "multi" or "h5ad" or "loom" or "plaintext"
 #' @return downloaded Seurat object
-#'
 #' @author John F. Ouyang
-#'
 #' @import data.table
+#' @importFrom utils download.file
 #'
 #' @examples
+#' \dontrun{
 #' getExampleData()
+#' }
 #'
 #' @export
-getExampleData <- function(type = c("single", "multi", "h5ad", "loom", 
-                                    "plaintext")){
+#' 
+getExampleData <- function(type = c("single", "multi", "h5ad", "loom", "plaintext")){
   # Setup and checks
   files = c("http://files.ddnetbio.com/hrpiFiles/readySeu_rset.rds",
             "http://files.ddnetbio.com/hrpiFiles/readySeu_d21i.rds",
@@ -58,5 +54,3 @@ getExampleData <- function(type = c("single", "multi", "h5ad", "loom",
   }
   # return(scConf)
 }
-
-

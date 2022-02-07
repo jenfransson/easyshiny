@@ -19,7 +19,9 @@ makeShinyApp(
   default.gene1 = NA,
   default.gene2 = NA,
   default.multigene = NA,
-  default.dimred = NA
+  default.dimred = NA,
+  theme = "flatly",
+  extra_css = FALSE
 )
 }
 \arguments{
@@ -78,6 +80,10 @@ show in bubbleplot / heatmap}
 
 \item{default.dimred}{character vector specifying the two default dimension 
 reductions. Default is to use UMAP if not TSNE embeddings}
+
+\item{theme}{Bootstrap theme}
+
+\item{extra_css}{Should extra css file be created?}
 }
 \value{
 directory containing shiny app
@@ -87,6 +93,7 @@ Make a shiny app based on the shinycell config data.table and single-cell
 data object.
 }
 \examples{
+\dontrun{
 # Example citation
 citation = list(
   author  = "Liu X., Ouyang J.F., Rossello F.J. et al.",
@@ -104,6 +111,7 @@ makeShinyApp(seu, scConf,
              default.multigene = c("ANPEP","NANOG","ZIC2","NLGN4X","DNMT3L",
                                    "DPPA5","SLC7A2","GATA3","KRT19"),
              default.dimred = c("UMAP_1", "UMAP_2")) 
+}
 
 }
 \author{

@@ -30,9 +30,12 @@
 #' @author John F. Ouyang
 #'
 #' @import data.table reticulate hdf5r
-#'
+#' @importFrom grDevices colorRampPalette
+#' 
 #' @examples
+#' \dontrun{
 #' scConf = createConfig(obj)
+#' }
 #'
 #' @export
 createConfig <- function(obj, meta.to.include = NA, legendCols = 4,
@@ -47,7 +50,7 @@ createConfig <- function(obj, meta.to.include = NA, legendCols = 4,
   } else if (class(obj)[1] == "SingleCellExperiment"){
     # SCE Object
     objMeta = SingleCellExperiment::colData(obj)
-    if(length(SingleCellExperiment::reducedDimNames(sce)) == 0){drExist=FALSE}
+    if(length(SingleCellExperiment::reducedDimNames(obj)) == 0){drExist=FALSE}
     
   } else if (tolower(tools::file_ext(obj)) == "h5ad"){
     # h5ad file
@@ -86,7 +89,7 @@ createConfig <- function(obj, meta.to.include = NA, legendCols = 4,
     stop("Only Seurat/SCE objects or h5ad/loom file paths are accepted!")
   }
   if(!drExist){
-    stop(paste0("ShinyCell did not detect any dimension reduction data \n", 
+    stop(paste0("No dimension reduction data detected.\n", 
                 "       e.g. umap / tsne. Has any analysis been performed?"))
   }
   
@@ -136,7 +139,7 @@ createConfig <- function(obj, meta.to.include = NA, legendCols = 4,
   
   # STOP if there is no single multi-level covariate
   if(nrow(scConf[grp == TRUE]) == 0){
-    stop(paste0("ShinyCell did not detect any multi-group cell metadata \n", 
+    stop(paste0("No multi-group cell metadata detected.\n", 
                 "       e.g. library / cluster. Has any analysis been performed?"))
   }
   

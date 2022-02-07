@@ -35,12 +35,14 @@ updated shinycell config data.table
 Updates shinycell config to recognize a metadata as a discrete one. This 
 function is useful when a discrete metadata only contains integers, e.g.
 unspervised cluster labels starting from 0 to (n-1) clusters. If these 
-metadata are not factored, then ShinyCell is unable to recognise these 
+metadata are not factored, then the app is unable to recognise these 
 as discrete metadata automatically. This is especially important when 
 working with loom files as they do not support factors/levels by default.
 }
 \examples{
+\dontrun{
 scConf = makeMetaCategorical(scConf, "clusterID", loom_obj)
+}
 
 }
 \author{

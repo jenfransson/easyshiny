@@ -2,7 +2,8 @@
 % Please edit documentation in R/addMeta.R
 \name{addMeta}
 \alias{addMeta}
-\title{Add a metadata to be included in the shiny app}
+\title{Add a metadata to be included in the shiny app
+Add a metadata to be included in the shiny app.}
 \usage{
 addMeta(scConf, meta.to.add, obj, maxLevels = 50)
 }
@@ -32,10 +33,13 @@ Metadata with nlevels > maxLevels will throw up an error message}
 updated shinycell config data.table
 }
 \description{
+Add a metadata to be included in the shiny app
 Add a metadata to be included in the shiny app.
 }
 \examples{
+\dontrun{
 scConf = addMeta(scConf, c("orig.ident"), seu)
+}
 
 }
 \author{

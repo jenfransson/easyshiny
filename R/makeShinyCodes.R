@@ -17,15 +17,19 @@
 #'   functionality in the shiny app. Default is to enable this functionality
 #' @param defPtSiz specify default point size for single cells. For example, a 
 #'   smaller size can be used if you have many cells in your dataset
+#' @param theme Bootsrap theme
 #' @param ganalytics Google analytics tracking ID (e.g. "UA-123456789-0")
+#' @param extra_css Logical indication if additional CSS is to be created.
 #'
 #' @return server.R and ui.R required for shiny app
 #'
 #' @author John F. Ouyang
 #'
 #' @import data.table readr glue
+#' @importFrom utils packageVersion
 #'
 #' @examples
+#' \dontrun{
 #' # Example citation
 #' citation = list(
 #'   author  = "Liu X., Ouyang J.F., Rossello F.J. et al.",
@@ -38,12 +42,15 @@
 #'   link    = "https://www.nature.com/articles/s41586-020-2734-6")
 #' makeShinyCodes(shiny.title = "scRNA-seq shiny app", shiny.footnotes = "",
 #'                shiny.prefix = "sc1", shiny.dir = "shinyApp/")
+#' }
 #'
 #' @export
 makeShinyCodes <- function(shiny.title, shiny.footnotes,
                            shiny.prefix, shiny.dir, 
                            enableSubset = TRUE, defPtSiz = 1.25,
-                           ganalytics = NA){
+                           theme = "flatly",
+                           ganalytics = NA,
+                           extra_css = FALSE){
   subst = "#"
   if(enableSubset){subst = ""}
   defPtSiz = as.character(defPtSiz)
@@ -63,13 +70,18 @@ makeShinyCodes <- function(shiny.title, shiny.footnotes,
     ### Write code for ui.R
     fname = paste0(shiny.dir, "/ui.R")
     readr::write_file(wrLib(
-      c("shiny","shinyhelper","data.table","Matrix","DT","magrittr")), file = fname)
+      c("shiny","shinyhelper","shinythemes","data.table","Matrix","DT","magrittr")), file = fname)
     readr::write_file(wrUIload(shiny.prefix), append = TRUE, file = fname)
-    readr::write_file(wrUIsingle(shiny.title, ganalytics), append = TRUE, file = fname)
+    readr::write_file(wrUIsingle(shiny.title, theme = theme, ganalytics = ganalytics), append = TRUE, file = fname)
     readr::write_file(wrUImain(shiny.prefix, subst, defPtSiz), append = TRUE, file = fname)
     readr::write_file(glue::glue(', \n'), append = TRUE, file = fname)
     readr::write_file(wrUIend(shiny.footnotes), append = TRUE, file = fname)
     
+    ### Write extra css
+    if(extra_css) {
+      dir.create(path=file.path(shiny.dir,"www"))
+      file.create(file.path(shiny.dir,"www","styles.css"))
+    }
     
     ### Write code for google-analytics.html
     if(!is.na(ganalytics)){

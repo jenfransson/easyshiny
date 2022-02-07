@@ -1,7 +1,5 @@
 #' Add a metadata to be included in the shiny app
-#'
 #' Add a metadata to be included in the shiny app.
-#'
 #' @param scConf shinycell config data.table
 #' @param meta.to.add metadata to add from the single-cell metadata.  
 #'   Must match one of the following:
@@ -19,17 +17,20 @@
 #'   data or input file path for h5ad / loom files
 #' @param maxLevels maximum number of levels allowed for categorical metadata.
 #'   Metadata with nlevels > maxLevels will throw up an error message
-#' 
 #' @return updated shinycell config data.table
-#'
 #' @author John F. Ouyang
 #'
-#' @import data.table reticulate hdf5r
+#' @import data.table hdf5r
+#' @importFrom reticulate import py_to_r
+#' @importFrom grDevices colorRampPalette
 #'
 #' @examples
+#' \dontrun{
 #' scConf = addMeta(scConf, c("orig.ident"), seu)
+#' }
 #'
 #' @export
+#' 
 addMeta <- function(scConf, meta.to.add, obj, maxLevels = 50){
   # Extract corresponding metadata
   if(class(obj)[1] == "Seurat"){

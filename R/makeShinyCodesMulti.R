@@ -29,8 +29,10 @@
 #' @author John F. Ouyang
 #'
 #' @import data.table readr
+#' @importFrom utils packageVersion
 #'
 #' @examples
+#' \dontrun{
 #' # Example citation
 #' citation = list(
 #'   author  = "Liu X., Ouyang J.F., Rossello F.J. et al.",
@@ -45,7 +47,8 @@
 #'                shiny.prefix = c("sc1", "sc2"), defPtSiz = c(1.25, 1.5),
 #'                shiny.headers = c("dataset1", "dataset2"),
 #'                shiny.dir = "shinyApp/")
-#'                
+#'}
+#'
 #' @export
 makeShinyCodesMulti <- function(shiny.title, shiny.footnotes,
                                 shiny.prefix, shiny.headers, shiny.dir, 

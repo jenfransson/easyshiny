@@ -40,7 +40,9 @@ categories of categorical metadata and (iii) colour palettes associated
 with each metadata.
 }
 \examples{
+\dontrun{
 scConf = createConfig(obj)
+}
 
 }
 \author{
