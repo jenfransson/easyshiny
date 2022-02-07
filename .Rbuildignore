@@ -1,0 +1,6 @@
+docs/
+^.*\.Rproj$
+^\.Rproj\.user$
+images/
+docs
+images
