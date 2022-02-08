@@ -4,7 +4,7 @@
 \alias{wrUIsingle}
 \title{Write code for front portion of ui.R}
 \usage{
-wrUIsingle(title, theme = "flatly", ganalytics = NA)
+wrUIsingle(title, theme = "flatly", ganalytics = NA, extra_css = FALSE)
 }
 \arguments{
 \item{title}{shiny app title}
@@ -12,6 +12,8 @@ wrUIsingle(title, theme = "flatly", ganalytics = NA)
 \item{theme}{bootstrap theme}
 
 \item{ganalytics}{Google analytics tracking ID (e.g. "UA-123456789-0")}
+
+\item{extra_css}{Logical indication if additional CSS is used.}
 }
 \description{
 Write code for front portion of ui.R

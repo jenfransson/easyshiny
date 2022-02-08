@@ -4,7 +4,7 @@
 \alias{wrUImain}
 \title{Write code for main block of ui.R}
 \usage{
-wrUImain(prefix, subst = "", ptsiz = "1.25")
+wrUImain(prefix, subst = "", ptsiz = "1.25", tabs = c(1, 2, 3, 4, 5, 6, 7))
 }
 \arguments{
 \item{prefix}{file prefix}
@@ -12,6 +12,8 @@ wrUImain(prefix, subst = "", ptsiz = "1.25")
 \item{subst}{Conditional}
 
 \item{ptsiz}{Point size}
+
+\item{tabs}{Vector of tab numbers to include}
 }
 \description{
 Write code for main block of ui.R

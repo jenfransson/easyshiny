@@ -4,14 +4,7 @@
 \alias{wrUItab5}
 \title{Write code for tab5 of ui.R}
 \usage{
-wrUItab5(prefix, subst = "", ptsiz = "1.25")
-}
-\arguments{
-\item{prefix}{file prefix}
-
-\item{subst}{Conditional}
-
-\item{ptsiz}{Point size}
+wrUItab5()
 }
 \description{
 Write code for tab5 of ui.R

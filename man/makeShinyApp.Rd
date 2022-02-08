@@ -20,6 +20,7 @@ makeShinyApp(
   default.gene2 = NA,
   default.multigene = NA,
   default.dimred = NA,
+  tabs = c(1, 2, 3, 4, 5, 6, 7),
   theme = "flatly",
   extra_css = FALSE
 )
@@ -81,9 +82,11 @@ show in bubbleplot / heatmap}
 \item{default.dimred}{character vector specifying the two default dimension 
 reductions. Default is to use UMAP if not TSNE embeddings}
 
+\item{tabs}{Vector of tab numbers to include}
+
 \item{theme}{Bootstrap theme}
 
-\item{extra_css}{Should extra css file be created?}
+\item{extra_css}{Should extra css file is used.}
 }
 \value{
 directory containing shiny app

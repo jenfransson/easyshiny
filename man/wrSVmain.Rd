@@ -4,12 +4,14 @@
 \alias{wrSVmain}
 \title{Write code for main block of server.R}
 \usage{
-wrSVmain(prefix, subst = "")
+wrSVmain(prefix, subst = "", tabs = c(1, 2, 3, 4, 5, 6, 7))
 }
 \arguments{
 \item{prefix}{file prefix}
 
 \item{subst}{Conditional}
+
+\item{tabs}{Vector of tab numbers to include}
 }
 \description{
 Write code for main block of server.R

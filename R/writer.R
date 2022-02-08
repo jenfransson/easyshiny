@@ -656,513 +656,540 @@ wrSVfix <- function() {
   )
 }
 
+#' Write code for tab1
+#'
+wrSVtab1 <- function() {
+  paste0("  ### Plots for tab a1 ----\n",
+             "{subst}  output${prefix}a1sub1.ui <- renderUI({{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a1sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    checkboxGroupInput("{prefix}a1sub2", "Select which cells to show", inline = TRUE,\n',
+             "{subst}                       choices = sub, selected = sub)\n",
+             "{subst}  }})\n",
+             "{subst}  observeEvent(input${prefix}a1sub1non, {{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a1sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a1sub2", label = "Select which cells to show",\n',
+             "{subst}                             choices = sub, selected = NULL, inline = TRUE)\n",
+             "{subst}  }})\n",
+             "{subst}  observeEvent(input${prefix}a1sub1all, {{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a1sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a1sub2", label = "Select which cells to show",\n',
+             "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
+             "{subst}  }})\n",
+             "  output${prefix}a1oup1 <- renderPlot({{\n",
+             "    scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1, \n",
+             "             input${prefix}a1sub1, input${prefix}a1sub2,\n",
+             "             input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1,\n",
+             "             input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1)\n",
+             "  }})\n",
+             "  output${prefix}a1oup1.ui <- renderUI({{\n",
+             '    plotOutput("{prefix}a1oup1", height = pList[input${prefix}a1psz])\n',
+             "  }})\n",
+             "  output${prefix}a1oup1.pdf <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}a1drX,"_",input${prefix}a1drY,"_", \n',
+             '                                   input${prefix}a1inp1,".pdf") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "pdf", height = input${prefix}a1oup1.h, width = input${prefix}a1oup1.w, useDingbats = FALSE,\n',
+             "      plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1,  \n",
+             "                      input${prefix}a1sub1, input${prefix}a1sub2,\n",
+             "                      input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1, \n",
+             "                      input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1) )\n",
+             "  }})\n",
+             "  output${prefix}a1oup1.png <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}a1drX,"_",input${prefix}a1drY,"_", \n',
+             '                                   input${prefix}a1inp1,".png") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "png", height = input${prefix}a1oup1.h, width = input${prefix}a1oup1.w,\n',
+             "      plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1,  \n",
+             "                      input${prefix}a1sub1, input${prefix}a1sub2,\n",
+             "                      input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1, \n",
+             "                      input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1) )\n",
+             "  }})\n",
+             "  output${prefix}a1.dt <- renderDataTable({{\n",
+             "    ggData = scDRnum({prefix}conf, {prefix}meta, input${prefix}a1inp1, input${prefix}a1inp2,\n",
+             "                     input${prefix}a1sub1, input${prefix}a1sub2,\n",
+             '                     "{prefix}gexpr.h5", {prefix}gene, input${prefix}a1splt)\n',
+             '    datatable(ggData, rownames = FALSE, extensions = "Buttons",\n',
+             '              options = list(pageLength = -1, dom = "tB", buttons = c("copy", "csv", "excel"))) %>%\n',
+             '      formatRound(columns = c("pctExpress"), digits = 2)\n',
+             "  }})\n",
+             "  \n",
+             "  output${prefix}a1oup2 <- renderPlot({{\n",
+             "    scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2, \n",
+             "             input${prefix}a1sub1, input${prefix}a1sub2,\n",
+             '             "{prefix}gexpr.h5", {prefix}gene,\n',
+             "             input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2,\n",
+             "             input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt)\n",
+             "  }})\n",
+             "  output${prefix}a1oup2.ui <- renderUI({{\n",
+             '    plotOutput("{prefix}a1oup2", height = pList[input${prefix}a1psz])\n',
+             "  }})\n",
+             "  output${prefix}a1oup2.pdf <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}a1drX,"_",input${prefix}a1drY,"_", \n',
+             '                                   input${prefix}a1inp2,".pdf") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "pdf", height = input${prefix}a1oup2.h, width = input${prefix}a1oup2.w, useDingbats = FALSE,\n',
+             "      plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2, \n",
+             "                      input${prefix}a1sub1, input${prefix}a1sub2,\n",
+             '                      "{prefix}gexpr.h5", {prefix}gene,\n',
+             "                      input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2,\n",
+             "                      input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt) )\n",
+             "  }})\n",
+             "  output${prefix}a1oup2.png <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}a1drX,"_",input${prefix}a1drY,"_", \n',
+             '                                   input${prefix}a1inp2,".png") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "png", height = input${prefix}a1oup2.h, width = input${prefix}a1oup2.w,\n',
+             "      plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2, \n",
+             "                      input${prefix}a1sub1, input${prefix}a1sub2,\n",
+             '                      "{prefix}gexpr.h5", {prefix}gene,\n',
+             "                      input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2,\n",
+             "                      input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt) )\n",
+             "  }}) # End of tab 1\n")
+}
+
+#' Write code for tab2
+#'
+wrSVtab2 <- function() {
+  paste0("  ### Plots for tab a2 ----\n",
+             "{subst}  output${prefix}a2sub1.ui <- renderUI({{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a2sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    checkboxGroupInput("{prefix}a2sub2", "Select which cells to show", inline = TRUE,\n',
+             "{subst}                       choices = sub, selected = sub)\n",
+             "{subst}  }})\n",
+             "{subst}  observeEvent(input${prefix}a2sub1non, {{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a2sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a2sub2", label = "Select which cells to show",\n',
+             "{subst}                             choices = sub, selected = NULL, inline = TRUE)\n",
+             "{subst}  }})\n",
+             "{subst}  observeEvent(input${prefix}a2sub1all, {{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a2sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a2sub2", label = "Select which cells to show",\n',
+             "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
+             "{subst}  }})\n",
+             "  output${prefix}a2oup1 <- renderPlot({{\n",
+             "    scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp1, \n",
+             "             input${prefix}a2sub1, input${prefix}a2sub2,\n",
+             "             input${prefix}a2siz, input${prefix}a2col1, input${prefix}a2ord1,\n",
+             "             input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab1)\n",
+             "  }})\n",
+             "  output${prefix}a2oup1.ui <- renderUI({{\n",
+             '    plotOutput("{prefix}a2oup1", height = pList[input${prefix}a2psz])\n',
+             "  }})\n",
+             "  output${prefix}a2oup1.pdf <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}a2drX,"_",input${prefix}a2drY,"_", \n',
+             '                                   input${prefix}a2inp1,".pdf") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "pdf", height = input${prefix}a2oup1.h, width = input${prefix}a2oup1.w, useDingbats = FALSE,\n',
+             "      plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp1,  \n",
+             "                      input${prefix}a2sub1, input${prefix}a2sub2,\n",
+             "                      input${prefix}a2siz, input${prefix}a2col1, input${prefix}a2ord1, \n",
+             "                      input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab1) )\n",
+             "  }})\n",
+             "  output${prefix}a2oup1.png <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}a2drX,"_",input${prefix}a2drY,"_", \n',
+             '                                   input${prefix}a2inp1,".png") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "png", height = input${prefix}a2oup1.h, width = input${prefix}a2oup1.w,\n',
+             "      plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp1,  \n",
+             "                      input${prefix}a2sub1, input${prefix}a2sub2,\n",
+             "                      input${prefix}a2siz, input${prefix}a2col1, input${prefix}a2ord1, \n",
+             "                      input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab1) )\n",
+             "  }})\n",
+             "  \n",
+             "  output${prefix}a2oup2 <- renderPlot({{\n",
+             "    scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp2, \n",
+             "             input${prefix}a2sub1, input${prefix}a2sub2,\n",
+             "             input${prefix}a2siz, input${prefix}a2col2, input${prefix}a2ord2,\n",
+             "             input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab2)\n",
+             "  }})\n",
+             "  output${prefix}a2oup2.ui <- renderUI({{\n",
+             '    plotOutput("{prefix}a2oup2", height = pList[input${prefix}a2psz])\n',
+             "  }})\n",
+             "  output${prefix}a2oup2.pdf <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}a2drX,"_",input${prefix}a2drY,"_", \n',
+             '                                   input${prefix}a2inp2,".pdf") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "pdf", height = input${prefix}a2oup2.h, width = input${prefix}a2oup2.w, useDingbats = FALSE,\n',
+             "      plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp2,  \n",
+             "                      input${prefix}a2sub1, input${prefix}a2sub2,\n",
+             "                      input${prefix}a2siz, input${prefix}a2col2, input${prefix}a2ord2, \n",
+             "                      input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab2) )\n",
+             "  }})\n",
+             "  output${prefix}a2oup2.png <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}a2drX,"_",input${prefix}a2drY,"_", \n',
+             '                                   input${prefix}a2inp2,".png") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "png", height = input${prefix}a2oup2.h, width = input${prefix}a2oup2.w,\n',
+             "      plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp2,  \n",
+             "                      input${prefix}a2sub1, input${prefix}a2sub2,\n",
+             "                      input${prefix}a2siz, input${prefix}a2col2, input${prefix}a2ord2, \n",
+             "                      input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab2) )\n",
+             "  }}) # End of tab 2\n")
+}
+
+#' Write code for tab3
+#'
+wrSVtab3 <- function() {
+  paste0("  ### Plots for tab a3 ----\n",
+             "{subst}  output${prefix}a3sub1.ui <- renderUI({{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a3sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    checkboxGroupInput("{prefix}a3sub2", "Select which cells to show", inline = TRUE,\n',
+             "{subst}                       choices = sub, selected = sub)\n",
+             "{subst}  }})\n",
+             "{subst}  observeEvent(input${prefix}a3sub1non, {{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a3sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a3sub2", label = "Select which cells to show",\n',
+             "{subst}                             choices = sub, selected = NULL, inline = TRUE)\n",
+             "{subst}  }})\n",
+             "{subst}  observeEvent(input${prefix}a3sub1all, {{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a3sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a3sub2", label = "Select which cells to show",\n',
+             "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
+             "{subst}  }})\n",
+             "  output${prefix}a3oup1 <- renderPlot({{\n",
+             "    scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp1, \n",
+             "             input${prefix}a3sub1, input${prefix}a3sub2,\n",
+             '             "{prefix}gexpr.h5", {prefix}gene,\n',
+             "             input${prefix}a3siz, input${prefix}a3col1, input${prefix}a3ord1,\n",
+             "             input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)\n",
+             "  }})\n",
+             "  output${prefix}a3oup1.ui <- renderUI({{\n",
+             '    plotOutput("{prefix}a3oup1", height = pList[input${prefix}a3psz])\n',
+             "  }})\n",
+             "  output${prefix}a3oup1.pdf <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}a3drX,"_",input${prefix}a3drY,"_", \n',
+             '                                   input${prefix}a3inp1,".pdf") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "pdf", height = input${prefix}a3oup1.h, width = input${prefix}a3oup1.w, useDingbats = FALSE,\n',
+             "      plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp1, \n",
+             "                      input${prefix}a3sub1, input${prefix}a3sub2,\n",
+             '                      "{prefix}gexpr.h5", {prefix}gene,\n',
+             "                      input${prefix}a3siz, input${prefix}a3col1, input${prefix}a3ord1,\n",
+             "                      input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt) )\n",
+             "  }})\n",
+             "  output${prefix}a3oup1.png <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}a3drX,"_",input${prefix}a3drY,"_", \n',
+             '                                   input${prefix}a3inp1,".png") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "png", height = input${prefix}a3oup1.h, width = input${prefix}a3oup1.w,\n',
+             "      plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp1, \n",
+             "                      input${prefix}a3sub1, input${prefix}a3sub2,\n",
+             '                      "{prefix}gexpr.h5", {prefix}gene,\n',
+             "                      input${prefix}a3siz, input${prefix}a3col1, input${prefix}a3ord1,\n",
+             "                      input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt) )\n",
+             "  }})\n",
+             "  \n",
+             "  output${prefix}a3oup2 <- renderPlot({{\n",
+             "    scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp2, \n",
+             "             input${prefix}a3sub1, input${prefix}a3sub2,\n",
+             '             "{prefix}gexpr.h5", {prefix}gene,\n',
+             "             input${prefix}a3siz, input${prefix}a3col2, input${prefix}a3ord2,\n",
+             "             input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)\n",
+             "  }})\n",
+             "  output${prefix}a3oup2.ui <- renderUI({{\n",
+             '    plotOutput("{prefix}a3oup2", height = pList[input${prefix}a3psz])\n',
+             "  }})\n",
+             "  output${prefix}a3oup2.pdf <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}a3drX,"_",input${prefix}a3drY,"_", \n',
+             '                                   input${prefix}a3inp2,".pdf") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "pdf", height = input${prefix}a3oup2.h, width = input${prefix}a3oup2.w, useDingbats = FALSE,\n',
+             "      plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp2, \n",
+             "                      input${prefix}a3sub1, input${prefix}a3sub2,\n",
+             '                      "{prefix}gexpr.h5", {prefix}gene,\n',
+             "                      input${prefix}a3siz, input${prefix}a3col2, input${prefix}a3ord2,\n",
+             "                      input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt) )\n",
+             "  }})\n",
+             "  output${prefix}a3oup2.png <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}a3drX,"_",input${prefix}a3drY,"_", \n',
+             '                                   input${prefix}a3inp2,".png") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "png", height = input${prefix}a3oup2.h, width = input${prefix}a3oup2.w,\n',
+             "      plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp2, \n",
+             "                      input${prefix}a3sub1, input${prefix}a3sub2,\n",
+             '                      "{prefix}gexpr.h5", {prefix}gene,\n',
+             "                      input${prefix}a3siz, input${prefix}a3col2, input${prefix}a3ord2,\n",
+             "                      input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt) )\n",
+             "  }}) # End of tab 3\n")
+}
+
+#' Write code for tab4
+#'
+wrSVtab4 <- function() {
+  paste0("  ### Plots for tab b2 ----\n",
+             "{subst}  output${prefix}b2sub1.ui <- renderUI({{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}b2sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    checkboxGroupInput("{prefix}b2sub2", "Select which cells to show", inline = TRUE,\n',
+             "{subst}                       choices = sub, selected = sub)\n",
+             "{subst}  }})\n",
+             "{subst}  observeEvent(input${prefix}b2sub1non, {{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}b2sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}b2sub2", label = "Select which cells to show",\n',
+             "{subst}                             choices = sub, selected = NULL, inline = TRUE)\n",
+             "{subst}  }})\n",
+             "{subst}  observeEvent(input${prefix}b2sub1all, {{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}b2sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}b2sub2", label = "Select which cells to show",\n',
+             "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
+             "{subst}  }})\n",
+             "  output${prefix}b2oup1 <- renderPlot({{\n",
+             "    scDRcoex({prefix}conf, {prefix}meta, input${prefix}b2drX, input${prefix}b2drY,  \n",
+             "             input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2,\n",
+             '             "{prefix}gexpr.h5", {prefix}gene,\n',
+             "             input${prefix}b2siz, input${prefix}b2col1, input${prefix}b2ord1,\n",
+             "             input${prefix}b2fsz, input${prefix}b2asp, input${prefix}b2txt)\n",
+             "  }})\n",
+             "  output${prefix}b2oup1.ui <- renderUI({{\n",
+             '    plotOutput("{prefix}b2oup1", height = pList2[input${prefix}b2psz])\n',
+             "  }})\n",
+             "  output${prefix}b2oup1.pdf <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}b2drX,"_",input${prefix}b2drY,"_", \n',
+             '                                    input${prefix}b2inp1,"_",input${prefix}b2inp2,".pdf") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "pdf", height = input${prefix}b2oup1.h, width = input${prefix}b2oup1.w, useDingbats = FALSE,\n',
+             "      plot = scDRcoex({prefix}conf, {prefix}meta, input${prefix}b2drX, input${prefix}b2drY, \n",
+             "                      input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2,\n",
+             '                      "{prefix}gexpr.h5", {prefix}gene,\n',
+             "                      input${prefix}b2siz, input${prefix}b2col1, input${prefix}b2ord1,\n",
+             "                      input${prefix}b2fsz, input${prefix}b2asp, input${prefix}b2txt) )\n",
+             "  }})\n",
+             "  output${prefix}b2oup1.png <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}b2drX,"_",input${prefix}b2drY,"_", \n',
+             '                                    input${prefix}b2inp1,"_",input${prefix}b2inp2,".png") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "png", height = input${prefix}b2oup1.h, width = input${prefix}b2oup1.w,\n',
+             "      plot = scDRcoex({prefix}conf, {prefix}meta, input${prefix}b2drX, input${prefix}b2drY, \n",
+             "                      input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2,\n",
+             '                      "{prefix}gexpr.h5", {prefix}gene,\n',
+             "                      input${prefix}b2siz, input${prefix}b2col1, input${prefix}b2ord1,\n",
+             "                      input${prefix}b2fsz, input${prefix}b2asp, input${prefix}b2txt) )\n",
+             "  }})\n",
+             "  output${prefix}b2oup2 <- renderPlot({{\n",
+             "    scDRcoexLeg(input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2col1, input${prefix}b2fsz)\n",
+             "  }})\n",
+             "  output${prefix}b2oup2.ui <- renderUI({{\n",
+             '    plotOutput("{prefix}b2oup2", height = "300px")\n',
+             "  }})\n",
+             "  output${prefix}b2oup2.pdf <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}b2drX,"_",input${prefix}b2drY,"_", \n',
+             '                                    input${prefix}b2inp1,"_",input${prefix}b2inp2,"_leg.pdf") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "pdf", height = 3, width = 4, useDingbats = FALSE,\n',
+             "      plot = scDRcoexLeg(input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2col1, input${prefix}b2fsz) )\n",
+             "  }})\n",
+             "  output${prefix}b2oup2.png <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}b2drX,"_",input${prefix}b2drY,"_", \n',
+             '                                    input${prefix}b2inp1,"_",input${prefix}b2inp2,"_leg.png") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "png", height = 3, width = 4,\n',
+             "      plot = scDRcoexLeg(input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2col1, input${prefix}b2fsz) )\n",
+             "  }})\n",
+             "  output${prefix}b2.dt <- renderDataTable({{\n",
+             "    ggData = scDRcoexNum({prefix}conf, {prefix}meta, input${prefix}b2inp1, input${prefix}b2inp2,\n",
+             '                         input${prefix}b2sub1, input${prefix}b2sub2, "{prefix}gexpr.h5", {prefix}gene)\n',
+             '    datatable(ggData, rownames = FALSE, extensions = "Buttons",\n',
+             '              options = list(pageLength = -1, dom = "tB", buttons = c("copy", "csv", "excel"))) %>%\n',
+             '      formatRound(columns = c("percent"), digits = 2)\n',
+             "  }}) # End of tab 4\n")
+}
+
+#' Write code for tab5
+#'
+wrSVtab5 <- function() {
+  paste0("  ### Plots for tab c1 ----\n",
+             "{subst}  output${prefix}c1sub1.ui <- renderUI({{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c1sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    checkboxGroupInput("{prefix}c1sub2", "Select which cells to show", inline = TRUE,\n',
+             "{subst}                       choices = sub, selected = sub)\n",
+             "{subst}  }})\n",
+             "{subst}  observeEvent(input${prefix}c1sub1non, {{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c1sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}c1sub2", label = "Select which cells to show",\n',
+             "{subst}                             choices = sub, selected = NULL, inline = TRUE)\n",
+             "{subst}  }})\n",
+             "{subst}  observeEvent(input${prefix}c1sub1all, {{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c1sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}c1sub2", label = "Select which cells to show",\n',
+             "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
+             "{subst}  }})\n",
+             "  output${prefix}c1oup <- renderPlot({{\n",
+             "    scVioBox({prefix}conf, {prefix}meta, input${prefix}c1inp1, input${prefix}c1inp2,\n",
+             "             input${prefix}c1sub1, input${prefix}c1sub2,\n",
+             '             "{prefix}gexpr.h5", {prefix}gene, input${prefix}c1typ, input${prefix}c1pts,\n',
+             "             input${prefix}c1siz, input${prefix}c1fsz)\n",
+             "  }})\n",
+             "  output${prefix}c1oup.ui <- renderUI({{\n",
+             '    plotOutput("{prefix}c1oup", height = pList2[input${prefix}c1psz])\n',
+             "  }})\n",
+             "  output${prefix}c1oup.pdf <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}c1typ,"_",input${prefix}c1inp1,"_", \n',
+             '                                   input${prefix}c1inp2,".pdf") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "pdf", height = input${prefix}c1oup.h, width = input${prefix}c1oup.w, useDingbats = FALSE,\n',
+             "      plot = scVioBox({prefix}conf, {prefix}meta, input${prefix}c1inp1, input${prefix}c1inp2,\n",
+             "                      input${prefix}c1sub1, input${prefix}c1sub2,\n",
+             '                      "{prefix}gexpr.h5", {prefix}gene, input${prefix}c1typ, input${prefix}c1pts,\n',
+             "                      input${prefix}c1siz, input${prefix}c1fsz) )\n",
+             "  }})\n",
+             "  output${prefix}c1oup.png <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}c1typ,"_",input${prefix}c1inp1,"_", \n',
+             '                                   input${prefix}c1inp2,".png") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "png", height = input${prefix}c1oup.h, width = input${prefix}c1oup.w,\n',
+             "      plot = scVioBox({prefix}conf, {prefix}meta, input${prefix}c1inp1, input${prefix}c1inp2,\n",
+             "                      input${prefix}c1sub1, input${prefix}c1sub2,\n",
+             '                      "{prefix}gexpr.h5", {prefix}gene, input${prefix}c1typ, input${prefix}c1pts,\n',
+             "                      input${prefix}c1siz, input${prefix}c1fsz) )\n",
+             "  }}) # End of tab 5\n")
+}
+
+#' Write code for tab6
+#'
+wrSVtab6 <- function() {
+  paste0("  ### Plots for tab c2 ----\n",
+             "{subst}  output${prefix}c2sub1.ui <- renderUI({{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c2sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    checkboxGroupInput("{prefix}c2sub2", "Select which cells to show", inline = TRUE,\n',
+             "{subst}                       choices = sub, selected = sub)\n",
+             "{subst}  }})\n",
+             "{subst}  observeEvent(input${prefix}c2sub1non, {{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c2sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}c2sub2", label = "Select which cells to show",\n',
+             "{subst}                             choices = sub, selected = NULL, inline = TRUE)\n",
+             "{subst}  }})\n",
+             "{subst}  observeEvent(input${prefix}c2sub1all, {{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c2sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}c2sub2", label = "Select which cells to show",\n',
+             "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
+             "{subst}  }})\n",
+             "output${prefix}c2oup <- renderPlot({{\n",
+             "  scProp({prefix}conf, {prefix}meta, input${prefix}c2inp1, input${prefix}c2inp2, \n",
+             "         input${prefix}c2sub1, input${prefix}c2sub2,\n",
+             "         input${prefix}c2typ, input${prefix}c2flp, input${prefix}c2fsz)\n",
+             "}})\n",
+             "output${prefix}c2oup.ui <- renderUI({{\n",
+             '  plotOutput("{prefix}c2oup", height = pList2[input${prefix}c2psz])\n',
+             "}})\n",
+             "output${prefix}c2oup.pdf <- downloadHandler(\n",
+             '  filename = function() {{ paste0("{prefix}",input${prefix}c2typ,"_",input${prefix}c2inp1,"_", \n',
+             '                                 input${prefix}c2inp2,".pdf") }},\n',
+             "  content = function(file) {{ ggsave(\n",
+             '    file, device = "pdf", height = input${prefix}c2oup.h, width = input${prefix}c2oup.w, useDingbats = FALSE,\n',
+             "    plot = scProp({prefix}conf, {prefix}meta, input${prefix}c2inp1, input${prefix}c2inp2, \n",
+             "                  input${prefix}c2sub1, input${prefix}c2sub2,\n",
+             "                  input${prefix}c2typ, input${prefix}c2flp, input${prefix}c2fsz) )\n",
+             "  }})\n",
+             "output${prefix}c2oup.png <- downloadHandler(\n",
+             '  filename = function() {{ paste0("{prefix}",input${prefix}c2typ,"_",input${prefix}c2inp1,"_", \n',
+             '                                 input${prefix}c2inp2,".png") }},\n',
+             "  content = function(file) {{ ggsave(\n",
+             '    file, device = "png", height = input${prefix}c2oup.h, width = input${prefix}c2oup.w,\n',
+             "    plot = scProp({prefix}conf, {prefix}meta, input${prefix}c2inp1, input${prefix}c2inp2, \n",
+             "                  input${prefix}c2sub1, input${prefix}c2sub2,\n",
+             "                  input${prefix}c2typ, input${prefix}c2flp, input${prefix}c2fsz) )\n",
+             "  }}) # End of tab 6\n")
+}
+
+#' Write code for tab7
+#'
+wrSVtab7 <- function() {
+  paste0("  ### Plots for tab d1 ----\n",
+             "{subst}  output${prefix}d1sub1.ui <- renderUI({{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}d1sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    checkboxGroupInput("{prefix}d1sub2", "Select which cells to show", inline = TRUE,\n',
+             "{subst}                       choices = sub, selected = sub)\n",
+             "{subst}  }})\n",
+             "{subst}  observeEvent(input${prefix}d1sub1non, {{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}d1sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}d1sub2", label = "Select which cells to show",\n',
+             "{subst}                             choices = sub, selected = NULL, inline = TRUE)\n",
+             "{subst}  }})\n",
+             "{subst}  observeEvent(input${prefix}d1sub1all, {{\n",
+             '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}d1sub1]$fID, "\\\\|")[[1]]\n',
+             '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}d1sub2", label = "Select which cells to show",\n',
+             "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
+             "{subst}  }})\n",
+             "  output${prefix}d1oupTxt <- renderUI({{\n",
+             "    geneList = scGeneList(input${prefix}d1inp, {prefix}gene)\n",
+             "    if(nrow(geneList) > 50){{\n",
+             '      HTML("More than 50 input genes! Please reduce the gene list!")\n',
+             "    }} else {{\n",
+             '      oup = paste0(nrow(geneList[present == TRUE]), " genes OK and will be plotted")\n',
+             "      if(nrow(geneList[present == FALSE]) > 0){{\n",
+             '        oup = paste0(oup, "<br/>",\n',
+             '                     nrow(geneList[present == FALSE]), " genes not found (",\n',
+             '                     paste0(geneList[present == FALSE]$gene, collapse = ", "), ")")\n',
+             "      }}\n",
+             "      HTML(oup)\n",
+             "    }}\n",
+             "  }})\n",
+             "  output${prefix}d1oup <- renderPlot({{\n",
+             "    scBubbHeat({prefix}conf, {prefix}meta, input${prefix}d1inp, input${prefix}d1grp, input${prefix}d1plt,\n",
+             '               input${prefix}d1sub1, input${prefix}d1sub2, "{prefix}gexpr.h5", {prefix}gene,\n',
+             "               input${prefix}d1scl, input${prefix}d1row, input${prefix}d1col,\n",
+             "               input${prefix}d1cols, input${prefix}d1fsz)\n",
+             "  }})\n",
+             "  output${prefix}d1oup.ui <- renderUI({{\n",
+             '    plotOutput("{prefix}d1oup", height = pList3[input${prefix}d1psz])\n',
+             "  }})\n",
+             "  output${prefix}d1oup.pdf <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}d1plt,"_",input${prefix}d1grp,".pdf") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "pdf", height = input${prefix}d1oup.h, width = input${prefix}d1oup.w,\n',
+             "      plot = scBubbHeat({prefix}conf, {prefix}meta, input${prefix}d1inp, input${prefix}d1grp, input${prefix}d1plt,\n",
+             '                        input${prefix}d1sub1, input${prefix}d1sub2, "{prefix}gexpr.h5", {prefix}gene,\n',
+             "                        input${prefix}d1scl, input${prefix}d1row, input${prefix}d1col,\n",
+             "                        input${prefix}d1cols, input${prefix}d1fsz, save = TRUE) )\n",
+             "  }})\n",
+             "  output${prefix}d1oup.png <- downloadHandler(\n",
+             '    filename = function() {{ paste0("{prefix}",input${prefix}d1plt,"_",input${prefix}d1grp,".png") }},\n',
+             "    content = function(file) {{ ggsave(\n",
+             '      file, device = "png", height = input${prefix}d1oup.h, width = input${prefix}d1oup.w,\n',
+             "      plot = scBubbHeat({prefix}conf, {prefix}meta, input${prefix}d1inp, input${prefix}d1grp, input${prefix}d1plt,\n",
+             '                        input${prefix}d1sub1, input${prefix}d1sub2, "{prefix}gexpr.h5", {prefix}gene,\n',
+             "                        input${prefix}d1scl, input${prefix}d1row, input${prefix}d1col,\n",
+             "                        input${prefix}d1cols, input${prefix}d1fsz, save = TRUE) )\n",
+             "  }}) # End of tab 7")
+}
+
 #' Write code for main block of server.R
 #' @param prefix file prefix
 #' @param subst Conditional
+#' @param tabs Vector of tab numbers to include
 #' @rdname wrSVmain
 #' @export wrSVmain
 #'
-wrSVmain <- function(prefix, subst = "") {
+wrSVmain <- function(prefix, subst = "", tabs = c(1,2,3,4,5,6,7)) {
   glue::glue(
-    'optCrt="{{ option_create: function(data,escape) {{return(\'<div class=\\"create\\"><strong>\' + \'</strong></div>\');}} }}"\n',
-    '  updateSelectizeInput(session, "{prefix}a1inp2", choices = names({prefix}gene), server = TRUE,\n',
-    "                       selected = {prefix}def$gene1, options = list(\n",
-    "                         maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))\n",
-    '  updateSelectizeInput(session, "{prefix}a3inp1", choices = names({prefix}gene), server = TRUE,\n',
-    "                       selected = {prefix}def$gene1, options = list(\n",
-    "                         maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))\n",
-    '  updateSelectizeInput(session, "{prefix}a3inp2", choices = names({prefix}gene), server = TRUE,\n',
-    "                       selected = {prefix}def$gene2, options = list(\n",
-    "                         maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))\n",
-    '  updateSelectizeInput(session, "{prefix}b2inp1", choices = names({prefix}gene), server = TRUE,\n',
-    "                       selected = {prefix}def$gene1, options = list(\n",
-    "                         maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))\n",
-    '  updateSelectizeInput(session, "{prefix}b2inp2", choices = names({prefix}gene), server = TRUE,\n',
-    "                       selected = {prefix}def$gene2, options = list(\n",
-    "                         maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))\n",
-    '  updateSelectizeInput(session, "{prefix}c1inp2", server = TRUE,\n',
-    "                       choices = c({prefix}conf[is.na(fID)]$UI,names({prefix}gene)),\n",
-    "                       selected = {prefix}conf[is.na(fID)]$UI[1], options = list(\n",
-    "                         maxOptions = length({prefix}conf[is.na(fID)]$UI) + 3,\n",
-    "                         create = TRUE, persist = TRUE, render = I(optCrt)))\n",
-    "\n",
-    "\n",
-    "  ### Plots for tab a1\n",
-    "{subst}  output${prefix}a1sub1.ui <- renderUI({{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a1sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    checkboxGroupInput("{prefix}a1sub2", "Select which cells to show", inline = TRUE,\n',
-    "{subst}                       choices = sub, selected = sub)\n",
-    "{subst}  }})\n",
-    "{subst}  observeEvent(input${prefix}a1sub1non, {{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a1sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a1sub2", label = "Select which cells to show",\n',
-    "{subst}                             choices = sub, selected = NULL, inline = TRUE)\n",
-    "{subst}  }})\n",
-    "{subst}  observeEvent(input${prefix}a1sub1all, {{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a1sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a1sub2", label = "Select which cells to show",\n',
-    "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
-    "{subst}  }})\n",
-    "  output${prefix}a1oup1 <- renderPlot({{\n",
-    "    scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1, \n",
-    "             input${prefix}a1sub1, input${prefix}a1sub2,\n",
-    "             input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1,\n",
-    "             input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1)\n",
-    "  }})\n",
-    "  output${prefix}a1oup1.ui <- renderUI({{\n",
-    '    plotOutput("{prefix}a1oup1", height = pList[input${prefix}a1psz])\n',
-    "  }})\n",
-    "  output${prefix}a1oup1.pdf <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}a1drX,"_",input${prefix}a1drY,"_", \n',
-    '                                   input${prefix}a1inp1,".pdf") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "pdf", height = input${prefix}a1oup1.h, width = input${prefix}a1oup1.w, useDingbats = FALSE,\n',
-    "      plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1,  \n",
-    "                      input${prefix}a1sub1, input${prefix}a1sub2,\n",
-    "                      input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1, \n",
-    "                      input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1) )\n",
-    "  }})\n",
-    "  output${prefix}a1oup1.png <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}a1drX,"_",input${prefix}a1drY,"_", \n',
-    '                                   input${prefix}a1inp1,".png") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "png", height = input${prefix}a1oup1.h, width = input${prefix}a1oup1.w,\n',
-    "      plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1,  \n",
-    "                      input${prefix}a1sub1, input${prefix}a1sub2,\n",
-    "                      input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1, \n",
-    "                      input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1) )\n",
-    "  }})\n",
-    "  output${prefix}a1.dt <- renderDataTable({{\n",
-    "    ggData = scDRnum({prefix}conf, {prefix}meta, input${prefix}a1inp1, input${prefix}a1inp2,\n",
-    "                     input${prefix}a1sub1, input${prefix}a1sub2,\n",
-    '                     "{prefix}gexpr.h5", {prefix}gene, input${prefix}a1splt)\n',
-    '    datatable(ggData, rownames = FALSE, extensions = "Buttons",\n',
-    '              options = list(pageLength = -1, dom = "tB", buttons = c("copy", "csv", "excel"))) %>%\n',
-    '      formatRound(columns = c("pctExpress"), digits = 2)\n',
-    "  }})\n",
-    "  \n",
-    "  output${prefix}a1oup2 <- renderPlot({{\n",
-    "    scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2, \n",
-    "             input${prefix}a1sub1, input${prefix}a1sub2,\n",
-    '             "{prefix}gexpr.h5", {prefix}gene,\n',
-    "             input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2,\n",
-    "             input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt)\n",
-    "  }})\n",
-    "  output${prefix}a1oup2.ui <- renderUI({{\n",
-    '    plotOutput("{prefix}a1oup2", height = pList[input${prefix}a1psz])\n',
-    "  }})\n",
-    "  output${prefix}a1oup2.pdf <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}a1drX,"_",input${prefix}a1drY,"_", \n',
-    '                                   input${prefix}a1inp2,".pdf") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "pdf", height = input${prefix}a1oup2.h, width = input${prefix}a1oup2.w, useDingbats = FALSE,\n',
-    "      plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2, \n",
-    "                      input${prefix}a1sub1, input${prefix}a1sub2,\n",
-    '                      "{prefix}gexpr.h5", {prefix}gene,\n',
-    "                      input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2,\n",
-    "                      input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt) )\n",
-    "  }})\n",
-    "  output${prefix}a1oup2.png <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}a1drX,"_",input${prefix}a1drY,"_", \n',
-    '                                   input${prefix}a1inp2,".png") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "png", height = input${prefix}a1oup2.h, width = input${prefix}a1oup2.w,\n',
-    "      plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2, \n",
-    "                      input${prefix}a1sub1, input${prefix}a1sub2,\n",
-    '                      "{prefix}gexpr.h5", {prefix}gene,\n',
-    "                      input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2,\n",
-    "                      input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt) )\n",
-    "  }})\n",
-    "  \n",
-    "  \n",
-    "  ### Plots for tab a2\n",
-    "{subst}  output${prefix}a2sub1.ui <- renderUI({{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a2sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    checkboxGroupInput("{prefix}a2sub2", "Select which cells to show", inline = TRUE,\n',
-    "{subst}                       choices = sub, selected = sub)\n",
-    "{subst}  }})\n",
-    "{subst}  observeEvent(input${prefix}a2sub1non, {{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a2sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a2sub2", label = "Select which cells to show",\n',
-    "{subst}                             choices = sub, selected = NULL, inline = TRUE)\n",
-    "{subst}  }})\n",
-    "{subst}  observeEvent(input${prefix}a2sub1all, {{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a2sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a2sub2", label = "Select which cells to show",\n',
-    "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
-    "{subst}  }})\n",
-    "  output${prefix}a2oup1 <- renderPlot({{\n",
-    "    scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp1, \n",
-    "             input${prefix}a2sub1, input${prefix}a2sub2,\n",
-    "             input${prefix}a2siz, input${prefix}a2col1, input${prefix}a2ord1,\n",
-    "             input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab1)\n",
-    "  }})\n",
-    "  output${prefix}a2oup1.ui <- renderUI({{\n",
-    '    plotOutput("{prefix}a2oup1", height = pList[input${prefix}a2psz])\n',
-    "  }})\n",
-    "  output${prefix}a2oup1.pdf <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}a2drX,"_",input${prefix}a2drY,"_", \n',
-    '                                   input${prefix}a2inp1,".pdf") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "pdf", height = input${prefix}a2oup1.h, width = input${prefix}a2oup1.w, useDingbats = FALSE,\n',
-    "      plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp1,  \n",
-    "                      input${prefix}a2sub1, input${prefix}a2sub2,\n",
-    "                      input${prefix}a2siz, input${prefix}a2col1, input${prefix}a2ord1, \n",
-    "                      input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab1) )\n",
-    "  }})\n",
-    "  output${prefix}a2oup1.png <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}a2drX,"_",input${prefix}a2drY,"_", \n',
-    '                                   input${prefix}a2inp1,".png") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "png", height = input${prefix}a2oup1.h, width = input${prefix}a2oup1.w,\n',
-    "      plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp1,  \n",
-    "                      input${prefix}a2sub1, input${prefix}a2sub2,\n",
-    "                      input${prefix}a2siz, input${prefix}a2col1, input${prefix}a2ord1, \n",
-    "                      input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab1) )\n",
-    "  }})\n",
-    "  \n",
-    "  output${prefix}a2oup2 <- renderPlot({{\n",
-    "    scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp2, \n",
-    "             input${prefix}a2sub1, input${prefix}a2sub2,\n",
-    "             input${prefix}a2siz, input${prefix}a2col2, input${prefix}a2ord2,\n",
-    "             input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab2)\n",
-    "  }})\n",
-    "  output${prefix}a2oup2.ui <- renderUI({{\n",
-    '    plotOutput("{prefix}a2oup2", height = pList[input${prefix}a2psz])\n',
-    "  }})\n",
-    "  output${prefix}a2oup2.pdf <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}a2drX,"_",input${prefix}a2drY,"_", \n',
-    '                                   input${prefix}a2inp2,".pdf") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "pdf", height = input${prefix}a2oup2.h, width = input${prefix}a2oup2.w, useDingbats = FALSE,\n',
-    "      plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp2,  \n",
-    "                      input${prefix}a2sub1, input${prefix}a2sub2,\n",
-    "                      input${prefix}a2siz, input${prefix}a2col2, input${prefix}a2ord2, \n",
-    "                      input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab2) )\n",
-    "  }})\n",
-    "  output${prefix}a2oup2.png <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}a2drX,"_",input${prefix}a2drY,"_", \n',
-    '                                   input${prefix}a2inp2,".png") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "png", height = input${prefix}a2oup2.h, width = input${prefix}a2oup2.w,\n',
-    "      plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp2,  \n",
-    "                      input${prefix}a2sub1, input${prefix}a2sub2,\n",
-    "                      input${prefix}a2siz, input${prefix}a2col2, input${prefix}a2ord2, \n",
-    "                      input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab2) )\n",
-    "  }})\n",
-    "  \n",
-    "  \n",
-    "  ### Plots for tab a3\n",
-    "{subst}  output${prefix}a3sub1.ui <- renderUI({{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a3sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    checkboxGroupInput("{prefix}a3sub2", "Select which cells to show", inline = TRUE,\n',
-    "{subst}                       choices = sub, selected = sub)\n",
-    "{subst}  }})\n",
-    "{subst}  observeEvent(input${prefix}a3sub1non, {{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a3sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a3sub2", label = "Select which cells to show",\n',
-    "{subst}                             choices = sub, selected = NULL, inline = TRUE)\n",
-    "{subst}  }})\n",
-    "{subst}  observeEvent(input${prefix}a3sub1all, {{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a3sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a3sub2", label = "Select which cells to show",\n',
-    "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
-    "{subst}  }})\n",
-    "  output${prefix}a3oup1 <- renderPlot({{\n",
-    "    scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp1, \n",
-    "             input${prefix}a3sub1, input${prefix}a3sub2,\n",
-    '             "{prefix}gexpr.h5", {prefix}gene,\n',
-    "             input${prefix}a3siz, input${prefix}a3col1, input${prefix}a3ord1,\n",
-    "             input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)\n",
-    "  }})\n",
-    "  output${prefix}a3oup1.ui <- renderUI({{\n",
-    '    plotOutput("{prefix}a3oup1", height = pList[input${prefix}a3psz])\n',
-    "  }})\n",
-    "  output${prefix}a3oup1.pdf <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}a3drX,"_",input${prefix}a3drY,"_", \n',
-    '                                   input${prefix}a3inp1,".pdf") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "pdf", height = input${prefix}a3oup1.h, width = input${prefix}a3oup1.w, useDingbats = FALSE,\n',
-    "      plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp1, \n",
-    "                      input${prefix}a3sub1, input${prefix}a3sub2,\n",
-    '                      "{prefix}gexpr.h5", {prefix}gene,\n',
-    "                      input${prefix}a3siz, input${prefix}a3col1, input${prefix}a3ord1,\n",
-    "                      input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt) )\n",
-    "  }})\n",
-    "  output${prefix}a3oup1.png <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}a3drX,"_",input${prefix}a3drY,"_", \n',
-    '                                   input${prefix}a3inp1,".png") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "png", height = input${prefix}a3oup1.h, width = input${prefix}a3oup1.w,\n',
-    "      plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp1, \n",
-    "                      input${prefix}a3sub1, input${prefix}a3sub2,\n",
-    '                      "{prefix}gexpr.h5", {prefix}gene,\n',
-    "                      input${prefix}a3siz, input${prefix}a3col1, input${prefix}a3ord1,\n",
-    "                      input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt) )\n",
-    "  }})\n",
-    "  \n",
-    "  output${prefix}a3oup2 <- renderPlot({{\n",
-    "    scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp2, \n",
-    "             input${prefix}a3sub1, input${prefix}a3sub2,\n",
-    '             "{prefix}gexpr.h5", {prefix}gene,\n',
-    "             input${prefix}a3siz, input${prefix}a3col2, input${prefix}a3ord2,\n",
-    "             input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)\n",
-    "  }})\n",
-    "  output${prefix}a3oup2.ui <- renderUI({{\n",
-    '    plotOutput("{prefix}a3oup2", height = pList[input${prefix}a3psz])\n',
-    "  }})\n",
-    "  output${prefix}a3oup2.pdf <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}a3drX,"_",input${prefix}a3drY,"_", \n',
-    '                                   input${prefix}a3inp2,".pdf") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "pdf", height = input${prefix}a3oup2.h, width = input${prefix}a3oup2.w, useDingbats = FALSE,\n',
-    "      plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp2, \n",
-    "                      input${prefix}a3sub1, input${prefix}a3sub2,\n",
-    '                      "{prefix}gexpr.h5", {prefix}gene,\n',
-    "                      input${prefix}a3siz, input${prefix}a3col2, input${prefix}a3ord2,\n",
-    "                      input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt) )\n",
-    "  }})\n",
-    "  output${prefix}a3oup2.png <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}a3drX,"_",input${prefix}a3drY,"_", \n',
-    '                                   input${prefix}a3inp2,".png") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "png", height = input${prefix}a3oup2.h, width = input${prefix}a3oup2.w,\n',
-    "      plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp2, \n",
-    "                      input${prefix}a3sub1, input${prefix}a3sub2,\n",
-    '                      "{prefix}gexpr.h5", {prefix}gene,\n',
-    "                      input${prefix}a3siz, input${prefix}a3col2, input${prefix}a3ord2,\n",
-    "                      input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt) )\n",
-    "  }})\n",
-    "    \n",
-    "  \n",
-    "  ### Plots for tab b2\n",
-    "{subst}  output${prefix}b2sub1.ui <- renderUI({{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}b2sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    checkboxGroupInput("{prefix}b2sub2", "Select which cells to show", inline = TRUE,\n',
-    "{subst}                       choices = sub, selected = sub)\n",
-    "{subst}  }})\n",
-    "{subst}  observeEvent(input${prefix}b2sub1non, {{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}b2sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}b2sub2", label = "Select which cells to show",\n',
-    "{subst}                             choices = sub, selected = NULL, inline = TRUE)\n",
-    "{subst}  }})\n",
-    "{subst}  observeEvent(input${prefix}b2sub1all, {{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}b2sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}b2sub2", label = "Select which cells to show",\n',
-    "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
-    "{subst}  }})\n",
-    "  output${prefix}b2oup1 <- renderPlot({{\n",
-    "    scDRcoex({prefix}conf, {prefix}meta, input${prefix}b2drX, input${prefix}b2drY,  \n",
-    "             input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2,\n",
-    '             "{prefix}gexpr.h5", {prefix}gene,\n',
-    "             input${prefix}b2siz, input${prefix}b2col1, input${prefix}b2ord1,\n",
-    "             input${prefix}b2fsz, input${prefix}b2asp, input${prefix}b2txt)\n",
-    "  }})\n",
-    "  output${prefix}b2oup1.ui <- renderUI({{\n",
-    '    plotOutput("{prefix}b2oup1", height = pList2[input${prefix}b2psz])\n',
-    "  }})\n",
-    "  output${prefix}b2oup1.pdf <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}b2drX,"_",input${prefix}b2drY,"_", \n',
-    '                                    input${prefix}b2inp1,"_",input${prefix}b2inp2,".pdf") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "pdf", height = input${prefix}b2oup1.h, width = input${prefix}b2oup1.w, useDingbats = FALSE,\n',
-    "      plot = scDRcoex({prefix}conf, {prefix}meta, input${prefix}b2drX, input${prefix}b2drY, \n",
-    "                      input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2,\n",
-    '                      "{prefix}gexpr.h5", {prefix}gene,\n',
-    "                      input${prefix}b2siz, input${prefix}b2col1, input${prefix}b2ord1,\n",
-    "                      input${prefix}b2fsz, input${prefix}b2asp, input${prefix}b2txt) )\n",
-    "  }})\n",
-    "  output${prefix}b2oup1.png <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}b2drX,"_",input${prefix}b2drY,"_", \n',
-    '                                    input${prefix}b2inp1,"_",input${prefix}b2inp2,".png") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "png", height = input${prefix}b2oup1.h, width = input${prefix}b2oup1.w,\n',
-    "      plot = scDRcoex({prefix}conf, {prefix}meta, input${prefix}b2drX, input${prefix}b2drY, \n",
-    "                      input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2,\n",
-    '                      "{prefix}gexpr.h5", {prefix}gene,\n',
-    "                      input${prefix}b2siz, input${prefix}b2col1, input${prefix}b2ord1,\n",
-    "                      input${prefix}b2fsz, input${prefix}b2asp, input${prefix}b2txt) )\n",
-    "  }})\n",
-    "  output${prefix}b2oup2 <- renderPlot({{\n",
-    "    scDRcoexLeg(input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2col1, input${prefix}b2fsz)\n",
-    "  }})\n",
-    "  output${prefix}b2oup2.ui <- renderUI({{\n",
-    '    plotOutput("{prefix}b2oup2", height = "300px")\n',
-    "  }})\n",
-    "  output${prefix}b2oup2.pdf <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}b2drX,"_",input${prefix}b2drY,"_", \n',
-    '                                    input${prefix}b2inp1,"_",input${prefix}b2inp2,"_leg.pdf") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "pdf", height = 3, width = 4, useDingbats = FALSE,\n',
-    "      plot = scDRcoexLeg(input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2col1, input${prefix}b2fsz) )\n",
-    "  }})\n",
-    "  output${prefix}b2oup2.png <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}b2drX,"_",input${prefix}b2drY,"_", \n',
-    '                                    input${prefix}b2inp1,"_",input${prefix}b2inp2,"_leg.png") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "png", height = 3, width = 4,\n',
-    "      plot = scDRcoexLeg(input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2col1, input${prefix}b2fsz) )\n",
-    "  }})\n",
-    "  output${prefix}b2.dt <- renderDataTable({{\n",
-    "    ggData = scDRcoexNum({prefix}conf, {prefix}meta, input${prefix}b2inp1, input${prefix}b2inp2,\n",
-    '                         input${prefix}b2sub1, input${prefix}b2sub2, "{prefix}gexpr.h5", {prefix}gene)\n',
-    '    datatable(ggData, rownames = FALSE, extensions = "Buttons",\n',
-    '              options = list(pageLength = -1, dom = "tB", buttons = c("copy", "csv", "excel"))) %>%\n',
-    '      formatRound(columns = c("percent"), digits = 2)\n',
-    "  }})\n",
-    "    \n",
-    "  \n",
-    "  ### Plots for tab c1\n",
-    "{subst}  output${prefix}c1sub1.ui <- renderUI({{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c1sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    checkboxGroupInput("{prefix}c1sub2", "Select which cells to show", inline = TRUE,\n',
-    "{subst}                       choices = sub, selected = sub)\n",
-    "{subst}  }})\n",
-    "{subst}  observeEvent(input${prefix}c1sub1non, {{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c1sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}c1sub2", label = "Select which cells to show",\n',
-    "{subst}                             choices = sub, selected = NULL, inline = TRUE)\n",
-    "{subst}  }})\n",
-    "{subst}  observeEvent(input${prefix}c1sub1all, {{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c1sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}c1sub2", label = "Select which cells to show",\n',
-    "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
-    "{subst}  }})\n",
-    "  output${prefix}c1oup <- renderPlot({{\n",
-    "    scVioBox({prefix}conf, {prefix}meta, input${prefix}c1inp1, input${prefix}c1inp2,\n",
-    "             input${prefix}c1sub1, input${prefix}c1sub2,\n",
-    '             "{prefix}gexpr.h5", {prefix}gene, input${prefix}c1typ, input${prefix}c1pts,\n',
-    "             input${prefix}c1siz, input${prefix}c1fsz)\n",
-    "  }})\n",
-    "  output${prefix}c1oup.ui <- renderUI({{\n",
-    '    plotOutput("{prefix}c1oup", height = pList2[input${prefix}c1psz])\n',
-    "  }})\n",
-    "  output${prefix}c1oup.pdf <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}c1typ,"_",input${prefix}c1inp1,"_", \n',
-    '                                   input${prefix}c1inp2,".pdf") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "pdf", height = input${prefix}c1oup.h, width = input${prefix}c1oup.w, useDingbats = FALSE,\n',
-    "      plot = scVioBox({prefix}conf, {prefix}meta, input${prefix}c1inp1, input${prefix}c1inp2,\n",
-    "                      input${prefix}c1sub1, input${prefix}c1sub2,\n",
-    '                      "{prefix}gexpr.h5", {prefix}gene, input${prefix}c1typ, input${prefix}c1pts,\n',
-    "                      input${prefix}c1siz, input${prefix}c1fsz) )\n",
-    "  }})\n",
-    "  output${prefix}c1oup.png <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}c1typ,"_",input${prefix}c1inp1,"_", \n',
-    '                                   input${prefix}c1inp2,".png") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "png", height = input${prefix}c1oup.h, width = input${prefix}c1oup.w,\n',
-    "      plot = scVioBox({prefix}conf, {prefix}meta, input${prefix}c1inp1, input${prefix}c1inp2,\n",
-    "                      input${prefix}c1sub1, input${prefix}c1sub2,\n",
-    '                      "{prefix}gexpr.h5", {prefix}gene, input${prefix}c1typ, input${prefix}c1pts,\n',
-    "                      input${prefix}c1siz, input${prefix}c1fsz) )\n",
-    "  }})\n",
-    "    \n",
-    "  \n",
-    "### Plots for tab c2\n",
-    "{subst}  output${prefix}c2sub1.ui <- renderUI({{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c2sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    checkboxGroupInput("{prefix}c2sub2", "Select which cells to show", inline = TRUE,\n',
-    "{subst}                       choices = sub, selected = sub)\n",
-    "{subst}  }})\n",
-    "{subst}  observeEvent(input${prefix}c2sub1non, {{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c2sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}c2sub2", label = "Select which cells to show",\n',
-    "{subst}                             choices = sub, selected = NULL, inline = TRUE)\n",
-    "{subst}  }})\n",
-    "{subst}  observeEvent(input${prefix}c2sub1all, {{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c2sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}c2sub2", label = "Select which cells to show",\n',
-    "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
-    "{subst}  }})\n",
-    "output${prefix}c2oup <- renderPlot({{\n",
-    "  scProp({prefix}conf, {prefix}meta, input${prefix}c2inp1, input${prefix}c2inp2, \n",
-    "         input${prefix}c2sub1, input${prefix}c2sub2,\n",
-    "         input${prefix}c2typ, input${prefix}c2flp, input${prefix}c2fsz)\n",
-    "}})\n",
-    "output${prefix}c2oup.ui <- renderUI({{\n",
-    '  plotOutput("{prefix}c2oup", height = pList2[input${prefix}c2psz])\n',
-    "}})\n",
-    "output${prefix}c2oup.pdf <- downloadHandler(\n",
-    '  filename = function() {{ paste0("{prefix}",input${prefix}c2typ,"_",input${prefix}c2inp1,"_", \n',
-    '                                 input${prefix}c2inp2,".pdf") }},\n',
-    "  content = function(file) {{ ggsave(\n",
-    '    file, device = "pdf", height = input${prefix}c2oup.h, width = input${prefix}c2oup.w, useDingbats = FALSE,\n',
-    "    plot = scProp({prefix}conf, {prefix}meta, input${prefix}c2inp1, input${prefix}c2inp2, \n",
-    "                  input${prefix}c2sub1, input${prefix}c2sub2,\n",
-    "                  input${prefix}c2typ, input${prefix}c2flp, input${prefix}c2fsz) )\n",
-    "  }})\n",
-    "output${prefix}c2oup.png <- downloadHandler(\n",
-    '  filename = function() {{ paste0("{prefix}",input${prefix}c2typ,"_",input${prefix}c2inp1,"_", \n',
-    '                                 input${prefix}c2inp2,".png") }},\n',
-    "  content = function(file) {{ ggsave(\n",
-    '    file, device = "png", height = input${prefix}c2oup.h, width = input${prefix}c2oup.w,\n',
-    "    plot = scProp({prefix}conf, {prefix}meta, input${prefix}c2inp1, input${prefix}c2inp2, \n",
-    "                  input${prefix}c2sub1, input${prefix}c2sub2,\n",
-    "                  input${prefix}c2typ, input${prefix}c2flp, input${prefix}c2fsz) )\n",
-    "  }})\n",
-    "    \n",
-    "  \n",
-    "  ### Plots for tab d1\n",
-    "{subst}  output${prefix}d1sub1.ui <- renderUI({{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}d1sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    checkboxGroupInput("{prefix}d1sub2", "Select which cells to show", inline = TRUE,\n',
-    "{subst}                       choices = sub, selected = sub)\n",
-    "{subst}  }})\n",
-    "{subst}  observeEvent(input${prefix}d1sub1non, {{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}d1sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}d1sub2", label = "Select which cells to show",\n',
-    "{subst}                             choices = sub, selected = NULL, inline = TRUE)\n",
-    "{subst}  }})\n",
-    "{subst}  observeEvent(input${prefix}d1sub1all, {{\n",
-    '{subst}    sub = strsplit({prefix}conf[UI == input${prefix}d1sub1]$fID, "\\\\|")[[1]]\n',
-    '{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}d1sub2", label = "Select which cells to show",\n',
-    "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
-    "{subst}  }})\n",
-    "  output${prefix}d1oupTxt <- renderUI({{\n",
-    "    geneList = scGeneList(input${prefix}d1inp, {prefix}gene)\n",
-    "    if(nrow(geneList) > 50){{\n",
-    '      HTML("More than 50 input genes! Please reduce the gene list!")\n',
-    "    }} else {{\n",
-    '      oup = paste0(nrow(geneList[present == TRUE]), " genes OK and will be plotted")\n',
-    "      if(nrow(geneList[present == FALSE]) > 0){{\n",
-    '        oup = paste0(oup, "<br/>",\n',
-    '                     nrow(geneList[present == FALSE]), " genes not found (",\n',
-    '                     paste0(geneList[present == FALSE]$gene, collapse = ", "), ")")\n',
-    "      }}\n",
-    "      HTML(oup)\n",
-    "    }}\n",
-    "  }})\n",
-    "  output${prefix}d1oup <- renderPlot({{\n",
-    "    scBubbHeat({prefix}conf, {prefix}meta, input${prefix}d1inp, input${prefix}d1grp, input${prefix}d1plt,\n",
-    '               input${prefix}d1sub1, input${prefix}d1sub2, "{prefix}gexpr.h5", {prefix}gene,\n',
-    "               input${prefix}d1scl, input${prefix}d1row, input${prefix}d1col,\n",
-    "               input${prefix}d1cols, input${prefix}d1fsz)\n",
-    "  }})\n",
-    "  output${prefix}d1oup.ui <- renderUI({{\n",
-    '    plotOutput("{prefix}d1oup", height = pList3[input${prefix}d1psz])\n',
-    "  }})\n",
-    "  output${prefix}d1oup.pdf <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}d1plt,"_",input${prefix}d1grp,".pdf") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "pdf", height = input${prefix}d1oup.h, width = input${prefix}d1oup.w,\n',
-    "      plot = scBubbHeat({prefix}conf, {prefix}meta, input${prefix}d1inp, input${prefix}d1grp, input${prefix}d1plt,\n",
-    '                        input${prefix}d1sub1, input${prefix}d1sub2, "{prefix}gexpr.h5", {prefix}gene,\n',
-    "                        input${prefix}d1scl, input${prefix}d1row, input${prefix}d1col,\n",
-    "                        input${prefix}d1cols, input${prefix}d1fsz, save = TRUE) )\n",
-    "  }})\n",
-    "  output${prefix}d1oup.png <- downloadHandler(\n",
-    '    filename = function() {{ paste0("{prefix}",input${prefix}d1plt,"_",input${prefix}d1grp,".png") }},\n',
-    "    content = function(file) {{ ggsave(\n",
-    '      file, device = "png", height = input${prefix}d1oup.h, width = input${prefix}d1oup.w,\n',
-    "      plot = scBubbHeat({prefix}conf, {prefix}meta, input${prefix}d1inp, input${prefix}d1grp, input${prefix}d1plt,\n",
-    '                        input${prefix}d1sub1, input${prefix}d1sub2, "{prefix}gexpr.h5", {prefix}gene,\n',
-    "                        input${prefix}d1scl, input${prefix}d1row, input${prefix}d1col,\n",
-    "                        input${prefix}d1cols, input${prefix}d1fsz, save = TRUE) )\n",
-    "  }})\n",
-    "  \n",
-    "  \n",
-    "  \n"
+    'optCrt="{{ option_create: function(data,escape) {{return(\'<div class=\\"create\\"><strong>\' + \'</strong></div>\');}} }}"
+      updateSelectizeInput(session, "{prefix}a1inp2", choices = names({prefix}gene), server = TRUE,
+                           selected = {prefix}def$gene1, options = list(
+                             maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))
+      updateSelectizeInput(session, "{prefix}a3inp1", choices = names({prefix}gene), server = TRUE,
+                           selected = {prefix}def$gene1, options = list(
+                             maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))
+      updateSelectizeInput(session, "{prefix}a3inp2", choices = names({prefix}gene), server = TRUE,
+                           selected = {prefix}def$gene2, options = list(
+                             maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))
+      updateSelectizeInput(session, "{prefix}b2inp1", choices = names({prefix}gene), server = TRUE,
+                           selected = {prefix}def$gene1, options = list(
+                             maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))
+      updateSelectizeInput(session, "{prefix}b2inp2", choices = names({prefix}gene), server = TRUE,
+                           selected = {prefix}def$gene2, options = list(
+                             maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))
+      updateSelectizeInput(session, "{prefix}c1inp2", server = TRUE,
+                           choices = c({prefix}conf[is.na(fID)]$UI,names({prefix}gene)),
+                           selected = {prefix}conf[is.na(fID)]$UI[1], options = list(
+                             maxOptions = length({prefix}conf[is.na(fID)]$UI) + 3,
+                             create = TRUE, persist = TRUE, render = I(optCrt)))',
+    ifelse(1 %in% tabs, wrSVtab1(), ""),
+    ifelse(2 %in% tabs, wrSVtab2(), ""),
+    ifelse(3 %in% tabs, wrSVtab3(), ""),
+    ifelse(4 %in% tabs, wrSVtab4(), ""),
+    ifelse(5 %in% tabs, wrSVtab5(), ""),
+    ifelse(6 %in% tabs, wrSVtab6(), ""),
+    ifelse(7 %in% tabs, wrSVtab7(), ""),
+    .sep = "\n"
   )
 }
 
@@ -1173,13 +1200,8 @@ wrSVmain <- function(prefix, subst = "") {
 #'
 wrSVend <- function() {
   glue::glue(
-    "  \n",
-    "  \n",
-    "}})\n",
-    "\n",
-    "\n",
-    "\n",
-    "\n"
+    "\n
+    }})\n"
   )
 }
 
@@ -1202,34 +1224,36 @@ wrUIload <- function(prefix) {
 #' @param title shiny app title
 #' @param theme bootstrap theme
 #' @param ganalytics Google analytics tracking ID (e.g. "UA-123456789-0")
+#' @param extra_css Logical indication if additional CSS is used.
 #' @importFrom shinythemes shinytheme
 #' @rdname wrUIsingle
 #' @export wrUIsingle
 #'
-wrUIsingle <- function(title, theme = "flatly", ganalytics = NA) {
+wrUIsingle <- function(title, theme = "flatly", ganalytics = NA, extra_css = FALSE) {
   if (!is.na(ganalytics)) {
     ga <- 'tags$head(includeHTML(("google-analytics.html"))),'
   } else {
     ga <- ""
   }
+  
+  ec <- ifelse(extra_css,'tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")),','')
+  
   glue::glue(
     '### Start server code
     shinyUI(
     navbarPage(
-    {ga}
     "{title}",
-    header = tags$head(includeCSS("www/styles.css")),
-    theme = shinythemes::shinytheme("{theme}"),\n'
+    {ga}
+    {ec}
+    theme = shinythemes::shinytheme("{theme}")'
   )
 }
 
 #' Write code for tab1 of ui.R
-#' @param prefix file prefix
-#' @param subst Conditional
-#' @param ptsiz Point size
 #'
-wrUItab1 <- function(prefix, subst = "", ptsiz = "1.25") {
-  glue::glue('
+wrUItab1 <- function() {
+  paste0(',
+  # tab 1 ----
   tabPanel(
     "CellInfo vs GeneExpr",
     fluidRow(
@@ -1483,21 +1507,20 @@ wrUItab1 <- function(prefix, subst = "", ptsiz = "1.25") {
               )
             )
           ) # row 3 col 2
-        ) # row 3
+        ), # row 3
+        hr()
       )
     )
-  ), # End of tab
+  ) # End of tab 1
 ')
 }
 
 #' Write code for tab2 of ui.R
 #'
-#' @param prefix file prefix
-#' @param subst Conditional
-#' @param ptsiz Point size
 #'
-wrUItab2 <- function(prefix, subst = "", ptsiz = "1.25") {
-  glue::glue('
+wrUItab2 <- function() {
+  paste0(',
+  # tab 2 ----
   tabPanel(
     "CellInfo vs CellInfo",
     fluidRow(
@@ -1742,20 +1765,19 @@ wrUItab2 <- function(prefix, subst = "", ptsiz = "1.25") {
               )
             )
           ) # row 3 col 2
-        ) # row 3
+        ), # row 3
+        hr()
       )
     )
-  ), # End of tab
+  ) # End of tab 2
 ')
 }
 
 #' Write code for tab3 of ui.R
-#' @param prefix file prefix
-#' @param subst Conditional
-#' @param ptsiz Point size
 #'
-wrUItab3 <- function(prefix, subst = "", ptsiz = "1.25") {
-  glue::glue('
+wrUItab3 <- function() {
+  paste0(',
+  # tab 3 ----
   tabPanel(
     "GeneExpr vs GeneExpr",
     fluidRow(
@@ -1998,20 +2020,19 @@ wrUItab3 <- function(prefix, subst = "", ptsiz = "1.25") {
               )
             )
           ) # row 3 col 2
-        ) # row 3
+        ), # row 3
+        hr()
       )
     )
-  ), # End of tab
+  ) # End of tab 3
 ')
 }
 
 #' Write code for tab4 of ui.R
-#' @param prefix file prefix
-#' @param subst Conditional
-#' @param ptsiz Point size
 #'
-wrUItab4 <- function(prefix, subst = "", ptsiz = "1.25") {
-  glue::glue('
+wrUItab4 <- function() {
+  paste0(',
+  # tab 4 ----
   tabPanel(
     "Gene coexpression",
     fluidRow(
@@ -2183,20 +2204,19 @@ wrUItab4 <- function(prefix, subst = "", ptsiz = "1.25") {
             h4("Cell numbers"),
             dataTableOutput("{prefix}b2.dt")
           ) # row 3 col 3
-        ) # row 3
+        ), # row 3
+        hr()
       )
     )
-  ), # End of tab
+  ) # End of tab 4
 ')
 }
 
 #' Write code for tab5 of ui.R
-#' @param prefix file prefix
-#' @param subst Conditional
-#' @param ptsiz Point size
 #'
-wrUItab5 <- function(prefix, subst = "", ptsiz = "1.25") {
-  glue::glue('
+wrUItab5 <- function() {
+  paste0(',
+  # tab 5 ----
   tabPanel(
     "Violinplot / Boxplot",
     fluidRow(
@@ -2294,20 +2314,19 @@ wrUItab5 <- function(prefix, subst = "", ptsiz = "1.25") {
           column(
             9, uiOutput("{prefix}c1oup.ui")
           ) # row 2 col 2
-        ) # row 2
+        ), # row 2
+        hr()
       )
     )
-  ), # End of tab
+  ) # End of tab 5
 ')
 }
 
 #' Write code for tab6 of ui.R
-#' @param prefix file prefix
-#' @param subst Conditional
-#' @param ptsiz Point size
 #'
-wrUItab6 <- function(prefix, subst = "", ptsiz = "1.25") {
-  glue::glue('
+wrUItab6 <- function() {
+  paste0(',
+  # tab 6 ----
   tabPanel(
     "Proportion plot",
     fluidRow(
@@ -2403,20 +2422,19 @@ wrUItab6 <- function(prefix, subst = "", ptsiz = "1.25") {
           column(
             9, uiOutput("{prefix}c2oup.ui")
           ) # row 2 col 2
-        ) # row 2
+        ), # row 2
+        hr()
       )
     )
-  ), # End of tab
+  ) # End of tab 6
 ')
 }
 
 #' Write code for tab7 of ui.R
-#' @param prefix file prefix
-#' @param subst Conditional
-#' @param ptsiz Point size
 #'
-wrUItab7 <- function(prefix, subst = "", ptsiz = "1.25") {
-  glue::glue('
+wrUItab7 <- function() {
+  paste0(',
+  # tab 7 ----
   tabPanel(
     "Bubbleplot / Heatmap",
     fluidRow(
@@ -2525,10 +2543,11 @@ wrUItab7 <- function(prefix, subst = "", ptsiz = "1.25") {
             9, h4(htmlOutput("{prefix}d1oupTxt")),
             uiOutput("{prefix}d1oup.ui")
           ) # row 2 col 2
-        ) # row 2
+        ), # row 2
+        hr()
       )
     )
-  ) # End of tab
+  ) # End of tab 7
 ')
 }
 
@@ -2537,25 +2556,19 @@ wrUItab7 <- function(prefix, subst = "", ptsiz = "1.25") {
 #' @param prefix file prefix
 #' @param subst Conditional
 #' @param ptsiz Point size
+#' @param tabs Vector of tab numbers to include
 #' @rdname wrUImain
 #' @export wrUImain
 #'
-wrUImain <- function(prefix, subst = "", ptsiz = "1.25") {
+wrUImain <- function(prefix, subst = "", ptsiz = "1.25", tabs = c(1,2,3,4,5,6,7)) {
   glue::glue(
-    wrUItab1(prefix = prefix, subst = subst, ptsiz = ptsiz),
-    "\n",
-    wrUItab2(prefix = prefix, subst = subst, ptsiz = ptsiz),
-    "  \n",
-    wrUItab3(prefix = prefix, subst = subst, ptsiz = ptsiz),
-    "  \n",
-    wrUItab4(prefix = prefix, subst = subst, ptsiz = ptsiz),
-    "  \n",
-    wrUItab5(prefix = prefix, subst = subst, ptsiz = ptsiz),
-    "  \n",
-    wrUItab6(prefix = prefix, subst = subst, ptsiz = ptsiz),
-    "  \n",
-    wrUItab7(prefix = prefix, subst = subst, ptsiz = ptsiz),
-    "  \n"
+    ifelse(1 %in% tabs, wrUItab1(), ""),
+    ifelse(2 %in% tabs, wrUItab2(), ""),
+    ifelse(3 %in% tabs, wrUItab3(), ""),
+    ifelse(4 %in% tabs, wrUItab4(), ""),
+    ifelse(5 %in% tabs, wrUItab5(), ""),
+    ifelse(6 %in% tabs, wrUItab6(), ""),
+    ifelse(7 %in% tabs, wrUItab7(), "")
   )
 }
 
@@ -2608,10 +2621,10 @@ wrUIend <- function(footnote) {
   }
 
   glue::glue(
-    "\n",
-    ")\n",
-    ")\n",
-    "\n\n"
+    "
+    )
+    )
+    )\n"
   )
 }
 

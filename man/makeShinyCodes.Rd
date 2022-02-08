@@ -12,6 +12,7 @@ makeShinyCodes(
   enableSubset = TRUE,
   defPtSiz = 1.25,
   theme = "flatly",
+  tabs = c(1, 2, 3, 4, 5, 6, 7),
   ganalytics = NA,
   extra_css = FALSE
 )
@@ -34,6 +35,8 @@ functionality in the shiny app. Default is to enable this functionality}
 smaller size can be used if you have many cells in your dataset}
 
 \item{theme}{Bootsrap theme}
+
+\item{tabs}{Vector of tab numbers to include}
 
 \item{ganalytics}{Google analytics tracking ID (e.g. "UA-123456789-0")}
 

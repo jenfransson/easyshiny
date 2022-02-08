@@ -44,8 +44,9 @@
 #'   show in bubbleplot / heatmap
 #' @param default.dimred character vector specifying the two default dimension 
 #'   reductions. Default is to use UMAP if not TSNE embeddings
+#' @param tabs Vector of tab numbers to include
 #' @param theme Bootstrap theme
-#' @param extra_css Should extra css file be created?
+#' @param extra_css Should extra css file is used.
 #'
 #' @return directory containing shiny app
 #'
@@ -81,7 +82,7 @@ makeShinyApp <- function(
   shiny.title = "scRNA-seq shiny app", shiny.footnotes = "",
   shiny.dir = "shinyApp/", enableSubset = TRUE, defPtSiz = 1.25, ganalytics=NA,
   default.gene1 = NA, default.gene2 = NA, default.multigene = NA, 
-  default.dimred = NA, theme = "flatly", extra_css = FALSE){
+  default.dimred = NA, tabs = c(1,2,3,4,5,6,7), theme = "flatly", extra_css = FALSE){
   
   # Checks are performed in respective functions
   # Wrapper for two main functions
@@ -93,7 +94,7 @@ makeShinyApp <- function(
   makeShinyCodes(shiny.title = shiny.title, shiny.footnotes = shiny.footnotes,
                  shiny.prefix = "sc1", shiny.dir = shiny.dir, 
                  theme = theme, enableSubset = enableSubset, defPtSiz = defPtSiz,
-                 ganalytics = ganalytics, extra_css = extra_css)
+                 ganalytics = ganalytics, tabs = tabs, extra_css = extra_css)
 
 }
 
