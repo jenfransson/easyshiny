@@ -28,9 +28,6 @@
 #'   to the actual gene identifiers in the gene expression matrix and 
 #'   \code{gene.mapping} correspond to new identifiers to map to
 #' @param shiny.title title for shiny app
-#' @param shiny.footnotes text for shiny app footnote. When given as a list, 
-#'   citation can be inserted by specifying author, title, journal, volume, 
-#'   page, year, doi, link. See example below. 
 #' @param shiny.dir specify directory to create the shiny app in. Default is 
 #'   to create a new directory named "shinyApp"
 #' @param enableSubset specify whether to enable "Toggle to subset cells" 
@@ -54,32 +51,11 @@
 #'
 #' @import data.table
 #'
-#' @examples
-#' \dontrun{
-#' # Example citation
-#' citation = list(
-#'   author  = "Liu X., Ouyang J.F., Rossello F.J. et al.",
-#'   title   = "",
-#'   journal = "Nature",
-#'   volume  = "586",
-#'   page    = "101-107",
-#'   year    = "2020", 
-#'   doi     = "10.1038/s41586-020-2734-6",
-#'   link    = "https://www.nature.com/articles/s41586-020-2734-6")
-#' makeShinyApp(seu, scConf, 
-#'              shiny.title = "scRNA-seq Shiny app",
-#'              shiny.dir = "shinyApp/", shiny.footnotes = citation,
-#'              default.gene1 = "NANOG", default.gene2 = "DNMT3L",
-#'              default.multigene = c("ANPEP","NANOG","ZIC2","NLGN4X","DNMT3L",
-#'                                    "DPPA5","SLC7A2","GATA3","KRT19"),
-#'              default.dimred = c("UMAP_1", "UMAP_2")) 
-#'}
-#'
 #' @export
 makeShinyApp <- function(
   obj, scConf, gex.assay = NA, gex.slot = c("data", "scale.data", "counts"), 
   gene.mapping = FALSE, 
-  shiny.title = "scRNA-seq shiny app", shiny.footnotes = "",
+  shiny.title = "scRNA-seq shiny app",
   shiny.dir = "shinyApp/", enableSubset = TRUE, defPtSiz = 1.25, ganalytics=NA,
   default.gene1 = NA, default.gene2 = NA, default.multigene = NA, 
   default.dimred = NA, tabs = c(1,2,3,4,5,6,7), theme = "flatly", extra_css = FALSE){
@@ -91,7 +67,8 @@ makeShinyApp <- function(
                  gene.mapping = gene.mapping, 
                  shiny.prefix = "sc1", shiny.dir = shiny.dir, 
                  default.gene1, default.gene2, default.multigene, default.dimred)
-  makeShinyCodes(shiny.title = shiny.title, shiny.footnotes = shiny.footnotes,
+  
+  makeShinyCodes(shiny.title = shiny.title,
                  shiny.prefix = "sc1", shiny.dir = shiny.dir, 
                  theme = theme, enableSubset = enableSubset, defPtSiz = defPtSiz,
                  ganalytics = ganalytics, tabs = tabs, extra_css = extra_css)

@@ -676,6 +676,7 @@ wrSVtab1 <- function() {
              "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
              "{subst}  }})\n",
              "  output${prefix}a1oup1 <- renderPlot({{\n",
+             "    req(input${prefix}a1inp1)\n",
              "    scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1, \n",
              "             input${prefix}a1sub1, input${prefix}a1sub2,\n",
              "             input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1,\n",
@@ -705,6 +706,7 @@ wrSVtab1 <- function() {
              "                      input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1) )\n",
              "  }})\n",
              "  output${prefix}a1.dt <- renderDataTable({{\n",
+             "    req(input${prefix}a1inp2)\n",
              "    ggData = scDRnum({prefix}conf, {prefix}meta, input${prefix}a1inp1, input${prefix}a1inp2,\n",
              "                     input${prefix}a1sub1, input${prefix}a1sub2,\n",
              '                     "{prefix}gexpr.h5", {prefix}gene, input${prefix}a1splt)\n',
@@ -714,6 +716,7 @@ wrSVtab1 <- function() {
              "  }})\n",
              "  \n",
              "  output${prefix}a1oup2 <- renderPlot({{\n",
+             "    req(input${prefix}a1inp2)\n",
              "    scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2, \n",
              "             input${prefix}a1sub1, input${prefix}a1sub2,\n",
              '             "{prefix}gexpr.h5", {prefix}gene,\n',
@@ -767,6 +770,7 @@ wrSVtab2 <- function() {
              "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
              "{subst}  }})\n",
              "  output${prefix}a2oup1 <- renderPlot({{\n",
+             "    req(input${prefix}a2inp1)\n",
              "    scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp1, \n",
              "             input${prefix}a2sub1, input${prefix}a2sub2,\n",
              "             input${prefix}a2siz, input${prefix}a2col1, input${prefix}a2ord1,\n",
@@ -797,6 +801,7 @@ wrSVtab2 <- function() {
              "  }})\n",
              "  \n",
              "  output${prefix}a2oup2 <- renderPlot({{\n",
+             "    req(input${prefix}a2inp2)\n",
              "    scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp2, \n",
              "             input${prefix}a2sub1, input${prefix}a2sub2,\n",
              "             input${prefix}a2siz, input${prefix}a2col2, input${prefix}a2ord2,\n",
@@ -847,6 +852,7 @@ wrSVtab3 <- function() {
              "{subst}                             choices = sub, selected = sub, inline = TRUE)\n",
              "{subst}  }})\n",
              "  output${prefix}a3oup1 <- renderPlot({{\n",
+             "    req(input${prefix}a3inp1)\n",
              "    scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp1, \n",
              "             input${prefix}a3sub1, input${prefix}a3sub2,\n",
              '             "{prefix}gexpr.h5", {prefix}gene,\n',
@@ -880,6 +886,7 @@ wrSVtab3 <- function() {
              "  }})\n",
              "  \n",
              "  output${prefix}a3oup2 <- renderPlot({{\n",
+             "    req(input${prefix}a3inp2)\n",
              "    scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp2, \n",
              "             input${prefix}a3sub1, input${prefix}a3sub2,\n",
              '             "{prefix}gexpr.h5", {prefix}gene,\n',
@@ -1289,23 +1296,23 @@ wrUItab1 <- function() {
             )
           ), # row 1 col 1
           # row 2 col 2 ----
-          column(
-            4,
-            div(
-              class = "input-panel",
-              checkboxInput("{prefix}a1togL", "Subset cells"),
-              conditionalPanel(
-                condition = "input.{prefix}a1togL == true",
-                selectInput("{prefix}a1sub1", "Cell information to subset:",
-                  choices = {prefix}conf[grp == TRUE]$UI,
-                  selected = {prefix}def$grp1
-                ),
-                uiOutput("{prefix}a1sub1.ui"),
-                actionButton("{prefix}a1sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
-                actionButton("{prefix}a1sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
-              )
-            )
-          ), # End of column
+          {subst}column(
+            {subst}4,
+            {subst}div(
+              {subst}class = "input-panel",
+              {subst}checkboxInput("{prefix}a1togL", "Subset cells"),
+              {subst}conditionalPanel(
+                {subst}condition = "input.{prefix}a1togL == true",
+                {subst}selectInput("{prefix}a1sub1", "Cell information to subset:",
+                  {subst}choices = {prefix}conf[grp == TRUE]$UI,
+                  {subst}selected = {prefix}def$grp1
+                {subst}),
+                {subst}uiOutput("{prefix}a1sub1.ui"),
+                {subst}actionButton("{prefix}a1sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+                {subst}actionButton("{prefix}a1sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+              {subst})
+            {subst})
+          {subst}), # End of column
           # row 2 col 3 ----
           column(
             4,
@@ -1555,23 +1562,22 @@ wrUItab2 <- function() {
             )
           ), # row 2 col 2
           # row 2 col 2 ----
-          column(
-            4,
-            div(
-              class = "input-panel",
-              checkboxInput("{prefix}a2togL", "Subset cells"),
-              conditionalPanel(
-                condition = "input.{prefix}a2togL == true",
-                selectInput("{prefix}a2sub1", "Cell information to subset:",
-                  choices = {prefix}conf[grp == TRUE]$UI,
-                  selected = {prefix}def$grp1
-                ),
-                uiOutput("{prefix}a2sub1.ui"),
-                actionButton("{prefix}a2sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
-                actionButton("{prefix}a2sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
-              )
-            )
-          ), # row 2 col 2
+          {subst}column(4,
+            {subst}div(
+              {subst}class = "input-panel",
+              {subst}checkboxInput("{prefix}a2togL", "Subset cells"),
+              {subst}conditionalPanel(
+                {subst}condition = "input.{prefix}a2togL == true",
+                {subst}selectInput("{prefix}a2sub1", "Cell information to subset:",
+                 {subst} choices = {prefix}conf[grp == TRUE]$UI,
+                 {subst} selected = {prefix}def$grp1
+                {subst}),
+                {subst}uiOutput("{prefix}a2sub1.ui"),
+                {subst}actionButton("{prefix}a2sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+                {subst}actionButton("{prefix}a2sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+              {subst})
+            {subst})
+          {subst}), # row 2 col 2
           # row 2 col 3 ----
           column(
             4,
@@ -1813,23 +1819,22 @@ wrUItab3 <- function() {
             )
           ), # row 1 col 1
           # row 2 col 2 ----
-          column(
-            4,
-            div(
-              class = "input-panel",
-              checkboxInput("{prefix}a3togL", "Subset cells"),
-              conditionalPanel(
-                condition = "input.{prefix}a3togL == true",
-                selectInput("{prefix}a3sub1", "Cell information to subset:",
-                  choices = {prefix}conf[grp == TRUE]$UI,
-                  selected = {prefix}def$grp1
-                ),
-                uiOutput("{prefix}a3sub1.ui"),
-                actionButton("{prefix}a3sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
-                actionButton("{prefix}a3sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
-              )
-            )
-          ), # End of column
+          {subst}column(4,
+            {subst}div(
+              {subst}class = "input-panel",
+              {subst}checkboxInput("{prefix}a3togL", "Subset cells"),
+              {subst}conditionalPanel(
+               {subst} condition = "input.{prefix}a3togL == true",
+                {subst}selectInput("{prefix}a3sub1", "Cell information to subset:",
+                 {subst} choices = {prefix}conf[grp == TRUE]$UI,
+                  {subst}selected = {prefix}def$grp1
+                {subst}),
+                {subst}uiOutput("{prefix}a3sub1.ui"),
+                {subst}actionButton("{prefix}a3sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+                {subst}actionButton("{prefix}a3sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+              {subst})
+            {subst})
+          {subst}), # End of column
           # row 2 col 3 ----
           column(
             4,
@@ -2068,23 +2073,22 @@ wrUItab4 <- function() {
             )
           ), # row 1 col 1
           # row 2 col 2 ----
-          column(
-            4,
-            div(
-              class = "input-panel",
-              checkboxInput("{prefix}b2togL", "Subset cells"),
-              conditionalPanel(
-                condition = "input.{prefix}b2togL == true",
-                selectInput("{prefix}b2sub1", "Cell information to subset:",
-                  choices = {prefix}conf[grp == TRUE]$UI,
-                  selected = {prefix}def$grp1
-                ),
-                uiOutput("{prefix}b2sub1.ui"),
-                actionButton("{prefix}b2sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
-                actionButton("{prefix}b2sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
-              )
-            )
-          ), # End of column
+          {subst}column(4,
+            {subst}div(
+              {subst}class = "input-panel",
+              {subst}checkboxInput("{prefix}b2togL", "Subset cells"),
+              {subst}conditionalPanel(
+               {subst} condition = "input.{prefix}b2togL == true",
+               {subst} selectInput("{prefix}b2sub1", "Cell information to subset:",
+                {subst}  choices = {prefix}conf[grp == TRUE]$UI,
+                {subst}  selected = {prefix}def$grp1
+                {subst}),
+                {subst}uiOutput("{prefix}b2sub1.ui"),
+                {subst}actionButton("{prefix}b2sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+                {subst}actionButton("{prefix}b2sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+              {subst})
+            {subst})
+          {subst}), # End of column
           # row 2 col 3 ----
           column(
             4,
@@ -2269,17 +2273,17 @@ wrUItab5 <- function() {
                 selected = "violin", inline = TRUE
               ),
               checkboxInput("{prefix}c1pts", "Show data points", value = FALSE),
-              checkboxInput("{prefix}c1togL", "Subset cells"),
-              conditionalPanel(
-                condition = "input.{prefix}c1togL == true",
-                selectInput("{prefix}c1sub1", "Cell information to subset:",
-                  choices = {prefix}conf[grp == TRUE]$UI,
-                  selected = {prefix}def$grp1
-                ),
-                uiOutput("{prefix}c1sub1.ui"),
-                actionButton("{prefix}c1sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
-                actionButton("{prefix}c1sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
-              ),
+              {subst}checkboxInput("{prefix}c1togL", "Subset cells"),
+              {subst}conditionalPanel(
+                {subst}condition = "input.{prefix}c1togL == true",
+                {subst}selectInput("{prefix}c1sub1", "Cell information to subset:",
+                 {subst} choices = {prefix}conf[grp == TRUE]$UI,
+                 {subst} selected = {prefix}def$grp1
+                {subst}),
+                {subst}uiOutput("{prefix}c1sub1.ui"),
+                {subst}actionButton("{prefix}c1sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+                {subst}actionButton("{prefix}c1sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+              {subst}),
               checkboxInput("{prefix}c1tog", "Adjust graphics"),
               conditionalPanel(
                 condition = "input.{prefix}c1tog == true",
@@ -2380,16 +2384,16 @@ wrUItab6 <- function() {
                 selected = "Proportion", inline = TRUE
               ),
               checkboxInput("{prefix}c2flp", "Flip X/Y", value = FALSE),
-              checkboxInput("{prefix}c2togL", "Subset cells"),
-              conditionalPanel(
-                condition = "input.{prefix}c2togL == true",
-                selectInput("{prefix}c2sub1", "Cell information to subset:",
-                  choices = {prefix}conf[grp == TRUE]$UI,
-                  selected = {prefix}def$grp1
-                ),
-                uiOutput("{prefix}c2sub1.ui"),
-                actionButton("{prefix}c2sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
-                actionButton("{prefix}c2sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+              {subst}checkboxInput("{prefix}c2togL", "Subset cells"),
+              {subst}conditionalPanel(
+               {subst} condition = "input.{prefix}c2togL == true",
+               {subst} selectInput("{prefix}c2sub1", "Cell information to subset:",
+                {subst}  choices = {prefix}conf[grp == TRUE]$UI,
+                 {subst} selected = {prefix}def$grp1
+                {subst}),
+                {subst}uiOutput("{prefix}c2sub1.ui"),
+                {subst}actionButton("{prefix}c2sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+                {subst}actionButton("{prefix}c2sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
               ),
               checkboxInput("{prefix}c2tog", "Adjust graphics"),
               conditionalPanel(
@@ -2493,17 +2497,17 @@ wrUItab7 <- function() {
               checkboxInput("{prefix}d1scl", "Scale gene expression", value = TRUE),
               checkboxInput("{prefix}d1row", "Cluster rows (genes)", value = TRUE),
               checkboxInput("{prefix}d1col", "Cluster columns (samples)", value = FALSE),
-              checkboxInput("{prefix}d1togL", "Subset cells"),
-              conditionalPanel(
-                condition = "input.{prefix}d1togL == true",
-                selectInput("{prefix}d1sub1", "Cell information to subset:",
-                  choices = {prefix}conf[grp == TRUE]$UI,
-                  selected = {prefix}def$grp1
-                ),
-                uiOutput("{prefix}d1sub1.ui"),
-                actionButton("{prefix}d1sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
-                actionButton("{prefix}d1sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
-              ),
+              {subst}checkboxInput("{prefix}d1togL", "Subset cells"),
+              {subst}conditionalPanel(
+                {subst}condition = "input.{prefix}d1togL == true",
+                {subst}selectInput("{prefix}d1sub1", "Cell information to subset:",
+                  {subst}choices = {prefix}conf[grp == TRUE]$UI,
+                  {subst}selected = {prefix}def$grp1
+                {subst}),
+                {subst}uiOutput("{prefix}d1sub1.ui"),
+                {subst}actionButton("{prefix}d1sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+                {subst}actionButton("{prefix}d1sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+              {subst}),
               checkboxInput("{prefix}d1tog", "Adjust graphics"),
               conditionalPanel(
                 condition = "input.{prefix}d1tog == true",
@@ -2551,16 +2555,34 @@ wrUItab7 <- function() {
 ')
 }
 
+#' Write code for about page
+#'
+wrUIabout <- function() {
+  paste0('\n,
+  # about ----
+  tabPanel(
+    "About",
+    fluidRow(
+      class = "container page",
+      column(
+        12,
+        includeMarkdown("about.md")
+      )
+    )
+  )'
+ )
+}
 
 #' Write code for main block of ui.R
 #' @param prefix file prefix
 #' @param subst Conditional
 #' @param ptsiz Point size
 #' @param tabs Vector of tab numbers to include
+#' @param about Should about page be added as a tab?
 #' @rdname wrUImain
 #' @export wrUImain
 #'
-wrUImain <- function(prefix, subst = "", ptsiz = "1.25", tabs = c(1,2,3,4,5,6,7)) {
+wrUImain <- function(prefix, subst = "", ptsiz = "1.25", tabs = c(1,2,3,4,5,6,7), about = TRUE) {
   glue::glue(
     ifelse(1 %in% tabs, wrUItab1(), ""),
     ifelse(2 %in% tabs, wrUItab2(), ""),
@@ -2568,61 +2590,19 @@ wrUImain <- function(prefix, subst = "", ptsiz = "1.25", tabs = c(1,2,3,4,5,6,7)
     ifelse(4 %in% tabs, wrUItab4(), ""),
     ifelse(5 %in% tabs, wrUItab5(), ""),
     ifelse(6 %in% tabs, wrUItab6(), ""),
-    ifelse(7 %in% tabs, wrUItab7(), "")
+    ifelse(7 %in% tabs, wrUItab7(), ""),
+    ifelse(about, wrUIabout(), "")
   )
 }
 
 #' Write code for final portion of ui.R
-#' @param footnote shiny app footnote
 #'
 #' @rdname wrUIend
 #' @export wrUIend
 #'
-wrUIend <- function(footnote) {
-  if (is.list(footnote)) {
-    f1 <- ""
-    f2 <- ""
-    f3 <- ""
-    f4 <- ""
-    f5 <- ""
-    f6 <- ""
-    f7 <- ""
-    f8 <- ""
-    if (!is.null(footnote$author)) {
-      f1 <- paste0('"', footnote$author, ' ",')
-    }
-    if (!is.null(footnote$title)) {
-      f2 <- paste0('"', footnote$title, ' ",')
-    }
-    if (!is.null(footnote$journal)) {
-      f3 <- paste0('em("', footnote$journal, ' "),')
-    }
-    if (!is.null(footnote$volume)) {
-      f4 <- paste0('strong("', footnote$volume, ', "),')
-    }
-    if (!is.null(footnote$page)) {
-      f5 <- paste0('"', footnote$page, ' ",')
-    }
-    if (!is.null(footnote$year)) {
-      f6 <- paste0('"(', footnote$year, ') ",')
-    }
-    if (!is.null(footnote$doi)) {
-      f7 <- paste0('"doi: ', footnote$doi, ' ",')
-    }
-    if (!is.null(footnote$link)) {
-      f8 <- paste0('a("[Link]", href = "', footnote$link, '", target="_blank"),')
-    }
-    f0 <- paste0(
-      'strong("Reference: "),', f1, f2, f3, f4, f5, f6, f7, f8,
-      'style = "font-size: 125%;"'
-    )
-  } else {
-    f0 <- paste0('"', footnote[[1]], '", style = "font-size: 125%;"')
-  }
-
+wrUIend <- function() {
   glue::glue(
     "
-    )
     )
     )\n"
   )
@@ -2646,4 +2626,42 @@ wrUIga <- function(gaID) {
     "gtag('config', '{gaID}');\n",
     "</script>\n"
   )
+}
+
+#' Write code for custom css. www/styles.css
+#' @rdname wrCSS
+#' @export wrCSS
+#'
+wrCSS <- function(){
+  paste('
+/* easyshiny */
+/* custom css styles */
+
+.page {
+    margin: auto;
+}
+
+.tab-section {
+  margin-bottom: 1.5em;
+}
+
+.input-panel {
+  background-color: #f3f6f4;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+a:hover,
+a:focus,
+a:active,
+.navbar-default .navbar-nav>li>a:hover,
+.navbar-default .navbar-nav>li>a:focus,
+.navbar-default .navbar-nav>li>a:active,
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-brand:focus,
+.navbar-default .navbar-brand:active {
+  color: #bcbcbc;
+}
+
+')  
 }

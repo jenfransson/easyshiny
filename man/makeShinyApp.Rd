@@ -11,7 +11,6 @@ makeShinyApp(
   gex.slot = c("data", "scale.data", "counts"),
   gene.mapping = FALSE,
   shiny.title = "scRNA-seq shiny app",
-  shiny.footnotes = "",
   shiny.dir = "shinyApp/",
   enableSubset = TRUE,
   defPtSiz = 1.25,
@@ -57,10 +56,6 @@ to the actual gene identifiers in the gene expression matrix and
 
 \item{shiny.title}{title for shiny app}
 
-\item{shiny.footnotes}{text for shiny app footnote. When given as a list, 
-citation can be inserted by specifying author, title, journal, volume, 
-page, year, doi, link. See example below.}
-
 \item{shiny.dir}{specify directory to create the shiny app in. Default is 
 to create a new directory named "shinyApp"}
 
@@ -94,28 +89,6 @@ directory containing shiny app
 \description{
 Make a shiny app based on the shinycell config data.table and single-cell 
 data object.
-}
-\examples{
-\dontrun{
-# Example citation
-citation = list(
-  author  = "Liu X., Ouyang J.F., Rossello F.J. et al.",
-  title   = "",
-  journal = "Nature",
-  volume  = "586",
-  page    = "101-107",
-  year    = "2020", 
-  doi     = "10.1038/s41586-020-2734-6",
-  link    = "https://www.nature.com/articles/s41586-020-2734-6")
-makeShinyApp(seu, scConf, 
-             shiny.title = "scRNA-seq Shiny app",
-             shiny.dir = "shinyApp/", shiny.footnotes = citation,
-             default.gene1 = "NANOG", default.gene2 = "DNMT3L",
-             default.multigene = c("ANPEP","NANOG","ZIC2","NLGN4X","DNMT3L",
-                                   "DPPA5","SLC7A2","GATA3","KRT19"),
-             default.dimred = c("UMAP_1", "UMAP_2")) 
-}
-
 }
 \author{
 John F. Ouyang

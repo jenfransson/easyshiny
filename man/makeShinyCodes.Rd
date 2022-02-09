@@ -6,23 +6,19 @@
 \usage{
 makeShinyCodes(
   shiny.title,
-  shiny.footnotes,
   shiny.prefix,
   shiny.dir,
   enableSubset = TRUE,
   defPtSiz = 1.25,
   theme = "flatly",
   tabs = c(1, 2, 3, 4, 5, 6, 7),
+  about = TRUE,
   ganalytics = NA,
   extra_css = FALSE
 )
 }
 \arguments{
 \item{shiny.title}{title for shiny app}
-
-\item{shiny.footnotes}{text for shiny app footnote. When given as a list, 
-citation can be inserted by specifying author, title, journal, volume, 
-page, year, doi, link. See example below.}
 
 \item{shiny.prefix}{specify file prefix}
 
@@ -38,6 +34,8 @@ smaller size can be used if you have many cells in your dataset}
 
 \item{tabs}{Vector of tab numbers to include}
 
+\item{about}{Should about page be added as a tab?}
+
 \item{ganalytics}{Google analytics tracking ID (e.g. "UA-123456789-0")}
 
 \item{extra_css}{Logical indication if additional CSS is to be created.}
@@ -52,23 +50,6 @@ particular, two R scripts will be generated, namely \code{server.R} and
 please use \code{makeShinyCodesMulti()} instead. Note that both 
 \code{makeShinyFiles} and \code{makeShinyCodes} functions are ran when 
 running the wrapper function \code{makeShinyApp}.
-}
-\examples{
-\dontrun{
-# Example citation
-citation = list(
-  author  = "Liu X., Ouyang J.F., Rossello F.J. et al.",
-  title   = "",
-  journal = "Nature",
-  volume  = "586",
-  page    = "101-107",
-  year    = "2020", 
-  doi     = "10.1038/s41586-020-2734-6",
-  link    = "https://www.nature.com/articles/s41586-020-2734-6")
-makeShinyCodes(shiny.title = "scRNA-seq shiny app", shiny.footnotes = "",
-               shiny.prefix = "sc1", shiny.dir = "shinyApp/")
-}
-
 }
 \author{
 John F. Ouyang
