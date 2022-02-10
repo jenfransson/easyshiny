@@ -23,7 +23,6 @@
 #' @param tabs Vector of tab numbers to include
 #' @param about Should about page be added as a tab?
 #' @param ganalytics Google analytics tracking ID (e.g. "UA-123456789-0")
-#' @param extra_css Logical indication if additional CSS is to be created.
 #'
 #' @return server.R and ui.R required for shiny app
 #'
@@ -38,8 +37,7 @@ makeShinyCodesMulti <- function(shiny.title, shiny.prefix, shiny.headers, shiny.
                                 theme = "flatly",
                                 tabs = c(1, 2, 3, 4, 5, 6, 7),
                                 about = TRUE,
-                                ganalytics = NA,
-                                extra_css = FALSE) {
+                                ganalytics = NA) {
   ### Checks
   if (length(shiny.prefix) != length(shiny.headers)) {
     stop("length of shiny.prefix and shiny.headers does not match!")
@@ -75,7 +73,7 @@ makeShinyCodesMulti <- function(shiny.title, shiny.prefix, shiny.headers, shiny.
     for (i in shiny.prefix) {
       readr::write_file(wrUIload(i), append = TRUE, file = fname)
     }
-    readr::write_file(wrUIsingle(shiny.title, theme = theme, ganalytics = ganalytics, extra_css = extra_css), append = TRUE, file = fname)
+    readr::write_file(wrUIsingle(shiny.title, theme = theme, ganalytics = ganalytics), append = TRUE, file = fname)
     for (i in seq_along(shiny.prefix)) {
       hhh <- shiny.headers[i]
       readr::write_file(glue::glue('\n\n,navbarMenu("{hhh}"'), append = TRUE, file = fname)
@@ -119,7 +117,7 @@ makeShinyCodesMulti <- function(shiny.title, shiny.prefix, shiny.headers, shiny.
     for (i in shiny.prefix) {
       readr::write_file(wrUIload(i), append = TRUE, path = fname)
     }
-    readr::write_file(wrUIsingle(shiny.title, theme = theme, ganalytics = ganalytics, extra_css = extra_css), append = TRUE, path = fname)
+    readr::write_file(wrUIsingle(shiny.title, theme = theme, ganalytics = ganalytics), append = TRUE, path = fname)
     for (i in seq_along(shiny.prefix)) {
       hhh <- shiny.headers[i]
       readr::write_file(glue::glue('\n\n,navbarMenu("{hhh}"'), append = TRUE, path = fname)
@@ -141,12 +139,10 @@ makeShinyCodesMulti <- function(shiny.title, shiny.prefix, shiny.headers, shiny.
   }
 
   ### Write extra css
-  if (extra_css) {
-    if (!dir.exists(file.path(shiny.dir, "www"))) dir.create(path = file.path(shiny.dir, "www"))
-    path_css <- file.path(shiny.dir,"www","styles.css")
-    if(!file.exists(file.path(shiny.dir,"www","styles.css"))) file.create(path_css)
-    readr::write_file(wrCSS(), file = path_css)
-  }
+  if (!dir.exists(file.path(shiny.dir, "www"))) dir.create(path = file.path(shiny.dir, "www"))
+  path_css <- file.path(shiny.dir,"www","styles.css")
+  if(!file.exists(file.path(shiny.dir,"www","styles.css"))) file.create(path_css)
+  readr::write_file(wrCSS(), file = path_css)
 
   ### Write about
   if (about) {
