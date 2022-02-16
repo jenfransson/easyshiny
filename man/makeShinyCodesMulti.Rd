@@ -14,8 +14,7 @@ makeShinyCodesMulti(
   theme = "flatly",
   tabs = c(1, 2, 3, 4, 5, 6, 7),
   about = TRUE,
-  ganalytics = NA,
-  extra_css = FALSE
+  ganalytics = NA
 )
 }
 \arguments{
@@ -44,8 +43,6 @@ users have to specify one value for each dataset}
 \item{about}{Should about page be added as a tab?}
 
 \item{ganalytics}{Google analytics tracking ID (e.g. "UA-123456789-0")}
-
-\item{extra_css}{Logical indication if additional CSS is to be created.}
 }
 \value{
 server.R and ui.R required for shiny app

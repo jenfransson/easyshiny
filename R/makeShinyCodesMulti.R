@@ -28,9 +28,9 @@
 #'
 #' @author John F. Ouyang
 #'
-#' @import data.table readr
+#' @import data.table readr glue shiny
 #' @importFrom utils packageVersion
-#'
+#' 
 #' @export
 makeShinyCodesMulti <- function(shiny.title, shiny.prefix, shiny.headers, shiny.dir,
                                 enableSubset = TRUE, defPtSiz = 1.25,
@@ -50,11 +50,13 @@ makeShinyCodesMulti <- function(shiny.title, shiny.prefix, shiny.headers, shiny.
     defPtSiz <- rep(defPtSiz[1], length(shiny.prefix))
   }
   defPtSiz <- as.character(defPtSiz)
-
+  slibs <- c("shiny", "shinyhelper", "data.table", "Matrix", "DT", "magrittr", "ggplot2", "ggrepel", "hdf5r", "ggdendro", "gridExtra")
+  ulibs <- c("shiny", "shinyhelper", "shinythemes", "showtext", "data.table", "Matrix", "DT", "magrittr")
+  
   if (packageVersion("readr") >= "1.4.0") {
     ### Write code for server.R
     fname <- paste0(shiny.dir, "/server.R")
-    readr::write_file(wrLib(c("shiny", "shinyhelper", "data.table", "Matrix", "DT", "magrittr", "ggplot2", "ggrepel", "hdf5r", "ggdendro", "gridExtra")), file = fname)
+    readr::write_file(wrLib(slibs), file = fname)
     for (i in shiny.prefix) {
       readr::write_file(wrSVload(i), append = TRUE, file = fname)
     }
@@ -67,9 +69,7 @@ makeShinyCodesMulti <- function(shiny.title, shiny.prefix, shiny.headers, shiny.
 
     ### Write code for ui.R
     fname <- paste0(shiny.dir, "/ui.R")
-    readr::write_file(wrLib(
-      c("shiny", "shinyhelper", "shinythemes", "data.table", "Matrix", "DT", "magrittr")
-    ), file = fname)
+    readr::write_file(wrLib(ulibs), file = fname)
     for (i in shiny.prefix) {
       readr::write_file(wrUIload(i), append = TRUE, file = fname)
     }
@@ -96,9 +96,7 @@ makeShinyCodesMulti <- function(shiny.title, shiny.prefix, shiny.headers, shiny.
   } else {
     ### Write code for server.R
     fname <- paste0(shiny.dir, "/server.R")
-    readr::write_file(wrLib(
-      c("shiny", "shinyhelper", "data.table", "Matrix", "DT", "magrittr", "ggplot2", "ggrepel", "hdf5r", "ggdendro", "gridExtra")
-    ), path = fname)
+    readr::write_file(wrLib(slibs), path = fname)
     for (i in shiny.prefix) {
       readr::write_file(wrSVload(i), append = TRUE, path = fname)
     }
@@ -111,9 +109,7 @@ makeShinyCodesMulti <- function(shiny.title, shiny.prefix, shiny.headers, shiny.
 
     ### Write code for ui.R
     fname <- paste0(shiny.dir, "/ui.R")
-    readr::write_file(wrLib(
-      c("shiny", "shinyhelper", "shinythemes", "data.table", "Matrix", "DT", "magrittr")
-    ), path = fname)
+    readr::write_file(wrLib(ulibs), path = fname)
     for (i in shiny.prefix) {
       readr::write_file(wrUIload(i), append = TRUE, path = fname)
     }
@@ -141,11 +137,13 @@ makeShinyCodesMulti <- function(shiny.title, shiny.prefix, shiny.headers, shiny.
   ### Write extra css
   if (!dir.exists(file.path(shiny.dir, "www"))) dir.create(path = file.path(shiny.dir, "www"))
   path_css <- file.path(shiny.dir,"www","styles.css")
-  if(!file.exists(file.path(shiny.dir,"www","styles.css"))) file.create(path_css)
+  if(!file.exists(path_css)) file.create(path_css)
   readr::write_file(wrCSS(), file = path_css)
 
   ### Write about
   if (about) {
-    if (!file.exists(file.path(shiny.dir, "about.md"))) file.create(file.path(shiny.dir, "about.md"))
+    path_about <- file.path(shiny.dir, "about.md")
+    if (!file.exists(path_about)) file.create(path_about)
+    readr::write_file(wrAbout(), file = path_about)
   }
 }

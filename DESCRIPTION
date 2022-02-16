@@ -11,16 +11,24 @@ Depends:
     data.table   (>= 1.12.2),
     hdf5r        (>= 1.2.0),
     reticulate   (>= 1.13),
-    ggplot2      (>= 3.3.0)
+    ggplot2      (>= 3.3.0),
+    shiny
 Imports:
+    DT,
+    ggdendro,
+    ggrepel,
     glue,
     grid,
     gridExtra,
+    magrittr,
     Matrix,
     methods,
     RColorBrewer,
     readr,
+    readxl,
+    shinyhelper,
     shinythemes,
+    showtext,
     SummarizedExperiment,
     utils
 Suggests:
@@ -28,4 +36,5 @@ Suggests:
     SingleCellExperiment (>= 1.4.1)
 Encoding: UTF-8
 LazyData: TRUE
+BugReports: https://github.com/royfrancis/easyshiny/issues
 RoxygenNote: 7.1.2

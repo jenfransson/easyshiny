@@ -17,13 +17,16 @@ wrLib <- function(lib) {
 #' @export wrSVload
 #'
 wrSVload <- function(prefix) {
-  glue::glue('
-    {prefix}conf = readRDS("{prefix}conf.rds")
-    {prefix}def  = readRDS("{prefix}def.rds")
-    {prefix}gene = readRDS("{prefix}gene.rds")
-    {prefix}meta = readRDS("{prefix}meta.rds")
-    \n\n\n'
-  )
+glue::glue('
+sysfonts::font_add_google(name = "Lato", family = "Lato")
+showtext::showtext_auto()
+
+{prefix}conf = readRDS("{prefix}conf.rds")
+{prefix}def  = readRDS("{prefix}def.rds")
+{prefix}gene = readRDS("{prefix}gene.rds")
+{prefix}meta = readRDS("{prefix}meta.rds")
+
+')
 }
 
 #' Write code for fixed portion of server.R
@@ -58,8 +61,10 @@ pList2 <- c("500px", "700px", "900px")
 names(pList2) <- c("Small", "Medium", "Large")
 pList3 <- c("600px", "800px", "1000px")
 names(pList3) <- c("Small", "Medium", "Large")
+# baseplot font size
 sList <- c(18, 24, 30)
 names(sList) <- c("Small", "Medium", "Large")
+# ggrepel font size
 lList <- c(5, 6, 7)
 names(lList) <- c("Small", "Medium", "Large")
 
@@ -74,12 +79,13 @@ g_legend <- function(a.gplot) {{
 # Plot theme
 sctheme <- function(base_size = 24, XYval = TRUE, Xang = 0, XjusH = 0.5) {{
   oupTheme <- theme(
-    text = element_text(size = base_size, family = "Helvetica"),
-    panel.background = element_rect(fill = "white", colour = NA),
-    axis.line = element_line(colour = "black"),
-    axis.ticks = element_line(colour = "black", size = base_size / 20),
-    axis.title = element_text(face = "bold"),
-    axis.text = element_text(size = base_size),
+    text = element_text(size = base_size, family = "Lato"),
+    panel.grid = element_blank(),
+    panel.background = element_rect(fill = "white", colour = "white"),
+    axis.line = element_line(colour = "grey20"),
+    axis.ticks = element_line(colour = "grey20"),
+    axis.title = element_text(colour = "grey20"),
+    axis.text = element_text(size = base_size, colour = "grey20"),
     axis.text.x = element_text(angle = Xang, hjust = XjusH),
     legend.position = "bottom",
     legend.key = element_rect(colour = NA, fill = NA)
@@ -161,7 +167,7 @@ scDRcell <- function(inpConf, inpMeta, inpdrX, inpdrY, inp1, inpsub1, inpsub2, i
   if (is.na(inpConf[UI == inp1]$fCL)) {{
     ggOut <- ggOut +
     scale_color_gradientn("", colours = cList[[inpcol]]) +
-    guides(color = guide_colorbar(barwidth = 15)) 
+    guides(color = guide_colorbar(barwidth = 20)) 
   }} else {{
     sListX <- min(nchar(paste0(levels(ggData$val), collapse = "")), 200)
     sListX <- 0.75 * (sList - (1.5 * floor(sListX / 50)))
@@ -185,6 +191,7 @@ scDRcell <- function(inpConf, inpMeta, inpdrX, inpdrY, inp1, inpsub1, inpsub2, i
 
   if (inpasp == "Square") {{ ggOut <- ggOut + coord_fixed(ratio = rat) }} else if (inpasp == "Fixed") {{ ggOut <- ggOut + coord_fixed() }}
 
+  if(is.numeric(inpMeta[[inp1]])) ggOut <- ggOut + guides(color = guide_colorbar(barwidth = 25))
   return(ggOut)
 }}
 
@@ -288,7 +295,7 @@ scDRgene <- function(inpConf, inpMeta, inpdrX, inpdrY, inp1, inpsub1, inpsub2, i
     geom_point(size = inpsiz, shape = 16) + xlab(inpdrX) + ylab(inpdrY) +
     sctheme(base_size = sList[inpfsz], XYval = inptxt) +
     scale_color_gradientn(inp1, colours = cList[[inpcol]]) +
-    guides(color = guide_colorbar(barwidth = 15))
+    guides(color = guide_colorbar(barwidth = 20))
 
   if (inpasp == "Square") {{ ggOut <- ggOut + coord_fixed(ratio = rat) }} else if (inpasp == "Fixed") {{ ggOut <- ggOut + coord_fixed() }}
 
@@ -374,7 +381,7 @@ scDRcoex <- function(inpConf, inpMeta, inpdrX, inpdrY, inp1, inp2, inpsub1,
     xlab(inpdrX) + ylab(inpdrY) +
     sctheme(base_size = sList[inpfsz], XYval = inptxt) +
     scale_color_gradientn(inp1, colours = cList[[1]]) +
-    guides(color = guide_colorbar(barwidth = 15))
+    guides(color = guide_colorbar(barwidth = 20))
 
   if (inpasp == "Square") {{ ggOut <- ggOut + coord_fixed(ratio = rat) }} else if (inpasp == "Fixed") {{ ggOut <- ggOut + coord_fixed() }}
   return(ggOut) }}
@@ -654,7 +661,7 @@ scBubbHeat <- function(inpConf, inpMeta, inp, inpGrp, inpPlt, inpsub1, inpsub2, 
         limits = c(0, 1), breaks = c(0.00, 0.25, 0.50, 0.75, 1.00)
       ) +
       scale_color_gradientn("expression", limits = colRange, colours = cList[[inpcols]]) +
-      guides(color = guide_colorbar(barwidth = 15)) +
+      guides(color = guide_colorbar(barwidth = 20)) +
       theme(axis.title = element_blank(), legend.box = "vertical") }} else {{ # Heatmap
     ggOut <- ggplot(ggData, aes(grpBy, geneName, fill = val)) +
       geom_tile() +
@@ -662,7 +669,7 @@ scBubbHeat <- function(inpConf, inpMeta, inp, inpGrp, inpPlt, inpsub1, inpsub2, 
       scale_x_discrete(expand = c(0.05, 0)) +
       scale_y_discrete(expand = c(0, 0.5)) +
       scale_fill_gradientn("expression", limits = colRange, colours = cList[[inpcols]]) +
-      guides(fill = guide_colorbar(barwidth = 15)) +
+      guides(fill = guide_colorbar(barwidth = 20)) +
       theme(axis.title = element_blank()) }}
 
   # Final tidy
@@ -735,27 +742,28 @@ paste0('
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a1sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}a1oup1 <- renderPlot({{
- req(input${prefix}a1inp1)
- scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1, 
-          input${prefix}a1sub1, input${prefix}a1sub2,
-          input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1,
-          input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1)
-}})
+output${prefix}a1oup1 <- renderImage({{
+  req(input${prefix}a1inp1)
+  p <- scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1, input${prefix}a1sub1, input${prefix}a1sub2, input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1, input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1)
+
+  width  <- session$clientData$output_{prefix}a1oup1_width
+  height <- session$clientData$output_{prefix}a1oup1_height
+  pr <- session$clientData$pixelratio
+  outfile <- tempfile(fileext=".png")
+  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
+  list(src = outfile, width = width, height = height, alt = "{prefix}a1oup1")
+}}, deleteFile = TRUE)
 
 output${prefix}a1oup1.ui <- renderUI({{
- plotOutput("{prefix}a1oup1", height = pList[input${prefix}a1psz])
+  imageOutput("{prefix}a1oup1", height = pList[input${prefix}a1psz])
 }})
 
 output${prefix}a1oup1.pdf <- downloadHandler(
  filename = function() {{ paste0("{prefix}", input${prefix}a1drX,"_", input${prefix}a1drY,"_", input${prefix}a1inp1,".pdf") }},
  content = function(file) {{
    ggsave(
-   file, device = "pdf", height = input${prefix}a1oup1.h, width = input${prefix}a1oup1.w, useDingbats = FALSE,
-   plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1,  
-                   input${prefix}a1sub1, input${prefix}a1sub2,
-                   input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1, 
-                   input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1)
+   file, device = "pdf", useDingbats = FALSE,
+   plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1,   input${prefix}a1sub1, input${prefix}a1sub2, input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1,  input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1)
    )
 }})
 
@@ -763,11 +771,8 @@ output${prefix}a1oup1.png <- downloadHandler(
  filename = function() {{ paste0("{prefix}",input${prefix}a1drX,"_",input${prefix}a1drY,"_", input${prefix}a1inp1,".png") }},
  content = function(file) {{
    ggsave(
-   file, device = "png", height = input${prefix}a1oup1.h, width = input${prefix}a1oup1.w,
-   plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1,  
-                   input${prefix}a1sub1, input${prefix}a1sub2,
-                   input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1, 
-                   input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1)
+   file, device = "png", dpi = input${prefix}a1oup1.res,
+   plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1,   input${prefix}a1sub1, input${prefix}a1sub2, input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1,  input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1)
    )
 }})
 
@@ -778,39 +783,37 @@ output${prefix}a1.dt <- renderDataTable({{
    formatRound(columns = c("pctExpress"), digits = 2)
 }})
 
-output${prefix}a1oup2 <- renderPlot({{
+output${prefix}a1oup2 <- renderImage({{
  req(input${prefix}a1inp2)
- scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2, input${prefix}a1sub1, input${prefix}a1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2, input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt)
-}})
+ p <- scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2, input${prefix}a1sub1, input${prefix}a1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2, input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt)
+ 
+  width  <- session$clientData$output_{prefix}a1oup2_width
+  height <- session$clientData$output_{prefix}a1oup2_height
+  pr <- session$clientData$pixelratio
+  outfile <- tempfile(fileext=".png")
+  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
+  list(src = outfile, width = width, height = height, alt = "{prefix}a1oup2")
+}}, deleteFile = TRUE)
 
 output${prefix}a1oup2.ui <- renderUI({{
- plotOutput("{prefix}a1oup2", height = pList[input${prefix}a1psz])
+ imageOutput("{prefix}a1oup2", height = pList[input${prefix}a1psz])
 }})
 
 output${prefix}a1oup2.pdf <- downloadHandler(
  filename = function() {{ paste0("{prefix}",input${prefix}a1drX,"_",input${prefix}a1drY,"_", input${prefix}a1inp2,".pdf") }},
  content = function(file) {{
    ggsave(
-   file, device = "pdf", height = input${prefix}a1oup2.h, width = input${prefix}a1oup2.w, useDingbats = FALSE,
-   plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2, 
-                   input${prefix}a1sub1, input${prefix}a1sub2,
-                   "{prefix}gexpr.h5", {prefix}gene,
-                   input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2,
-                   input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt)
+   file, device = "pdf", useDingbats = FALSE,
+   plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2,  input${prefix}a1sub1, input${prefix}a1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2, input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt)
    )
 }})
 
 output${prefix}a1oup2.png <- downloadHandler(
- filename = function() {{ paste0("{prefix}",input${prefix}a1drX,"_",input${prefix}a1drY,"_", 
-                                input${prefix}a1inp2,".png") }},
+ filename = function() {{ paste0("{prefix}",input${prefix}a1drX,"_",input${prefix}a1drY,"_", input${prefix}a1inp2,".png") }},
  content = function(file) {{
    ggsave(
-   file, device = "png", height = input${prefix}a1oup2.h, width = input${prefix}a1oup2.w,
-   plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2, 
-                   input${prefix}a1sub1, input${prefix}a1sub2,
-                   "{prefix}gexpr.h5", {prefix}gene,
-                   input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2,
-                   input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt)
+   file, device = "png", dpi = input${prefix}a1oup2.res,
+   plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2, input${prefix}a1sub1, input${prefix}a1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2, input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt)
    )
 }}) # End of tab 1
 
@@ -836,19 +839,26 @@ paste0('
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a2sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}a2oup1 <- renderPlot({{
+output${prefix}a2oup1 <- renderImage({{
   req(input${prefix}a2inp1)
-  scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp1, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col1, input${prefix}a2ord1, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab1)
-}})
+  p <- scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp1, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col1, input${prefix}a2ord1, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab1)
+  
+  width  <- session$clientData$output_{prefix}a2oup1_width
+  height <- session$clientData$output_{prefix}a2oup1_height
+  pr <- session$clientData$pixelratio
+  outfile <- tempfile(fileext=".png")
+  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
+  list(src = outfile, width = width, height = height, alt = "{prefix}a2oup1")
+}}, deleteFile = TRUE)
 
 output${prefix}a2oup1.ui <- renderUI({{
-  plotOutput("{prefix}a2oup1", height = pList[input${prefix}a2psz])
+  imageOutput("{prefix}a2oup1", height = pList[input${prefix}a2psz])
 }})
 
 output${prefix}a2oup1.pdf <- downloadHandler(
   filename = function() {{ paste0("{prefix}", input${prefix}a2drX, "_", input${prefix}a2drY, "_", input${prefix}a2inp1, ".pdf") }},
   content = function(file) {{ ggsave(
-    file, device = "pdf", height = input${prefix}a2oup1.h, width = input${prefix}a2oup1.w, useDingbats = FALSE,
+    file, device = "pdf", useDingbats = FALSE,
     plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp1, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col1, input${prefix}a2ord1, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab1) )
 }})
 
@@ -856,25 +866,32 @@ output${prefix}a2oup1.png <- downloadHandler(
   filename = function() {{ paste0("{prefix}", input${prefix}a2drX, "_", input${prefix}a2drY, "_", input${prefix}a2inp1, ".png") }},
   content = function(file) {{
     ggsave(
-    file, device = "png", height = input${prefix}a2oup1.h, width = input${prefix}a2oup1.w,
+    file, device = "png", dpi = input${prefix}a2oup1.res,
     plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp1, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col1, input${prefix}a2ord1, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab1)
     )
 }})
 
-output${prefix}a2oup2 <- renderPlot({{
+output${prefix}a2oup2 <- renderImage({{
   req(input${prefix}a2inp2)
-  scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp2, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col2, input${prefix}a2ord2, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab2)
-}})
+  p <- scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp2, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col2, input${prefix}a2ord2, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab2)
+  
+  width  <- session$clientData$output_{prefix}a2oup2_width
+  height <- session$clientData$output_{prefix}a2oup2_height
+  pr <- session$clientData$pixelratio
+  outfile <- tempfile(fileext=".png")
+  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
+  list(src = outfile, width = width, height = height, alt = "{prefix}a2oup2")
+}}, deleteFile = TRUE)
 
 output${prefix}a2oup2.ui <- renderUI({{
-  plotOutput("{prefix}a2oup2", height = pList[input${prefix}a2psz])
+  imageOutput("{prefix}a2oup2", height = pList[input${prefix}a2psz])
 }})
 
 output${prefix}a2oup2.pdf <- downloadHandler(
   filename = function() {{ paste0("{prefix}",input${prefix}a2drX,"_",input${prefix}a2drY,"_", input${prefix}a2inp2,".pdf") }},
   content = function(file) {{
     ggsave(
-    file, device = "pdf", height = input${prefix}a2oup2.h, width = input${prefix}a2oup2.w, useDingbats = FALSE,
+    file, device = "pdf", useDingbats = FALSE,
     plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp2, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col2, input${prefix}a2ord2, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab2) 
     )
 }})
@@ -883,7 +900,7 @@ output${prefix}a2oup2.png <- downloadHandler(
   filename = function() {{ paste0("{prefix}",input${prefix}a2drX,"_",input${prefix}a2drY,"_", input${prefix}a2inp2,".png") }},
   content = function(file) {{
     ggsave(
-    file, device = "png", height = input${prefix}a2oup2.h, width = input${prefix}a2oup2.w,
+    file, device = "png", dpi = input${prefix}a2oup2.res,
     plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp2, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col2, input${prefix}a2ord2, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab2)
     )
 }}) # End of tab 2
@@ -910,20 +927,27 @@ paste0('
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a3sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}a3oup1 <- renderPlot({{
+output${prefix}a3oup1 <- renderImage({{
   req(input${prefix}a3inp1)
-  scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp1, input${prefix}a3sub1, input${prefix}a3sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a3siz, input${prefix}a3col1, input${prefix}a3ord1, input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)
-}})
+  p <- scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp1, input${prefix}a3sub1, input${prefix}a3sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a3siz, input${prefix}a3col1, input${prefix}a3ord1, input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)
+  
+  width  <- session$clientData$output_{prefix}a3oup1_width
+  height <- session$clientData$output_{prefix}a3oup1_height
+  pr <- session$clientData$pixelratio
+  outfile <- tempfile(fileext=".png")
+  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
+  list(src = outfile, width = width, height = height, alt = "{prefix}a3oup1")
+}}, deleteFile = TRUE)
 
 output${prefix}a3oup1.ui <- renderUI({{
-  plotOutput("{prefix}a3oup1", height = pList[input${prefix}a3psz])
+  imageOutput("{prefix}a3oup1", height = pList[input${prefix}a3psz])
 }})
 
 output${prefix}a3oup1.pdf <- downloadHandler(
   filename = function() {{ paste0("{prefix}", input${prefix}a3drX, "_", input${prefix}a3drY, "_", input${prefix}a3inp1, ".pdf") }},
   content = function(file) {{
     ggsave(
-    file, device = "pdf", height = input${prefix}a3oup1.h, width = input${prefix}a3oup1.w, useDingbats = FALSE,
+    file, device = "pdf", useDingbats = FALSE,
     plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp1, input${prefix}a3sub1, input${prefix}a3sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a3siz, input${prefix}a3col1, input${prefix}a3ord1, input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)
     )
 }})
@@ -932,7 +956,7 @@ output${prefix}a3oup1.png <- downloadHandler(
   filename = function() {{ paste0("{prefix}", input${prefix}a3drX, "_", input${prefix}a3drY, "_", input${prefix}a3inp1,".png") }},
   content = function(file) {{
     ggsave(
-    file, device = "png", height = input${prefix}a3oup1.h, width = input${prefix}a3oup1.w,
+    file, device = "png", dpi = input${prefix}a3oup1.res,
     plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp1, 
                     input${prefix}a3sub1, input${prefix}a3sub2,
                     "{prefix}gexpr.h5", {prefix}gene,
@@ -941,20 +965,27 @@ output${prefix}a3oup1.png <- downloadHandler(
     )
 }})
 
-output${prefix}a3oup2 <- renderPlot({{
+output${prefix}a3oup2 <- renderImage({{
   req(input${prefix}a3inp2)
-  scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp2, input${prefix}a3sub1, input${prefix}a3sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a3siz, input${prefix}a3col2, input${prefix}a3ord2, input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)
-}})
+  p <- scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp2, input${prefix}a3sub1, input${prefix}a3sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a3siz, input${prefix}a3col2, input${prefix}a3ord2, input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)
+
+  width  <- session$clientData$output_{prefix}a3oup1_width
+  height <- session$clientData$output_{prefix}a3oup1_height
+  pr <- session$clientData$pixelratio
+  outfile <- tempfile(fileext=".png")
+  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
+  list(src = outfile, width = width, height = height, alt = "{prefix}a3oup1")
+}}, deleteFile = TRUE)
 
 output${prefix}a3oup2.ui <- renderUI({{
-  plotOutput("{prefix}a3oup2", height = pList[input${prefix}a3psz])
+  imageOutput("{prefix}a3oup2", height = pList[input${prefix}a3psz])
 }})
 
 output${prefix}a3oup2.pdf <- downloadHandler(
   filename = function() {{ paste0("{prefix}", input${prefix}a3drX, "_", input${prefix}a3drY, "_", input${prefix}a3inp2,".pdf") }},
   content = function(file) {{
     ggsave(
-    file, device = "pdf", height = input${prefix}a3oup2.h, width = input${prefix}a3oup2.w, useDingbats = FALSE,
+    file, device = "pdf", useDingbats = FALSE,
     plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp2, 
                     input${prefix}a3sub1, input${prefix}a3sub2,
                     "{prefix}gexpr.h5", {prefix}gene,
@@ -967,7 +998,7 @@ output${prefix}a3oup2.png <- downloadHandler(
   filename = function() {{ paste0("{prefix}", input${prefix}a3drX, "_", input${prefix}a3drY, "_", input${prefix}a3inp2,".png") }},
   content = function(file) {{
     ggsave(
-    file, device = "png", height = input${prefix}a3oup2.h, width = input${prefix}a3oup2.w,
+    file, device = "png", dpi = input${prefix}a3oup2.res,
     plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp2, input${prefix}a3sub1, input${prefix}a3sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a3siz, input${prefix}a3col2, input${prefix}a3ord2, input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)
     )
 }}) # End of tab 3
@@ -995,19 +1026,26 @@ paste0('
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}b2sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}b2oup1 <- renderPlot({{
-  scDRcoex({prefix}conf, {prefix}meta, input${prefix}b2drX, input${prefix}b2drY, input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}b2siz, input${prefix}b2col1, input${prefix}b2ord1, input${prefix}b2fsz, input${prefix}b2asp, input${prefix}b2txt)
-}})
+output${prefix}b2oup1 <- renderImage({{
+  p <- scDRcoex({prefix}conf, {prefix}meta, input${prefix}b2drX, input${prefix}b2drY, input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}b2siz, input${prefix}b2col1, input${prefix}b2ord1, input${prefix}b2fsz, input${prefix}b2asp, input${prefix}b2txt)
+  
+  width  <- session$clientData$output_{prefix}b2oup1_width
+  height <- session$clientData$output_{prefix}b2oup1_height
+  pr <- session$clientData$pixelratio
+  outfile <- tempfile(fileext=".png")
+  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
+  list(src = outfile, width = width, height = height, alt = "{prefix}b2oup1")
+}}, deleteFile = TRUE)
 
 output${prefix}b2oup1.ui <- renderUI({{
-  plotOutput("{prefix}b2oup1", height = pList2[input${prefix}b2psz])
+  imageOutput("{prefix}b2oup1", height = pList2[input${prefix}b2psz])
 }})
 
 output${prefix}b2oup1.pdf <- downloadHandler(
   filename = function() {{ paste0("{prefix}", input${prefix}b2drX, "_", input${prefix}b2drY, "_", input${prefix}b2inp1, "_", input${prefix}b2inp2, ".pdf") }},
   content = function(file) {{
     ggsave(
-    file, device = "pdf", height = input${prefix}b2oup1.h, width = input${prefix}b2oup1.w, useDingbats = FALSE,
+    file, device = "pdf", useDingbats = FALSE,
     plot = scDRcoex({prefix}conf, {prefix}meta, input${prefix}b2drX, input${prefix}b2drY, input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}b2siz, input${prefix}b2col1, input${prefix}b2ord1, input${prefix}b2fsz, input${prefix}b2asp, input${prefix}b2txt)
     )
 }})
@@ -1015,16 +1053,23 @@ output${prefix}b2oup1.pdf <- downloadHandler(
 output${prefix}b2oup1.png <- downloadHandler(
   filename = function() {{ paste0("{prefix}", input${prefix}b2drX, "_", input${prefix}b2drY, "_", input${prefix}b2inp1, "_", input${prefix}b2inp2, ".png") }},
   content = function(file) {{ ggsave(
-    file, device = "png", height = input${prefix}b2oup1.h, width = input${prefix}b2oup1.w,
+    file, device = "png", dpi = input${prefix}b2oup1.res,
     plot = scDRcoex({prefix}conf, {prefix}meta, input${prefix}b2drX, input${prefix}b2drY, input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}b2siz, input${prefix}b2col1, input${prefix}b2ord1, input${prefix}b2fsz, input${prefix}b2asp, input${prefix}b2txt) )
 }})
 
-output${prefix}b2oup2 <- renderPlot({{
-  scDRcoexLeg(input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2col1, input${prefix}b2fsz)
-}})
+output${prefix}b2oup2 <- renderImage({{
+  p <- scDRcoexLeg(input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2col1, input${prefix}b2fsz)
+  
+  width  <- session$clientData$output_{prefix}b2oup2_width
+  height <- session$clientData$output_{prefix}b2oup2_height
+  pr <- session$clientData$pixelratio
+  outfile <- tempfile(fileext=".png")
+  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
+  list(src = outfile, width = width, height = height, alt = "{prefix}b2oup2")
+}}, deleteFile = TRUE)
 
 output${prefix}b2oup2.ui <- renderUI({{
-  plotOutput("{prefix}b2oup2", height = "300px")
+  imageOutput("{prefix}b2oup2", height = "300px")
 }})
 
 output${prefix}b2oup2.pdf <- downloadHandler(
@@ -1070,19 +1115,26 @@ paste0('
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}c1sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}c1oup <- renderPlot({{
-  scVioBox({prefix}conf, {prefix}meta, input${prefix}c1inp1, input${prefix}c1inp2, input${prefix}c1sub1, input${prefix}c1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}c1typ, input${prefix}c1pts, input${prefix}c1siz, input${prefix}c1fsz)
-}})
+output${prefix}c1oup <- renderImage({{
+  p <- scVioBox({prefix}conf, {prefix}meta, input${prefix}c1inp1, input${prefix}c1inp2, input${prefix}c1sub1, input${prefix}c1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}c1typ, input${prefix}c1pts, input${prefix}c1siz, input${prefix}c1fsz)
+  
+  width  <- session$clientData$output_{prefix}c1oup_width
+  height <- session$clientData$output_{prefix}c1oup_height
+  pr <- session$clientData$pixelratio
+  outfile <- tempfile(fileext=".png")
+  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
+  list(src = outfile, width = width, height = height, alt = "{prefix}c1oup")
+}}, deleteFile = TRUE)
 
 output${prefix}c1oup.ui <- renderUI({{
-  plotOutput("{prefix}c1oup", height = pList2[input${prefix}c1psz])
+  imageOutput("{prefix}c1oup", height = pList2[input${prefix}c1psz])
 }})
 
 output${prefix}c1oup.pdf <- downloadHandler(
   filename = function() {{ paste0("{prefix}", input${prefix}c1typ, "_", input${prefix}c1inp1, "_", input${prefix}c1inp2, ".pdf") }},
   content = function(file) {{
     ggsave(
-    file, device = "pdf", height = input${prefix}c1oup.h, width = input${prefix}c1oup.w, useDingbats = FALSE,
+    file, device = "pdf", useDingbats = FALSE,
     plot = scVioBox({prefix}conf, {prefix}meta, input${prefix}c1inp1, input${prefix}c1inp2, input${prefix}c1sub1, input${prefix}c1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}c1typ, input${prefix}c1pts, input${prefix}c1siz, input${prefix}c1fsz)
     )
 }})
@@ -1091,7 +1143,7 @@ output${prefix}c1oup.png <- downloadHandler(
   filename = function() {{ paste0("{prefix}", input${prefix}c1typ, "_", input${prefix}c1inp1, "_", input${prefix}c1inp2,".png") }},
   content = function(file) {{
     ggsave(
-    file, device = "png", height = input${prefix}c1oup.h, width = input${prefix}c1oup.w,
+    file, device = "png", dpi = input${prefix}c1oup.res,
     plot = scVioBox({prefix}conf, {prefix}meta, input${prefix}c1inp1, input${prefix}c1inp2, input${prefix}c1sub1, input${prefix}c1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}c1typ, input${prefix}c1pts, input${prefix}c1siz, input${prefix}c1fsz)
     )
 }}) # End of tab 5
@@ -1119,19 +1171,26 @@ paste0('
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}c2sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}c2oup <- renderPlot({{
-  scProp({prefix}conf, {prefix}meta, input${prefix}c2inp1, input${prefix}c2inp2, input${prefix}c2sub1, input${prefix}c2sub2, input${prefix}c2typ, input${prefix}c2flp, input${prefix}c2fsz)
-}})
+output${prefix}c2oup <- renderImage({{
+  p <- scProp({prefix}conf, {prefix}meta, input${prefix}c2inp1, input${prefix}c2inp2, input${prefix}c2sub1, input${prefix}c2sub2, input${prefix}c2typ, input${prefix}c2flp, input${prefix}c2fsz)
+  
+  width  <- session$clientData$output_{prefix}c2oup_width
+  height <- session$clientData$output_{prefix}c2oup_height
+  pr <- session$clientData$pixelratio
+  outfile <- tempfile(fileext=".png")
+  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
+  list(src = outfile, width = width, height = height, alt = "{prefix}c2oup")
+}}, deleteFile = TRUE)
 
 output${prefix}c2oup.ui <- renderUI({{
-  plotOutput("{prefix}c2oup", height = pList2[input${prefix}c2psz])
+  imageOutput("{prefix}c2oup", height = pList2[input${prefix}c2psz])
 }})
 
 output${prefix}c2oup.pdf <- downloadHandler(
   filename = function() {{ paste0("{prefix}", input${prefix}c2typ, "_", input${prefix}c2inp1, "_", input${prefix}c2inp2, ".pdf") }},
   content = function(file) {{
     ggsave(
-    file, device = "pdf", height = input${prefix}c2oup.h, width = input${prefix}c2oup.w, useDingbats = FALSE,
+    file, device = "pdf", useDingbats = FALSE,
     plot = scProp({prefix}conf, {prefix}meta, input${prefix}c2inp1, input${prefix}c2inp2, input${prefix}c2sub1, input${prefix}c2sub2, input${prefix}c2typ, input${prefix}c2flp, input${prefix}c2fsz)
     )
   }})
@@ -1140,7 +1199,7 @@ output${prefix}c2oup.png <- downloadHandler(
   filename = function() {{ paste0("{prefix}", input${prefix}c2typ, "_", input${prefix}c2inp1, "_", input${prefix}c2inp2, ".png") }},
   content = function(file) {{
     ggsave(
-    file, device = "png", height = input${prefix}c2oup.h, width = input${prefix}c2oup.w,
+    file, device = "png", dpi = input${prefix}c2oup.res,
     plot = scProp({prefix}conf, {prefix}meta, input${prefix}c2inp1, input${prefix}c2inp2, input${prefix}c2sub1, input${prefix}c2sub2, input${prefix}c2typ, input${prefix}c2flp, input${prefix}c2fsz)
     )
   }}) # End of tab 6\n
@@ -1180,19 +1239,26 @@ output${prefix}d1oupTxt <- renderUI({{
   }}
 }})
 
-output${prefix}d1oup <- renderPlot({{
-  scBubbHeat({prefix}conf, {prefix}meta, input${prefix}d1inp, input${prefix}d1grp, input${prefix}d1plt, input${prefix}d1sub1, input${prefix}d1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}d1scl, input${prefix}d1row, input${prefix}d1col, input${prefix}d1cols, input${prefix}d1fsz)
-}})
+output${prefix}d1oup <- renderImage({{
+  p <- scBubbHeat({prefix}conf, {prefix}meta, input${prefix}d1inp, input${prefix}d1grp, input${prefix}d1plt, input${prefix}d1sub1, input${prefix}d1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}d1scl, input${prefix}d1row, input${prefix}d1col, input${prefix}d1cols, input${prefix}d1fsz)
+  
+  width  <- session$clientData$output_{prefix}d1oup_width
+  height <- session$clientData$output_{prefix}d1oup_height
+  pr <- session$clientData$pixelratio
+  outfile <- tempfile(fileext=".png")
+  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
+  list(src = outfile, width = width, height = height, alt = "{prefix}d1oup")
+}}, deleteFile = TRUE)
 
 output${prefix}d1oup.ui <- renderUI({{
-  plotOutput("{prefix}d1oup", height = pList3[input${prefix}d1psz])
+  imageOutput("{prefix}d1oup", height = pList3[input${prefix}d1psz])
 }})
 
 output${prefix}d1oup.pdf <- downloadHandler(
   filename = function() {{ paste0("{prefix}",input${prefix}d1plt,"_",input${prefix}d1grp,".pdf") }},
   content = function(file) {{
     ggsave(
-    file, device = "pdf", height = input${prefix}d1oup.h, width = input${prefix}d1oup.w,
+    file, device = "pdf", useDingbats = FALSE,
     plot = scBubbHeat({prefix}conf, {prefix}meta, input${prefix}d1inp, input${prefix}d1grp, input${prefix}d1plt, input${prefix}d1sub1, input${prefix}d1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}d1scl, input${prefix}d1row, input${prefix}d1col, input${prefix}d1cols, input${prefix}d1fsz, save = TRUE)
     )
 }})
@@ -1201,7 +1267,7 @@ output${prefix}d1oup.png <- downloadHandler(
   filename = function() {{ paste0("{prefix}",input${prefix}d1plt,"_",input${prefix}d1grp,".png") }},
   content = function(file) {{
     ggsave(
-    file, device = "png", height = input${prefix}d1oup.h, width = input${prefix}d1oup.w,
+    file, device = "png", dpi = input${prefix}d1oup.res,
     plot = scBubbHeat({prefix}conf, {prefix}meta, input${prefix}d1inp, input${prefix}d1grp, input${prefix}d1plt, input${prefix}d1sub1, input${prefix}d1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}d1scl, input${prefix}d1row, input${prefix}d1col, input${prefix}d1cols, input${prefix}d1fsz, save = TRUE)
     )
 }}) # End of tab 7         
@@ -1379,7 +1445,7 @@ tabPanel(
               ),
               radioButtons("{prefix}a1fsz", "Font size:",
                 choices = c("Small", "Medium", "Large"),
-                selected = "Medium", inline = TRUE
+                selected = "Small", inline = TRUE
               ),
               radioButtons("{prefix}a1asp", "Aspect ratio:",
                 choices = c("Square", "Fixed", "Free"),
@@ -1458,18 +1524,7 @@ tabPanel(
               12,
               div(
                 class = "input-panel",
-                fluidRow(
-                  div(
-                    class = "col-xs-6",
-                    numericInput("{prefix}a1oup1.h", "Image height:", min = 4, max = 20, value = 6, step = 0.5)
-                  ),
-                  div(
-                    class = "col-xs-6",
-                    numericInput("{prefix}a1oup1.w", "Image width:",
-                      min = 4, max = 20, value = 8, step = 0.5
-                    )
-                  )
-                ),
+                numericInput("{prefix}a1oup1.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
                 downloadButton("{prefix}a1oup1.pdf", "Download PDF", class = "btn-sm"),
                 downloadButton("{prefix}a1oup1.png", "Download PNG", class = "btn-sm"),
                 checkboxInput("{prefix}a1tog9", "Show cell numbers / statistics")
@@ -1543,20 +1598,7 @@ tabPanel(
               12,
               div(
                 class = "input-panel",
-                fluidRow(
-                  div(
-                    class = "col-xs-6",
-                    numericInput("{prefix}a1oup2.h", "Image height:",
-                      min = 4, max = 20, value = 6, step = 0.5
-                    )
-                  ),
-                  div(
-                    class = "col-xs-6",
-                    numericInput("{prefix}a1oup2.w", "Image width:",
-                      min = 4, max = 20, value = 8, step = 0.5
-                    )
-                  )
-                ),
+                numericInput("{prefix}a1oup2.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
                 downloadButton("{prefix}a1oup2.pdf", "Download PDF", class = "btn-sm"),
                 downloadButton("{prefix}a1oup2.png", "Download PNG", class = "btn-sm")
               )
@@ -1644,7 +1686,7 @@ tabPanel(
               ),
               radioButtons("{prefix}a2fsz", "Font size:",
                 choices = c("Small", "Medium", "Large"),
-                selected = "Medium", inline = TRUE
+                selected = "Small", inline = TRUE
               ),
               radioButtons("{prefix}a2asp", "Aspect ratio:",
                 choices = c("Square", "Fixed", "Free"),
@@ -1721,19 +1763,7 @@ tabPanel(
               12,
               div(
                 class = "input-panel",
-                fluidRow(
-                  div(
-                    class = "col-xs-6",
-                    numericInput("{prefix}a2oup1.h", "Image height:", width = "138px", min = 4, max = 20, value = 6, step = 0.5)
-                  ),
-                  div(
-                    class = "col-xs-6",
-                    numericInput("{prefix}a2oup1.w", "Image width:",
-                      width = "138px",
-                      min = 4, max = 20, value = 8, step = 0.5
-                    )
-                  )
-                ),
+                numericInput("{prefix}a2oup1.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
                 downloadButton("{prefix}a2oup1.pdf", "Download PDF", class = "btn-sm"),
                 downloadButton("{prefix}a2oup1.png", "Download PNG", class = "btn-sm")
               )
@@ -1798,22 +1828,7 @@ tabPanel(
               12,
               div(
                 class = "input-panel",
-                fluidRow(
-                  div(
-                    class = "col-xs-6",
-                    numericInput("{prefix}a2oup2.h", "Image height:",
-                      width = "138px",
-                      min = 4, max = 20, value = 6, step = 0.5
-                    )
-                  ),
-                  div(
-                    class = "col-xs-6",
-                    numericInput("{prefix}a2oup2.w", "Image width:",
-                      width = "138px",
-                      min = 4, max = 20, value = 8, step = 0.5
-                    )
-                  )
-                ),
+                numericInput("{prefix}a2oup2.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
                 downloadButton("{prefix}a2oup2.pdf", "Download PDF", class = "btn-sm"),
                 downloadButton("{prefix}a2oup2.png", "Download PNG", class = "btn-sm")
               )
@@ -1901,7 +1916,7 @@ tabPanel(
               ),
               radioButtons("{prefix}a3fsz", "Font size:",
                 choices = c("Small", "Medium", "Large"),
-                selected = "Medium", inline = TRUE
+                selected = "Small", inline = TRUE
               ),
               radioButtons("{prefix}a3asp", "Aspect ratio:",
                 choices = c("Square", "Fixed", "Free"),
@@ -1974,22 +1989,7 @@ tabPanel(
               12,
               div(
                 class = "input-panel",
-                fluidRow(
-                  div(
-                    class = "col-xs-6",
-                    numericInput("{prefix}a3oup1.h", "Image height:",
-                      width = "138px",
-                      min = 4, max = 20, value = 6, step = 0.5
-                    )
-                  ),
-                  div(
-                    class = "col-xs-6",
-                    numericInput("{prefix}a3oup1.w", "Image width:",
-                      width = "138px",
-                      min = 4, max = 20, value = 8, step = 0.5
-                    )
-                  )
-                ),
+                numericInput("{prefix}a3oup1.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
                 downloadButton("{prefix}a3oup1.pdf", "Download PDF", class = "btn-sm"),
                 downloadButton("{prefix}a3oup1.png", "Download PNG", class = "btn-sm")
               )
@@ -2052,24 +2052,9 @@ tabPanel(
               12,
               div(
                 class = "input-panel",
-                fluidRow(
-                  div(
-                    class = "col-xs-6",
-                    numericInput("{prefix}a3oup2.h", "Image height:",
-                      width = "138px",
-                      min = 4, max = 20, value = 6, step = 0.5
-                    )
-                  ),
-                  div(
-                    class = "col-xs-6",
-                    numericInput("{prefix}a3oup2.w", "Image width:",
-                      width = "138px",
-                      min = 4, max = 20, value = 8, step = 0.5
-                    )
-                  )
-                ),
-                downloadButton("{prefix}a3oup2.pdf", "Download PDF", class = "btn-sm"),
-                downloadButton("{prefix}a3oup2.png", "Download PNG", class = "btn-sm")
+                  numericInput("{prefix}a3oup2.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
+                  downloadButton("{prefix}a3oup2.pdf", "Download PDF", class = "btn-sm"),
+                  downloadButton("{prefix}a3oup2.png", "Download PNG", class = "btn-sm")
               )
             )
           )
@@ -2155,7 +2140,7 @@ tabPanel(
               ),
               radioButtons("{prefix}b2fsz", "Font size:",
                 choices = c("Small", "Medium", "Large"),
-                selected = "Medium", inline = TRUE
+                selected = "Small", inline = TRUE
               ),
               radioButtons("{prefix}b2asp", "Aspect ratio:",
                 choices = c("Square", "Fixed", "Free"),
@@ -2228,22 +2213,7 @@ tabPanel(
           uiOutput("{prefix}b2oup1.ui"),
           div(
             class = "input-panel",
-            fluidRow(
-              div(
-                class = "col-xs-6",
-                numericInput("{prefix}b2oup1.h", "Image height:",
-                  width = "138px",
-                  min = 4, max = 20, value = 8, step = 0.5
-                )
-              ),
-              div(
-                class = "col-xs-6",
-                numericInput("{prefix}b2oup1.w", "Image width:",
-                  width = "138px",
-                  min = 4, max = 20, value = 10, step = 0.5
-                )
-              )
-            ),
+            numericInput("{prefix}b2oup1.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
             downloadButton("{prefix}b2oup1.pdf", "Download PDF", class = "btn-sm"),
             downloadButton("{prefix}b2oup1.png", "Download PNG", class = "btn-sm")
           )
@@ -2341,24 +2311,17 @@ tabPanel(
               ),
               radioButtons("{prefix}c1psz", "Plot size:",
                 choices = c("Small", "Medium", "Large"),
-                selected = "Medium", inline = TRUE
+                selected = "Small", inline = TRUE
               ),
               radioButtons("{prefix}c1fsz", "Font size:",
                 choices = c("Small", "Medium", "Large"),
-                selected = "Medium", inline = TRUE
+                selected = "Small", inline = TRUE
               )
             )
           ),
           div(
             class = "input-panel",
-            numericInput("{prefix}c1oup.h", "Image height:",
-              width = "138px",
-              min = 4, max = 20, value = 8, step = 0.5
-            ),
-            numericInput("{prefix}c1oup.w", "Image width:",
-              width = "138px",
-              min = 4, max = 20, value = 10, step = 0.5
-            ),
+            numericInput("{prefix}c1oup.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
             downloadButton("{prefix}c1oup.pdf", "Download PDF", class = "btn-sm"),
             downloadButton("{prefix}c1oup.png", "Download PNG", class = "btn-sm")
           )
@@ -2453,20 +2416,13 @@ tabPanel(
               ),
               radioButtons("{prefix}c2fsz", "Font size:",
                 choices = c("Small", "Medium", "Large"),
-                selected = "Medium", inline = TRUE
+                selected = "Small", inline = TRUE
               )
             )
           ),
           div(
             class = "input-panel",
-            numericInput("{prefix}c2oup.h", "Image height:",
-              width = "138px",
-              min = 4, max = 20, value = 8, step = 0.5
-            ),
-            numericInput("{prefix}c2oup.w", "Image width:",
-              width = "138px",
-              min = 4, max = 20, value = 10, step = 0.5
-            ),
+            numericInput("{prefix}c2oup.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
             downloadButton("{prefix}c2oup.pdf", "Download PDF", class = "btn-sm"),
             downloadButton("{prefix}c2oup.png", "Download PNG", class = "btn-sm")
           )
@@ -2573,20 +2529,13 @@ tabPanel(
               ),
               radioButtons("{prefix}d1fsz", "Font size:",
                 choices = c("Small", "Medium", "Large"),
-                selected = "Medium", inline = TRUE
+                selected = "Small", inline = TRUE
               )
             )
           ),
           div(
             class = "input-panel",
-            numericInput("{prefix}d1oup.h", "Image height:",
-              width = "138px",
-              min = 4, max = 20, value = 10, step = 0.5
-            ),
-            numericInput("{prefix}d1oup.w", "Image width:",
-              width = "138px",
-              min = 4, max = 20, value = 10, step = 0.5
-            ),
+            numericInput("{prefix}d1oup.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
             downloadButton("{prefix}d1oup.pdf", "Download PDF", class = "btn-sm"),
             downloadButton("{prefix}d1oup.png", "Download PNG", class = "btn-sm")
           )
@@ -2678,6 +2627,19 @@ wrUIga <- function(gaID) {
   )
 }
 
+#' Write code for about. about.md
+#' @rdname wrAbout
+#' @export wrAbout
+#'
+wrAbout <- function(){
+  paste('
+### About
+
+App description and author info.
+
+')  
+}
+
 #' Write code for custom css. www/styles.css
 #' @rdname wrCSS
 #' @export wrCSS
@@ -2715,6 +2677,10 @@ a:active,
 
 .btn {
   margin: 5px 0px;
+}
+
+.dt-buttons {
+  margin: 1em 0em;
 }
 
 ')  
