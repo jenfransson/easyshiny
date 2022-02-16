@@ -4,7 +4,7 @@ Title: Shiny Interactive Web Apps for Single-Cell Data
 Version: 0.1.0
 Author: ´Roy Francis
 Maintainer: Roy Francis <roy.francis@outlook.com>
-Description: Shiny apps for interactive exploration of single-cell data.
+Description: Quick shiny web app for interactive exploration of single-cell data.
 License: GPL-3 + file LICENSE
 Depends:
     R            (>= 4.0.0),
