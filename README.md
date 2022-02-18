@@ -1,4 +1,4 @@
-# easyshiny [![lifecycle_badge](https://lifecycle.r-lib.org/articles/figures/lifecycle-experimental.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) 
+# easyshiny [![lifecycle_badge](https://lifecycle.r-lib.org/articles/figures/lifecycle-experimental.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 
 `easyshiny` is a R package to quickly create an interactive web application to visualise and explore single-cell data.
 
@@ -33,7 +33,7 @@ makeShinyApp(obj, obj_conf, gex.assay="RNA", gex.slot="data", gene.mapping = FAL
 shiny::runApp("app")
 ```
 
-![](images/single.png)
+![](images/single-cellinfo-geneexp.png)
 
 To use multiple Seurat datasets, see code below.
 
