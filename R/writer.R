@@ -1302,11 +1302,12 @@ wrUIsingle <- function(title, theme = "flatly", ganalytics = NA) {
 
 ### UI code
 shinyUI(
-navbarPage(
-"{title}",
-{ga}
+fluidPage(style="margin:0;padding:0;",
 tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")),
-theme = shinythemes::shinytheme("{theme}")
+{ga}
+theme = shinythemes::shinytheme("{theme}"),
+navbarPage(
+"{title}"
 '
   )
 }
@@ -2540,10 +2541,11 @@ wrUImain <- function(prefix, subst = "", ptsiz = "1.25", tabs = c(1,2,3,4,5,6,7)
 #'
 wrUIend <- function() {
   glue::glue(
-    '
-    )
-    )\n
-    '
+'
+)
+)
+)\n
+'
   )
 }
 
