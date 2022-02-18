@@ -8,7 +8,21 @@ wrLib <- function(lib) {
   for (iLib in lib) {
     oup <- paste0(oup, "library(", iLib, ")\n")
   }
-  glue::glue(paste0(oup, "\n"))
+  glue::glue(paste0(oup,"\n"))
+}
+
+#' Write code for font
+#' @param font Google font name
+#' @rdname wrFont
+#' @export wrFont
+#'
+wrFont <- function(font = "Lato") {
+  paste0(
+'
+sysfonts::font_add_google(name = "',font,'", family = "',font,'")
+showtext::showtext_auto()
+'
+  )
 }
 
 #' Write code for loading objects for server.R
@@ -18,8 +32,6 @@ wrLib <- function(lib) {
 #'
 wrSVload <- function(prefix) {
 glue::glue('
-sysfonts::font_add_google(name = "Lato", family = "Lato")
-showtext::showtext_auto()
 
 {prefix}conf = readRDS("{prefix}conf.rds")
 {prefix}def  = readRDS("{prefix}def.rds")
@@ -35,6 +47,7 @@ showtext::showtext_auto()
 #'
 wrSVfix <- function() {
   glue::glue('
+
 ### Useful stuff ----
 
 # Colour palette
@@ -114,7 +127,7 @@ sctheme <- function(base_size = 24, XYval = TRUE, Xang = 0, XjusH = 0.5) {{
 # @param inpsiz
 # @param inpcol
 # @param inpord
-# @param inpfsz
+# @param inpfsz (Character) Font size
 # @param inpasp
 # @param inptxt
 # @param inplab
@@ -157,9 +170,9 @@ scDRcell <- function(inpConf, inpMeta, inpdrX, inpdrY, inp1, inpsub1, inpsub2, i
   # Actual ggplot
   ggOut <- ggplot(ggData, aes(X, Y, color = val))
   if (bgCells) {{ ggOut <- ggOut +
-    geom_point(data = ggData2, color = "snow2", size = inpsiz, shape = 16) }}
+    geom_point(data = ggData2, color = "snow2", size = inpsiz, shape = 20) }}
   ggOut <- ggOut +
-    geom_point(size = inpsiz, shape = 16) +
+    geom_point(size = inpsiz, shape = 20) +
     xlab(inpdrX) +
     ylab(inpdrY) +
     sctheme(base_size = sList[inpfsz], XYval = inptxt)
@@ -289,10 +302,10 @@ scDRgene <- function(inpConf, inpMeta, inpdrX, inpdrY, inp1, inpsub1, inpsub2, i
   # Actual ggplot
   ggOut <- ggplot(ggData, aes(X, Y, color = val))
   if (bgCells) {{ ggOut <- ggOut +
-    geom_point(data = ggData2, color = "snow2", size = inpsiz, shape = 16) }}
+    geom_point(data = ggData2, color = "snow2", size = inpsiz, shape = 20) }}
 
   ggOut <- ggOut +
-    geom_point(size = inpsiz, shape = 16) + xlab(inpdrX) + ylab(inpdrY) +
+    geom_point(size = inpsiz, shape = 20) + xlab(inpdrX) + ylab(inpdrY) +
     sctheme(base_size = sList[inpfsz], XYval = inptxt) +
     scale_color_gradientn(inp1, colours = cList[[inpcol]]) +
     guides(color = guide_colorbar(barwidth = 20))
@@ -375,9 +388,9 @@ scDRcoex <- function(inpConf, inpMeta, inpdrX, inpdrY, inp1, inp2, inpsub1,
   # Actual ggplot
   ggOut <- ggplot(ggData, aes(X, Y))
   if (bgCells) {{ ggOut <- ggOut +
-    geom_point(data = ggData2, color = "snow2", size = inpsiz, shape = 16) }}
+    geom_point(data = ggData2, color = "snow2", size = inpsiz, shape = 20) }}
   ggOut <- ggOut +
-    geom_point(size = inpsiz, shape = 16, color = ggData$cMix) +
+    geom_point(size = inpsiz, shape = 20, color = ggData$cMix) +
     xlab(inpdrX) + ylab(inpdrY) +
     sctheme(base_size = sList[inpfsz], XYval = inptxt) +
     scale_color_gradientn(inp1, colours = cList[[1]]) +
@@ -499,7 +512,7 @@ scVioBox <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inpH5, inpG
     ggOut <- ggplot(ggData, aes(X, val, fill = X)) +
     geom_boxplot()
   }}
-  if (inppts) {{ ggOut <- ggOut + geom_jitter(size = inpsiz, shape = 16) }}
+  if (inppts) {{ ggOut <- ggOut + geom_jitter(size = inpsiz, shape = 20) }}
 
   ggOut <- ggOut + xlab(inp1) + ylab(inp2) +
     sctheme(base_size = sList[inpfsz], Xang = 45, XjusH = 1) +
@@ -742,17 +755,10 @@ paste0('
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a1sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}a1oup1 <- renderImage({{
+output${prefix}a1oup1 <- renderPlot({{
   req(input${prefix}a1inp1)
-  p <- scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1, input${prefix}a1sub1, input${prefix}a1sub2, input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1, input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1)
-
-  width  <- session$clientData$output_{prefix}a1oup1_width
-  height <- session$clientData$output_{prefix}a1oup1_height
-  pr <- session$clientData$pixelratio
-  outfile <- tempfile(fileext=".png")
-  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
-  list(src = outfile, width = width, height = height, alt = "{prefix}a1oup1")
-}}, deleteFile = TRUE)
+  scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1, input${prefix}a1sub1, input${prefix}a1sub2, input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1, input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1)
+}})
 
 output${prefix}a1oup1.ui <- renderUI({{
   imageOutput("{prefix}a1oup1", height = pList[input${prefix}a1psz])
@@ -783,17 +789,10 @@ output${prefix}a1.dt <- renderDataTable({{
    formatRound(columns = c("pctExpress"), digits = 2)
 }})
 
-output${prefix}a1oup2 <- renderImage({{
+output${prefix}a1oup2 <- renderPlot({{
  req(input${prefix}a1inp2)
- p <- scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2, input${prefix}a1sub1, input${prefix}a1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2, input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt)
- 
-  width  <- session$clientData$output_{prefix}a1oup2_width
-  height <- session$clientData$output_{prefix}a1oup2_height
-  pr <- session$clientData$pixelratio
-  outfile <- tempfile(fileext=".png")
-  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
-  list(src = outfile, width = width, height = height, alt = "{prefix}a1oup2")
-}}, deleteFile = TRUE)
+ scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2, input${prefix}a1sub1, input${prefix}a1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2, input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt)
+}})
 
 output${prefix}a1oup2.ui <- renderUI({{
  imageOutput("{prefix}a1oup2", height = pList[input${prefix}a1psz])
@@ -839,17 +838,10 @@ paste0('
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a2sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}a2oup1 <- renderImage({{
+output${prefix}a2oup1 <- renderPlot({{
   req(input${prefix}a2inp1)
-  p <- scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp1, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col1, input${prefix}a2ord1, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab1)
-  
-  width  <- session$clientData$output_{prefix}a2oup1_width
-  height <- session$clientData$output_{prefix}a2oup1_height
-  pr <- session$clientData$pixelratio
-  outfile <- tempfile(fileext=".png")
-  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
-  list(src = outfile, width = width, height = height, alt = "{prefix}a2oup1")
-}}, deleteFile = TRUE)
+  scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp1, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col1, input${prefix}a2ord1, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab1)
+}})
 
 output${prefix}a2oup1.ui <- renderUI({{
   imageOutput("{prefix}a2oup1", height = pList[input${prefix}a2psz])
@@ -871,17 +863,10 @@ output${prefix}a2oup1.png <- downloadHandler(
     )
 }})
 
-output${prefix}a2oup2 <- renderImage({{
+output${prefix}a2oup2 <- renderPlot({{
   req(input${prefix}a2inp2)
-  p <- scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp2, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col2, input${prefix}a2ord2, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab2)
-  
-  width  <- session$clientData$output_{prefix}a2oup2_width
-  height <- session$clientData$output_{prefix}a2oup2_height
-  pr <- session$clientData$pixelratio
-  outfile <- tempfile(fileext=".png")
-  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
-  list(src = outfile, width = width, height = height, alt = "{prefix}a2oup2")
-}}, deleteFile = TRUE)
+  scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp2, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col2, input${prefix}a2ord2, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab2)
+}})
 
 output${prefix}a2oup2.ui <- renderUI({{
   imageOutput("{prefix}a2oup2", height = pList[input${prefix}a2psz])
@@ -927,17 +912,10 @@ paste0('
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a3sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}a3oup1 <- renderImage({{
+output${prefix}a3oup1 <- renderPlot({{
   req(input${prefix}a3inp1)
-  p <- scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp1, input${prefix}a3sub1, input${prefix}a3sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a3siz, input${prefix}a3col1, input${prefix}a3ord1, input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)
-  
-  width  <- session$clientData$output_{prefix}a3oup1_width
-  height <- session$clientData$output_{prefix}a3oup1_height
-  pr <- session$clientData$pixelratio
-  outfile <- tempfile(fileext=".png")
-  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
-  list(src = outfile, width = width, height = height, alt = "{prefix}a3oup1")
-}}, deleteFile = TRUE)
+  scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp1, input${prefix}a3sub1, input${prefix}a3sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a3siz, input${prefix}a3col1, input${prefix}a3ord1, input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)
+}})
 
 output${prefix}a3oup1.ui <- renderUI({{
   imageOutput("{prefix}a3oup1", height = pList[input${prefix}a3psz])
@@ -965,17 +943,10 @@ output${prefix}a3oup1.png <- downloadHandler(
     )
 }})
 
-output${prefix}a3oup2 <- renderImage({{
+output${prefix}a3oup2 <- renderPlot({{
   req(input${prefix}a3inp2)
-  p <- scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp2, input${prefix}a3sub1, input${prefix}a3sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a3siz, input${prefix}a3col2, input${prefix}a3ord2, input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)
-
-  width  <- session$clientData$output_{prefix}a3oup1_width
-  height <- session$clientData$output_{prefix}a3oup1_height
-  pr <- session$clientData$pixelratio
-  outfile <- tempfile(fileext=".png")
-  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
-  list(src = outfile, width = width, height = height, alt = "{prefix}a3oup1")
-}}, deleteFile = TRUE)
+  scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp2, input${prefix}a3sub1, input${prefix}a3sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a3siz, input${prefix}a3col2, input${prefix}a3ord2, input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)
+}})
 
 output${prefix}a3oup2.ui <- renderUI({{
   imageOutput("{prefix}a3oup2", height = pList[input${prefix}a3psz])
@@ -1026,16 +997,9 @@ paste0('
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}b2sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}b2oup1 <- renderImage({{
-  p <- scDRcoex({prefix}conf, {prefix}meta, input${prefix}b2drX, input${prefix}b2drY, input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}b2siz, input${prefix}b2col1, input${prefix}b2ord1, input${prefix}b2fsz, input${prefix}b2asp, input${prefix}b2txt)
-  
-  width  <- session$clientData$output_{prefix}b2oup1_width
-  height <- session$clientData$output_{prefix}b2oup1_height
-  pr <- session$clientData$pixelratio
-  outfile <- tempfile(fileext=".png")
-  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
-  list(src = outfile, width = width, height = height, alt = "{prefix}b2oup1")
-}}, deleteFile = TRUE)
+output${prefix}b2oup1 <- renderPlot({{
+  scDRcoex({prefix}conf, {prefix}meta, input${prefix}b2drX, input${prefix}b2drY, input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}b2siz, input${prefix}b2col1, input${prefix}b2ord1, input${prefix}b2fsz, input${prefix}b2asp, input${prefix}b2txt)
+}})
 
 output${prefix}b2oup1.ui <- renderUI({{
   imageOutput("{prefix}b2oup1", height = pList2[input${prefix}b2psz])
@@ -1057,16 +1021,9 @@ output${prefix}b2oup1.png <- downloadHandler(
     plot = scDRcoex({prefix}conf, {prefix}meta, input${prefix}b2drX, input${prefix}b2drY, input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}b2siz, input${prefix}b2col1, input${prefix}b2ord1, input${prefix}b2fsz, input${prefix}b2asp, input${prefix}b2txt) )
 }})
 
-output${prefix}b2oup2 <- renderImage({{
-  p <- scDRcoexLeg(input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2col1, input${prefix}b2fsz)
-  
-  width  <- session$clientData$output_{prefix}b2oup2_width
-  height <- session$clientData$output_{prefix}b2oup2_height
-  pr <- session$clientData$pixelratio
-  outfile <- tempfile(fileext=".png")
-  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
-  list(src = outfile, width = width, height = height, alt = "{prefix}b2oup2")
-}}, deleteFile = TRUE)
+output${prefix}b2oup2 <- renderPlot({{
+  scDRcoexLeg(input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2col1, input${prefix}b2fsz)
+}})
 
 output${prefix}b2oup2.ui <- renderUI({{
   imageOutput("{prefix}b2oup2", height = "300px")
@@ -1115,16 +1072,9 @@ paste0('
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}c1sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}c1oup <- renderImage({{
-  p <- scVioBox({prefix}conf, {prefix}meta, input${prefix}c1inp1, input${prefix}c1inp2, input${prefix}c1sub1, input${prefix}c1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}c1typ, input${prefix}c1pts, input${prefix}c1siz, input${prefix}c1fsz)
-  
-  width  <- session$clientData$output_{prefix}c1oup_width
-  height <- session$clientData$output_{prefix}c1oup_height
-  pr <- session$clientData$pixelratio
-  outfile <- tempfile(fileext=".png")
-  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
-  list(src = outfile, width = width, height = height, alt = "{prefix}c1oup")
-}}, deleteFile = TRUE)
+output${prefix}c1oup <- renderPlot({{
+  scVioBox({prefix}conf, {prefix}meta, input${prefix}c1inp1, input${prefix}c1inp2, input${prefix}c1sub1, input${prefix}c1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}c1typ, input${prefix}c1pts, input${prefix}c1siz, input${prefix}c1fsz)
+}})
 
 output${prefix}c1oup.ui <- renderUI({{
   imageOutput("{prefix}c1oup", height = pList2[input${prefix}c1psz])
@@ -1171,16 +1121,9 @@ paste0('
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}c2sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}c2oup <- renderImage({{
-  p <- scProp({prefix}conf, {prefix}meta, input${prefix}c2inp1, input${prefix}c2inp2, input${prefix}c2sub1, input${prefix}c2sub2, input${prefix}c2typ, input${prefix}c2flp, input${prefix}c2fsz)
-  
-  width  <- session$clientData$output_{prefix}c2oup_width
-  height <- session$clientData$output_{prefix}c2oup_height
-  pr <- session$clientData$pixelratio
-  outfile <- tempfile(fileext=".png")
-  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
-  list(src = outfile, width = width, height = height, alt = "{prefix}c2oup")
-}}, deleteFile = TRUE)
+output${prefix}c2oup <- renderPlot({{
+  scProp({prefix}conf, {prefix}meta, input${prefix}c2inp1, input${prefix}c2inp2, input${prefix}c2sub1, input${prefix}c2sub2, input${prefix}c2typ, input${prefix}c2flp, input${prefix}c2fsz)
+}})
 
 output${prefix}c2oup.ui <- renderUI({{
   imageOutput("{prefix}c2oup", height = pList2[input${prefix}c2psz])
@@ -1239,16 +1182,9 @@ output${prefix}d1oupTxt <- renderUI({{
   }}
 }})
 
-output${prefix}d1oup <- renderImage({{
-  p <- scBubbHeat({prefix}conf, {prefix}meta, input${prefix}d1inp, input${prefix}d1grp, input${prefix}d1plt, input${prefix}d1sub1, input${prefix}d1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}d1scl, input${prefix}d1row, input${prefix}d1col, input${prefix}d1cols, input${prefix}d1fsz)
-  
-  width  <- session$clientData$output_{prefix}d1oup_width
-  height <- session$clientData$output_{prefix}d1oup_height
-  pr <- session$clientData$pixelratio
-  outfile <- tempfile(fileext=".png")
-  ggsave(outfile, p, width=width*pr, height=height*pr, dpi=72*pr, units = "px")
-  list(src = outfile, width = width, height = height, alt = "{prefix}d1oup")
-}}, deleteFile = TRUE)
+output${prefix}d1oup <- renderPlot({{
+  scBubbHeat({prefix}conf, {prefix}meta, input${prefix}d1inp, input${prefix}d1grp, input${prefix}d1plt, input${prefix}d1sub1, input${prefix}d1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}d1scl, input${prefix}d1row, input${prefix}d1col, input${prefix}d1cols, input${prefix}d1fsz)
+}})
 
 output${prefix}d1oup.ui <- renderUI({{
   imageOutput("{prefix}d1oup", height = pList3[input${prefix}d1psz])
@@ -1338,11 +1274,12 @@ wrSVend <- function() {
 #' @export wrUIload
 #'
 wrUIload <- function(prefix) {
-  glue::glue(
-    '{prefix}conf = readRDS("{prefix}conf.rds")
-    {prefix}def  = readRDS("{prefix}def.rds")
-    \n\n\n\n'
-  )
+  glue::glue('
+
+{prefix}conf = readRDS("{prefix}conf.rds")
+{prefix}def  = readRDS("{prefix}def.rds")
+
+')
 }
 
 #' Write code for front portion of ui.R
@@ -1361,13 +1298,16 @@ wrUIsingle <- function(title, theme = "flatly", ganalytics = NA) {
   }
   
   glue::glue(
-    '### UI code
-    shinyUI(
-    navbarPage(
-    "{title}",
-    {ga}
-    tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")),
-    theme = shinythemes::shinytheme("{theme}")'
+'
+
+### UI code
+shinyUI(
+navbarPage(
+"{title}",
+{ga}
+tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")),
+theme = shinythemes::shinytheme("{theme}")
+'
   )
 }
 

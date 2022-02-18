@@ -14,6 +14,7 @@ makeShinyCodesMulti(
   theme = "flatly",
   tabs = c(1, 2, 3, 4, 5, 6, 7),
   about = TRUE,
+  font = "Lato",
   ganalytics = NA
 )
 }
@@ -41,6 +42,8 @@ users have to specify one value for each dataset}
 \item{tabs}{Vector of tab numbers to include}
 
 \item{about}{Should about page be added as a tab?}
+
+\item{font}{Google font for plots}
 
 \item{ganalytics}{Google analytics tracking ID (e.g. "UA-123456789-0")}
 }
