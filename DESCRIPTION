@@ -16,6 +16,7 @@ Depends:
 Imports:
     DT,
     ggdendro,
+    ggplotify,
     ggrepel,
     glue,
     grid,

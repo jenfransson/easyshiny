@@ -1,9 +1,9 @@
 #' Write code for loading libraries
 #' @param lib vector of libraries
-#' @rdname wrLib
-#' @export wrLib
+#' @rdname wr_lib
+#' @export wr_lib
 #'
-wrLib <- function(lib) {
+wr_lib <- function(lib) {
   oup <- ""
   for (iLib in lib) {
     oup <- paste0(oup, "library(", iLib, ")\n")
@@ -13,10 +13,10 @@ wrLib <- function(lib) {
 
 #' Write code for font
 #' @param font Google font name
-#' @rdname wrFont
-#' @export wrFont
+#' @rdname wr_font
+#' @export wr_font
 #'
-wrFont <- function(font = "Lato") {
+wr_font <- function(font = "Lato") {
   paste0(
 '
 sysfonts::font_add_google(name = "',font,'", family = "',font,'")
@@ -27,10 +27,10 @@ showtext::showtext_auto()
 
 #' Write code for loading objects for server.R
 #' @param prefix file prefix
-#' @rdname wrSVload
-#' @export wrSVload
+#' @rdname wr_sv_load
+#' @export wr_sv_load
 #'
-wrSVload <- function(prefix) {
+wr_sv_load <- function(prefix) {
 glue::glue('
 
 {prefix}conf = readRDS("{prefix}conf.rds")
@@ -42,10 +42,10 @@ glue::glue('
 }
 
 #' Write code for fixed portion of server.R
-#' @rdname wrSVfix
-#' @export wrSVfix
+#' @rdname wr_sv_fix
+#' @export wr_sv_fix
 #'
-wrSVfix <- function() {
+wr_sv_fix <- function() {
   glue::glue('
 
 ### Useful stuff ----
@@ -75,7 +75,7 @@ names(pList2) <- c("Small", "Medium", "Large")
 pList3 <- c("600px", "800px", "1000px")
 names(pList3) <- c("Small", "Medium", "Large")
 # baseplot font size
-sList <- c(18, 24, 30)
+sList <- c(14, 18, 22)
 names(sList) <- c("Small", "Medium", "Large")
 # ggrepel font size
 lList <- c(5, 6, 7)
@@ -90,9 +90,17 @@ g_legend <- function(a.gplot) {{
 }}
 
 # Plot theme
-sctheme <- function(base_size = 24, XYval = TRUE, Xang = 0, XjusH = 0.5) {{
+# @description Custom ggplot theme
+# @param base_size (Numeric) Base font size
+# @param XYval (Logical) Show XY axes text?
+# @param Xang (Numeric) X axis text angle
+# @param XjusH (Numeric) X axis horizontal justification
+# @param lpos (Character) Position of Legend
+#
+sctheme <- function(base_size = 24, XYval = TRUE, Xang = 0, XjusH = 0.5, lpos = "bottom") {{
   oupTheme <- theme(
     text = element_text(size = base_size, family = "Lato"),
+    panel.border = element_blank(),
     panel.grid = element_blank(),
     panel.background = element_rect(fill = "white", colour = "white"),
     axis.line = element_line(colour = "grey20"),
@@ -100,7 +108,8 @@ sctheme <- function(base_size = 24, XYval = TRUE, Xang = 0, XjusH = 0.5) {{
     axis.title = element_text(colour = "grey20"),
     axis.text = element_text(size = base_size, colour = "grey20"),
     axis.text.x = element_text(angle = Xang, hjust = XjusH),
-    legend.position = "bottom",
+    strip.background = element_rect(colour = "white"),
+    legend.position = lpos,
     legend.key = element_rect(colour = NA, fill = NA)
   )
   if (!XYval) {{
@@ -116,6 +125,116 @@ sctheme <- function(base_size = 24, XYval = TRUE, Xang = 0, XjusH = 0.5) {{
 
 ### Plotting functions ----
 
+# @description DR scatterplot for gene expression
+# @param dtab (Data.table) with columns X, Y, geneName and val
+# @param bgCells (Logical) Background points
+# @param inpdrX (Character) X axis variable for DR
+# @param inpdrY (Character) Y axis variable for DR
+# @param inpsiz (Numeric) Point size
+# @param inpcol (Character) Custom colour label
+# @param inpord (Character) Custom plotting order
+# @param inpfsz (Character) Custom font size
+# @param inppasp (Character) Custom aspect ratio
+# @param inptxt (Logical) Show XY labels
+#
+scScatter <- function(dtab, bgCells = FALSE, inpdrX, inpdrY, inpsiz, inpcol, inpfsz, inpasp, inptxt){{
+  
+  if(any(!c("X", "Y", "geneName", "val") %in% colnames(dtab))) "Input missing one or more columns: X, Y, geneName, val."
+  
+  ggOut <- ggplot(dtab, aes(X, Y, color = val))
+  rat <- (max(dtab$X) - min(dtab$X)) / (max(dtab$Y) - min(dtab$Y))
+  ltitle <- dtab$geneName[1]
+  
+  if (bgCells) {{
+    ggOut <- ggOut +
+      geom_point(data = ggData2, color = "snow2", size = inpsiz, shape = 20)
+  }}
+  
+  ggOut <- ggOut +
+    geom_point(size = inpsiz, shape = 20) + xlab(inpdrX) + ylab(inpdrY) +
+    scale_color_gradientn(ltitle, colours = cList[[inpcol]]) +
+    #guides(color = guide_colorbar(barwidth = 20)) + 
+    sctheme(base_size = sList[inpfsz], XYval = inptxt, lpos = "right")
+  
+  if (inpasp == "Square") {{
+    ggOut <- ggOut + coord_fixed(ratio = rat)
+  }} else if (inpasp == "Fixed") {{
+    ggOut <- ggOut + coord_fixed()
+  }}
+  
+  return(ggOut)
+}}
+
+# @description Plot gene expression on dimred for any number of input genes
+# @param inpConf (data.frame) Configuration table
+# @param inpMeta (data.frame) Metadata table
+# @param inpdrX (Character) X axis variable for DR
+# @param inpdrY (Character) Y axis variable for DR
+# @param inp (Character) Gene name to use
+# @param inpsub1 (Character) Name of metadata column for subsetting
+# @param inpsub2 (Character/Vector) Levels under metadata column for subsetting
+# @param inpH5 (Character) Path to expression h5
+# @param inpGene (Numeric) Named gene expression vector
+# @param inpsiz (Numeric) Point size
+# @param inpcol (Character) Custom colour label
+# @param inpord (Character) Custom plotting order
+# @param inpfsz (Character) Custom font size
+# @param inppasp (Character) Custom aspect ratio
+# @param inptxt (Logical) Show XY labels
+# @param inpncol (Integer) Number of rows of plots
+# @details 
+# Config table contains columns ID (Character, columns name in metadata), UI (Character, UI id), fID (Character, Levels for categorical data, | separated), fCL (Character, Colours for categorical data, | separated), fRow (Integer, number of rows), grp (Logical), dimred (Logical)
+#
+scFeature <- function(inpConf, inpMeta, inpdrX, inpdrY, inp, inpsub1, inpsub2, inpH5, inpGene, inpsiz, inpcol, inpord, inpfsz, inpasp, inptxt, inpncol = 0){{
+  
+  if (is.null(inpsub1)) inpsub1 <- inpConf$UI[1]
+  
+  # Identify genes that are in our dataset
+  geneList <- scGeneList(inp, inpGene)
+  geneList <- geneList[present == TRUE]
+  shiny::validate(need(nrow(geneList) <= 36, "More than 36 genes to plot! Please reduce the gene list!"))
+  shiny::validate(need(nrow(geneList) > 0, "Please input at least 1 gene to plot!"))
+  
+  # Prepare ggData
+  h5file <- H5File$new(inpH5, mode = "r")
+  h5data <- h5file[["grp"]][["data"]]
+  ggData <- data.table()
+  for (iGene in geneList$gene) {{
+    tmp <- inpMeta[, c("sampleID",inpConf[UI == inpdrX]$ID, inpConf[UI == inpdrY]$ID, inpConf[UI == inpsub1]$ID),with = FALSE]
+    colnames(tmp) <- c("sampleID", "X", "Y", "sub")
+    tmp$geneName <- iGene
+    tmp$val <- h5data$read(args = list(inpGene[iGene], quote(expr = )))
+    ggData <- rbindlist(list(ggData, tmp))
+  }}
+  h5file$close_all()
+  if (length(inpsub2) != 0 & length(inpsub2) != nlevels(ggData$sub)) ggData <- ggData[sub %in% inpsub2]
+  
+  bgCells <- FALSE
+  if (length(inpsub2) != 0 & length(inpsub2) != nlevels(ggData$sub)) {{
+    bgCells <- TRUE
+    ggData2 <- ggData[!sub %in% inpsub2]
+    ggData <- ggData[sub %in% inpsub2]
+  }}
+  
+  if (inpord == "Max-1st") {{
+    ggData <- ggData[order(val)]
+  }} else if (inpord == "Min-1st") {{
+    ggData <- ggData[order(-val)]
+  }} else if (inpord == "Random") {{
+    ggData <- ggData[sample(nrow(ggData))]
+  }}
+  
+  ggDataSplit <- split(ggData, by=c("geneName"), flatten=FALSE)
+  plist <- vector("list", length = length(ggDataSplit))
+  for(i in seq_along(ggDataSplit)){{
+    plist[[i]] <- scScatter(dtab = ggDataSplit[[i]], bgCells, inpdrX, inpdrY, inpsiz, inpcol, inpfsz, inpasp, inptxt)
+  }}
+
+  if(inpncol < 1) inpncol <- floor(sqrt(length(plist)))
+  ggOut <- ggplotify::as.ggplot(arrangeGrob(grobs = plist, ncol = inpncol))
+  return(ggOut)
+}}
+
 # @description Plot cell information on dimred
 # @param inpConf (data.frame) Configuration table
 # @param inpMeta (data.frame) Metadata table
@@ -124,13 +243,13 @@ sctheme <- function(base_size = 24, XYval = TRUE, Xang = 0, XjusH = 0.5) {{
 # @param inp1 (Character) Gene name to use
 # @param inpsub1 (Character) Name of metadata column for subsetting
 # @param inpsub2 (Character/Vector) Levels under metadata column for subsetting
-# @param inpsiz
-# @param inpcol
-# @param inpord
-# @param inpfsz (Character) Font size
-# @param inpasp
-# @param inptxt
-# @param inplab
+# @param inpsiz (Numeric) Point size
+# @param inpcol (Character) Custom colour label
+# @param inpord (Character) Custom plotting order
+# @param inpfsz (Character) Custom font size
+# @param inppasp (Character) Custom aspect ratio
+# @param inptxt (Logical) Show XY labels
+# @param inplab 
 #
 scDRcell <- function(inpConf, inpMeta, inpdrX, inpdrY, inp1, inpsub1, inpsub2, inpsiz, inpcol, inpord, inpfsz, inpasp, inptxt, inplab) {{
   
@@ -161,16 +280,20 @@ scDRcell <- function(inpConf, inpMeta, inpdrX, inpdrY, inp1, inpsub1, inpsub2, i
   }}
 
   # Do factoring if required
-  if (!is.na(inpConf[UI == inp1]$fCL)) {{ ggCol <- strsplit(inpConf[UI == inp1]$fCL, "\\\\|")[[1]]
+  if (!is.na(inpConf[UI == inp1]$fCL)) {{
+    ggCol <- strsplit(inpConf[UI == inp1]$fCL, "\\\\|")[[1]]
     names(ggCol) <- levels(ggData$val)
     ggLvl <- levels(ggData$val)[levels(ggData$val) %in% unique(ggData$val)]
     ggData$val <- factor(ggData$val, levels = ggLvl)
-    ggCol <- ggCol[ggLvl] }}
+    ggCol <- ggCol[ggLvl]
+  }}
 
   # Actual ggplot
   ggOut <- ggplot(ggData, aes(X, Y, color = val))
-  if (bgCells) {{ ggOut <- ggOut +
-    geom_point(data = ggData2, color = "snow2", size = inpsiz, shape = 20) }}
+  if (bgCells) {{
+  ggOut <- ggOut +
+    geom_point(data = ggData2, color = "snow2", size = inpsiz, shape = 20)
+  }}
   ggOut <- ggOut +
     geom_point(size = inpsiz, shape = 20) +
     xlab(inpdrX) +
@@ -199,7 +322,7 @@ scDRcell <- function(inpConf, inpMeta, inpdrX, inpdrY, inp1, inpsub1, inpsub2, i
           data = ggData3, aes(X, Y, label = val),
           color = "grey10", bg.color = "grey95", bg.r = 0.15,
           size = lListX[inpfsz], seed = 42
-        ) }} 
+        ) }}
     }}
 
   if (inpasp == "Square") {{ ggOut <- ggOut + coord_fixed(ratio = rat) }} else if (inpasp == "Fixed") {{ ggOut <- ggOut + coord_fixed() }}
@@ -264,13 +387,14 @@ scDRnum <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inpH5, inpGe
 # @param inp1 (Character) Gene name to use
 # @param inpsub1 (Character) Name of metadata column for subsetting
 # @param inpsub2 (Character/Vector) Levels under metadata column for subsetting
-# @param inpH5
-# @param inpGene
-# @param inpsiz
-# @param inpcol
-# @param inpfsz
-# @param inppasp
-# @param inptxt
+# @param inpH5 (Character) Path to gene expression h5 file (sc1gexpr.h5)
+# @param inpGene (integer) Named integer vector of gene expression values (sc1gene.rds)
+# @param inpsiz (Numeric) Point size
+# @param inpcol (Character) Custom colour label
+# @param inpord (Character) Custom plotting order
+# @param inpfsz (Character) Custom font size
+# @param inppasp (Character) Custom aspect ratio
+# @param inptxt (Logical) Show XY labels
 #
 scDRgene <- function(inpConf, inpMeta, inpdrX, inpdrY, inp1, inpsub1, inpsub2, inpH5, inpGene, inpsiz, inpcol, inpord, inpfsz, inpasp, inptxt) {{
   
@@ -322,6 +446,24 @@ bilinear <- function(x, y, xy, Q11, Q21, Q12, Q22) {{
   return(oup)
 }}
 
+# @description Gene Co-expression on dimred
+# @param inpConf (data.frame) Configuration table
+# @param inpMeta (data.frame) Metadata table
+# @param inpdrX (Character) X axis variable for DR
+# @param inpdrY (Character) Y axis variable for DR
+# @param inp1 (Character) Gene name to use
+# @param inp2 (Character) Gene name to use
+# @param inpsub1 (Character) Name of metadata column for subsetting
+# @param inpsub2 (Character/Vector) Levels under metadata column for subsetting
+# @param inpH5 (Character) Path to gene expression h5 file (sc1gexpr.h5)
+# @param inpGene (integer) Named integer vector of gene expression values (sc1gene.rds)
+# @param inpsiz (Numeric) Point size
+# @param inpcol (Character) Custom colour label
+# @param inpord (Character) Custom plotting order
+# @param inpfsz (Character) Custom font size
+# @param inppasp (Character) Custom aspect ratio
+# @param inptxt (Logical) Show XY labels
+#
 scDRcoex <- function(inpConf, inpMeta, inpdrX, inpdrY, inp1, inp2, inpsub1,
                      inpsub2, inpH5, inpGene, inpsiz, inpcol, inpord, inpfsz,
                      inpasp, inptxt) {{
@@ -398,7 +540,13 @@ scDRcoex <- function(inpConf, inpMeta, inpdrX, inpdrY, inp1, inp2, inpsub1,
 
   if (inpasp == "Square") {{ ggOut <- ggOut + coord_fixed(ratio = rat) }} else if (inpasp == "Fixed") {{ ggOut <- ggOut + coord_fixed() }}
   return(ggOut) }}
-
+  
+# Co-exp plot legend
+# @param inp1
+# @param inp2
+# @param inpcol Colour
+# @param inpfsz Font size
+#
 scDRcoexLeg <- function(inp1, inp2, inpcol, inpfsz) {{
   
   # Generate coex color palette
@@ -437,6 +585,7 @@ scDRcoexLeg <- function(inp1, inp2, inpcol, inpfsz) {{
   return(ggOut)
 }}
 
+
 scDRcoexNum <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inpH5, inpGene) {{
   
   if (is.null(inpsub1)) {{
@@ -469,6 +618,20 @@ scDRcoexNum <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inpH5, i
 }}
 
 # Plot violin / boxplot
+# @description Violin plot gene expression
+# @param inpConf (data.frame) Configuration table
+# @param inpMeta (data.frame) Metadata table
+# @param inp1 (Character) Gene name to use
+# @param inp2 (Character) Gene name to use
+# @param inpsub1 (Character) Name of metadata column for subsetting
+# @param inpsub2 (Character/Vector) Levels under metadata column for subsetting
+# @param inpH5 (Character) Path to gene expression h5 file (sc1gexpr.h5)
+# @param inpGene (integer) Named integer vector of gene expression values (sc1gene.rds)
+# @param inptyp (Character) Plot type. "violin" else boxplot.
+# @param inppts (Logical) Should points be displayed?
+# @param inpsiz (Numeric) Point size
+# @param inpfsz (Character) Custom font size
+#
 scVioBox <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inpH5, inpGene, inptyp, inppts, inpsiz, inpfsz) {{
   
   if (is.null(inpsub1)) {{ inpsub1 <- inpConf$UI[1] }}
@@ -512,7 +675,7 @@ scVioBox <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inpH5, inpG
     ggOut <- ggplot(ggData, aes(X, val, fill = X)) +
     geom_boxplot()
   }}
-  if (inppts) {{ ggOut <- ggOut + geom_jitter(size = inpsiz, shape = 20) }}
+  if (inppts) {{ ggOut <- ggOut + geom_jitter(size = inpsiz, shape = 20, alpha = 0.6) }}
 
   ggOut <- ggOut + xlab(inp1) + ylab(inp2) +
     sctheme(base_size = sList[inpfsz], Xang = 45, XjusH = 1) +
@@ -522,6 +685,17 @@ scVioBox <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inpH5, inpG
   }}
 
 # Plot proportion plot
+# @description Proportion barplot
+# @param inpConf (data.frame) Configuration table
+# @param inpMeta (data.frame) Metadata table
+# @param inp1 (Character) Gene name to use
+# @param inp2 (Character) Gene name to use
+# @param inpsub1 (Character) Name of metadata column for subsetting
+# @param inpsub2 (Character/Vector) Levels under metadata column for subsetting
+# @param inptyp (Character) Plot type. "violin" else boxplot.
+# @param inpflp (Logical) Flip coordinates?
+# @param inpfsz (Character) Custom font size
+#
 scProp <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inptyp, inpflp, inpfsz) {{
   
   if (is.null(inpsub1)) {{ inpsub1 <- inpConf$UI[1] }}
@@ -578,6 +752,23 @@ scGeneList <- function(inp, inpGene) {{
 }}
 
 # Plot gene expression bubbleplot / heatmap
+# @description dotplot / heatmap gene expression
+# @param inpConf (data.frame) Configuration table
+# @param inpMeta (data.frame) Metadata table
+# @param inp (Character) Gene names
+# @param inpGrp
+# @param inpPlt
+# @param inpsub1 (Character) Name of metadata column for subsetting
+# @param inpsub2 (Character/Vector) Levels under metadata column for subsetting
+# @param inpH5 (Character) Path to gene expression h5 file (sc1gexpr.h5)
+# @param inpGene (integer) Named integer vector of gene expression values (sc1gene.rds)
+# @param inpScl
+# @param inpRow
+# @param inpCol
+# @param inpcols
+# @param inpfsz (Character) Custom font size
+# @param save
+#
 scBubbHeat <- function(inpConf, inpMeta, inp, inpGrp, inpPlt, inpsub1, inpsub2, inpH5, inpGene, inpScl, inpRow, inpCol, inpcols, inpfsz, save = FALSE) {{
   
   if (is.null(inpsub1)) {{ inpsub1 <- inpConf$UI[1] }}
@@ -736,441 +927,441 @@ observe_helpers()
   )
 }
 
-#' Write code for tab1
+#' Write code for cell info vs gene expression
 #'
-wrSVtab1 <- function() {
+wr_sv_civge <- function() {
 paste0('  
-### Tab 1 ----
+### Tab civge cell info vs gene exp ----
 
-{subst}  output${prefix}a1sub1.ui <- renderUI({{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a1sub1]$fID, "\\\\|")[[1]]
-{subst}    checkboxGroupInput("{prefix}a1sub2", "Select which cells to show", inline = TRUE, choices = sub, selected = sub)
+{subst}  output${prefix}_civge_sub1.ui <- renderUI({{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_civge_sub1]$fID, "\\\\|")[[1]]
+{subst}    checkboxGroupInput("{prefix}_civge_sub2", "Select which cells to show", inline = TRUE, choices = sub, selected = sub)
 {subst}  }})
-{subst}  observeEvent(input${prefix}a1sub1non, {{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a1sub1]$fID, "\\\\|")[[1]]
-{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a1sub2", label = "Select which cells to show", choices = sub, selected = NULL, inline = TRUE)
+{subst}  observeEvent(input${prefix}_civge_sub1non, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_civge_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_civge_sub2", label = "Select which cells to show", choices = sub, selected = NULL, inline = TRUE)
 {subst}  }})
-{subst}  observeEvent(input${prefix}a1sub1all, {{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a1sub1]$fID, "\\\\|")[[1]]
-{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a1sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
+{subst}  observeEvent(input${prefix}_civge_sub1all, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_civge_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_civge_sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}a1oup1 <- renderPlot({{
-  req(input${prefix}a1inp1)
-  scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1, input${prefix}a1sub1, input${prefix}a1sub2, input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1, input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1)
+output${prefix}_civge_oup1 <- renderPlot({{
+  req(input${prefix}_civge_inp1)
+  scDRcell({prefix}conf, {prefix}meta, input${prefix}_civge_drX, input${prefix}_civge_drY, input${prefix}_civge_inp1, input${prefix}_civge_sub1, input${prefix}_civge_sub2, input${prefix}_civge_siz, input${prefix}_civge_col1, input${prefix}_civge_ord1, input${prefix}_civge_fsz, input${prefix}_civge_asp, input${prefix}_civge_txt, input${prefix}_civge_lab1)
 }})
 
-output${prefix}a1oup1.ui <- renderUI({{
-  imageOutput("{prefix}a1oup1", height = pList[input${prefix}a1psz])
+output${prefix}_civge_oup1.ui <- renderUI({{
+  imageOutput("{prefix}_civge_oup1", height = pList[input${prefix}_civge_psz])
 }})
 
-output${prefix}a1oup1.pdf <- downloadHandler(
- filename = function() {{ paste0("{prefix}", input${prefix}a1drX,"_", input${prefix}a1drY,"_", input${prefix}a1inp1,".pdf") }},
+output${prefix}_civge_oup1.pdf <- downloadHandler(
+ filename = function() {{ paste0("{prefix}", input${prefix}_civge_drX,"_", input${prefix}_civge_drY,"_", input${prefix}_civge_inp1,".pdf") }},
  content = function(file) {{
    ggsave(
    file, device = "pdf", useDingbats = FALSE,
-   plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1,   input${prefix}a1sub1, input${prefix}a1sub2, input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1,  input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1)
+   plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}_civge_drX, input${prefix}_civge_drY, input${prefix}_civge_inp1,   input${prefix}_civge_sub1, input${prefix}_civge_sub2, input${prefix}_civge_siz, input${prefix}_civge_col1, input${prefix}_civge_ord1,  input${prefix}_civge_fsz, input${prefix}_civge_asp, input${prefix}_civge_txt, input${prefix}_civge_lab1)
    )
 }})
 
-output${prefix}a1oup1.png <- downloadHandler(
- filename = function() {{ paste0("{prefix}",input${prefix}a1drX,"_",input${prefix}a1drY,"_", input${prefix}a1inp1,".png") }},
+output${prefix}_civge_oup1.png <- downloadHandler(
+ filename = function() {{ paste0("{prefix}",input${prefix}_civge_drX,"_",input${prefix}_civge_drY,"_", input${prefix}_civge_inp1,".png") }},
  content = function(file) {{
    ggsave(
-   file, device = "png", dpi = input${prefix}a1oup1.res,
-   plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp1,   input${prefix}a1sub1, input${prefix}a1sub2, input${prefix}a1siz, input${prefix}a1col1, input${prefix}a1ord1,  input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt, input${prefix}a1lab1)
+   file, device = "png", dpi = input${prefix}_civge_oup1.res,
+   plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}_civge_drX, input${prefix}_civge_drY, input${prefix}_civge_inp1,   input${prefix}_civge_sub1, input${prefix}_civge_sub2, input${prefix}_civge_siz, input${prefix}_civge_col1, input${prefix}_civge_ord1,  input${prefix}_civge_fsz, input${prefix}_civge_asp, input${prefix}_civge_txt, input${prefix}_civge_lab1)
    )
 }})
 
-output${prefix}a1.dt <- renderDataTable({{
- req(input${prefix}a1inp2)
- ggData = scDRnum({prefix}conf, {prefix}meta, input${prefix}a1inp1, input${prefix}a1inp2, input${prefix}a1sub1, input${prefix}a1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a1splt)
+output${prefix}_civge_.dt <- renderDataTable({{
+ req(input${prefix}_civge_inp2)
+ ggData = scDRnum({prefix}conf, {prefix}meta, input${prefix}_civge_inp1, input${prefix}_civge_inp2, input${prefix}_civge_sub1, input${prefix}_civge_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_civge_splt)
  datatable(ggData, rownames = FALSE, extensions = "Buttons", options = list(pageLength = -1, dom = "tB", buttons = c("copy", "csv", "excel"))) %>%
    formatRound(columns = c("pctExpress"), digits = 2)
 }})
 
-output${prefix}a1oup2 <- renderPlot({{
- req(input${prefix}a1inp2)
- scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2, input${prefix}a1sub1, input${prefix}a1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2, input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt)
+output${prefix}_civge_oup2 <- renderPlot({{
+ req(input${prefix}_civge_inp2)
+ scDRgene({prefix}conf, {prefix}meta, input${prefix}_civge_drX, input${prefix}_civge_drY, input${prefix}_civge_inp2, input${prefix}_civge_sub1, input${prefix}_civge_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_civge_siz, input${prefix}_civge_col2, input${prefix}_civge_ord2, input${prefix}_civge_fsz, input${prefix}_civge_asp, input${prefix}_civge_txt)
 }})
 
-output${prefix}a1oup2.ui <- renderUI({{
- imageOutput("{prefix}a1oup2", height = pList[input${prefix}a1psz])
+output${prefix}_civge_oup2.ui <- renderUI({{
+ imageOutput("{prefix}_civge_oup2", height = pList[input${prefix}_civge_psz])
 }})
 
-output${prefix}a1oup2.pdf <- downloadHandler(
- filename = function() {{ paste0("{prefix}",input${prefix}a1drX,"_",input${prefix}a1drY,"_", input${prefix}a1inp2,".pdf") }},
+output${prefix}_civge_oup2.pdf <- downloadHandler(
+ filename = function() {{ paste0("{prefix}",input${prefix}_civge_drX,"_",input${prefix}_civge_drY,"_", input${prefix}_civge_inp2,".pdf") }},
  content = function(file) {{
    ggsave(
    file, device = "pdf", useDingbats = FALSE,
-   plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2,  input${prefix}a1sub1, input${prefix}a1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2, input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt)
+   plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}_civge_drX, input${prefix}_civge_drY, input${prefix}_civge_inp2,  input${prefix}_civge_sub1, input${prefix}_civge_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_civge_siz, input${prefix}_civge_col2, input${prefix}_civge_ord2, input${prefix}_civge_fsz, input${prefix}_civge_asp, input${prefix}_civge_txt)
    )
 }})
 
-output${prefix}a1oup2.png <- downloadHandler(
- filename = function() {{ paste0("{prefix}",input${prefix}a1drX,"_",input${prefix}a1drY,"_", input${prefix}a1inp2,".png") }},
+output${prefix}_civge_oup2.png <- downloadHandler(
+ filename = function() {{ paste0("{prefix}",input${prefix}_civge_drX,"_",input${prefix}_civge_drY,"_", input${prefix}_civge_inp2,".png") }},
  content = function(file) {{
    ggsave(
-   file, device = "png", dpi = input${prefix}a1oup2.res,
-   plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a1drX, input${prefix}a1drY, input${prefix}a1inp2, input${prefix}a1sub1, input${prefix}a1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a1siz, input${prefix}a1col2, input${prefix}a1ord2, input${prefix}a1fsz, input${prefix}a1asp, input${prefix}a1txt)
+   file, device = "png", dpi = input${prefix}_civge_oup2.res,
+   plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}_civge_drX, input${prefix}_civge_drY, input${prefix}_civge_inp2, input${prefix}_civge_sub1, input${prefix}_civge_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_civge_siz, input${prefix}_civge_col2, input${prefix}_civge_ord2, input${prefix}_civge_fsz, input${prefix}_civge_asp, input${prefix}_civge_txt)
    )
-}}) # End of tab 1
+}}) # End of tab civge
 
 ')
 }
 
-#' Write code for tab2
+#' Write code for cell info vs cell info
 #'
-wrSVtab2 <- function() {
+wr_sv_civci <- function() {
 paste0('
-### Tab 2 ----
+### Tab civci cell info vs cell info ----
   
-{subst}  output${prefix}a2sub1.ui <- renderUI({{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a2sub1]$fID, "\\\\|")[[1]]
-{subst}    checkboxGroupInput("{prefix}a2sub2", "Select which cells to show", inline = TRUE, choices = sub, selected = sub)
+{subst}  output${prefix}_civci_sub1.ui <- renderUI({{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_civci_sub1]$fID, "\\\\|")[[1]]
+{subst}    checkboxGroupInput("{prefix}_civci_sub2", "Select which cells to show", inline = TRUE, choices = sub, selected = sub)
 {subst}  }})
-{subst}  observeEvent(input${prefix}a2sub1non, {{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a2sub1]$fID, "\\\\|")[[1]]
-{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a2sub2", label = "Select which cells to show", choices = sub, selected = NULL, inline = TRUE)
+{subst}  observeEvent(input${prefix}_civci_sub1non, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_civci_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_civci_sub2", label = "Select which cells to show", choices = sub, selected = NULL, inline = TRUE)
 {subst}  }})
-{subst}  observeEvent(input${prefix}a2sub1all, {{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a2sub1]$fID, "\\\\|")[[1]]
-{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a2sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
+{subst}  observeEvent(input${prefix}_civci_sub1all, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_civci_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_civci_sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}a2oup1 <- renderPlot({{
-  req(input${prefix}a2inp1)
-  scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp1, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col1, input${prefix}a2ord1, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab1)
+output${prefix}_civci_oup1 <- renderPlot({{
+  req(input${prefix}_civci_inp1)
+  scDRcell({prefix}conf, {prefix}meta, input${prefix}_civci_drX, input${prefix}_civci_drY, input${prefix}_civci_inp1, input${prefix}_civci_sub1, input${prefix}_civci_sub2, input${prefix}_civci_siz, input${prefix}_civci_col1, input${prefix}_civci_ord1, input${prefix}_civci_fsz, input${prefix}_civci_asp, input${prefix}_civci_txt, input${prefix}_civci_lab1)
 }})
 
-output${prefix}a2oup1.ui <- renderUI({{
-  imageOutput("{prefix}a2oup1", height = pList[input${prefix}a2psz])
+output${prefix}_civci_oup1.ui <- renderUI({{
+  imageOutput("{prefix}_civci_oup1", height = pList[input${prefix}_civci_psz])
 }})
 
-output${prefix}a2oup1.pdf <- downloadHandler(
-  filename = function() {{ paste0("{prefix}", input${prefix}a2drX, "_", input${prefix}a2drY, "_", input${prefix}a2inp1, ".pdf") }},
+output${prefix}_civci_oup1.pdf <- downloadHandler(
+  filename = function() {{ paste0("{prefix}", input${prefix}_civci_drX, "_", input${prefix}_civci_drY, "_", input${prefix}_civci_inp1, ".pdf") }},
   content = function(file) {{ ggsave(
     file, device = "pdf", useDingbats = FALSE,
-    plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp1, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col1, input${prefix}a2ord1, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab1) )
+    plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}_civci_drX, input${prefix}_civci_drY, input${prefix}_civci_inp1, input${prefix}_civci_sub1, input${prefix}_civci_sub2, input${prefix}_civci_siz, input${prefix}_civci_col1, input${prefix}_civci_ord1, input${prefix}_civci_fsz, input${prefix}_civci_asp, input${prefix}_civci_txt, input${prefix}_civci_lab1) )
 }})
 
-output${prefix}a2oup1.png <- downloadHandler(
-  filename = function() {{ paste0("{prefix}", input${prefix}a2drX, "_", input${prefix}a2drY, "_", input${prefix}a2inp1, ".png") }},
+output${prefix}_civci_oup1.png <- downloadHandler(
+  filename = function() {{ paste0("{prefix}", input${prefix}_civci_drX, "_", input${prefix}_civci_drY, "_", input${prefix}_civci_inp1, ".png") }},
   content = function(file) {{
     ggsave(
-    file, device = "png", dpi = input${prefix}a2oup1.res,
-    plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp1, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col1, input${prefix}a2ord1, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab1)
+    file, device = "png", dpi = input${prefix}_civci_oup1.res,
+    plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}_civci_drX, input${prefix}_civci_drY, input${prefix}_civci_inp1, input${prefix}_civci_sub1, input${prefix}_civci_sub2, input${prefix}_civci_siz, input${prefix}_civci_col1, input${prefix}_civci_ord1, input${prefix}_civci_fsz, input${prefix}_civci_asp, input${prefix}_civci_txt, input${prefix}_civci_lab1)
     )
 }})
 
-output${prefix}a2oup2 <- renderPlot({{
-  req(input${prefix}a2inp2)
-  scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp2, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col2, input${prefix}a2ord2, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab2)
+output${prefix}_civci_oup2 <- renderPlot({{
+  req(input${prefix}_civci_inp2)
+  scDRcell({prefix}conf, {prefix}meta, input${prefix}_civci_drX, input${prefix}_civci_drY, input${prefix}_civci_inp2, input${prefix}_civci_sub1, input${prefix}_civci_sub2, input${prefix}_civci_siz, input${prefix}_civci_col2, input${prefix}_civci_ord2, input${prefix}_civci_fsz, input${prefix}_civci_asp, input${prefix}_civci_txt, input${prefix}_civci_lab2)
 }})
 
-output${prefix}a2oup2.ui <- renderUI({{
-  imageOutput("{prefix}a2oup2", height = pList[input${prefix}a2psz])
+output${prefix}_civci_oup2.ui <- renderUI({{
+  imageOutput("{prefix}_civci_oup2", height = pList[input${prefix}_civci_psz])
 }})
 
-output${prefix}a2oup2.pdf <- downloadHandler(
-  filename = function() {{ paste0("{prefix}",input${prefix}a2drX,"_",input${prefix}a2drY,"_", input${prefix}a2inp2,".pdf") }},
+output${prefix}_civci_oup2.pdf <- downloadHandler(
+  filename = function() {{ paste0("{prefix}",input${prefix}_civci_drX,"_",input${prefix}_civci_drY,"_", input${prefix}_civci_inp2,".pdf") }},
   content = function(file) {{
     ggsave(
     file, device = "pdf", useDingbats = FALSE,
-    plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp2, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col2, input${prefix}a2ord2, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab2) 
+    plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}_civci_drX, input${prefix}_civci_drY, input${prefix}_civci_inp2, input${prefix}_civci_sub1, input${prefix}_civci_sub2, input${prefix}_civci_siz, input${prefix}_civci_col2, input${prefix}_civci_ord2, input${prefix}_civci_fsz, input${prefix}_civci_asp, input${prefix}_civci_txt, input${prefix}_civci_lab2) 
     )
 }})
 
-output${prefix}a2oup2.png <- downloadHandler(
-  filename = function() {{ paste0("{prefix}",input${prefix}a2drX,"_",input${prefix}a2drY,"_", input${prefix}a2inp2,".png") }},
+output${prefix}_civci_oup2.png <- downloadHandler(
+  filename = function() {{ paste0("{prefix}",input${prefix}_civci_drX,"_",input${prefix}_civci_drY,"_", input${prefix}_civci_inp2,".png") }},
   content = function(file) {{
     ggsave(
-    file, device = "png", dpi = input${prefix}a2oup2.res,
-    plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}a2drX, input${prefix}a2drY, input${prefix}a2inp2, input${prefix}a2sub1, input${prefix}a2sub2, input${prefix}a2siz, input${prefix}a2col2, input${prefix}a2ord2, input${prefix}a2fsz, input${prefix}a2asp, input${prefix}a2txt, input${prefix}a2lab2)
+    file, device = "png", dpi = input${prefix}_civci_oup2.res,
+    plot = scDRcell({prefix}conf, {prefix}meta, input${prefix}_civci_drX, input${prefix}_civci_drY, input${prefix}_civci_inp2, input${prefix}_civci_sub1, input${prefix}_civci_sub2, input${prefix}_civci_siz, input${prefix}_civci_col2, input${prefix}_civci_ord2, input${prefix}_civci_fsz, input${prefix}_civci_asp, input${prefix}_civci_txt, input${prefix}_civci_lab2)
     )
-}}) # End of tab 2
+}}) # End of tab civci
 
 ')
 }
 
-#' Write code for tab3
+#' Write code for gene exp vs gene exp
 #'
-wrSVtab3 <- function() {
+wr_sv_gevge <- function() {
 paste0('
-### Tab 3 ----
+### Tab gevge gene exp vs gene exp ----
 
-{subst}  output${prefix}a3sub1.ui <- renderUI({{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a3sub1]$fID, "\\\\|")[[1]]
-{subst}    checkboxGroupInput("{prefix}a3sub2", "Select which cells to show", inline = TRUE, choices = sub, selected = sub)
+{subst}  output${prefix}_gevge_sub1.ui <- renderUI({{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_gevge_sub1]$fID, "\\\\|")[[1]]
+{subst}    checkboxGroupInput("{prefix}_gevge_sub2", "Select which cells to show", inline = TRUE, choices = sub, selected = sub)
 {subst}  }})
-{subst}  observeEvent(input${prefix}a3sub1non, {{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a3sub1]$fID, "\\\\|")[[1]]
-{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a3sub2", label = "Select which cells to show", choices = sub, selected = NULL, inline = TRUE)
+{subst}  observeEvent(input${prefix}_gevge_sub1non, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_gevge_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_gevge_sub2", label = "Select which cells to show", choices = sub, selected = NULL, inline = TRUE)
 {subst}  }})
-{subst}  observeEvent(input${prefix}a3sub1all, {{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}a3sub1]$fID, "\\\\|")[[1]]
-{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}a3sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
+{subst}  observeEvent(input${prefix}_gevge_sub1all, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_gevge_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_gevge_sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}a3oup1 <- renderPlot({{
-  req(input${prefix}a3inp1)
-  scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp1, input${prefix}a3sub1, input${prefix}a3sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a3siz, input${prefix}a3col1, input${prefix}a3ord1, input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)
+output${prefix}_gevge_oup1 <- renderPlot({{
+  req(input${prefix}_gevge_inp1)
+  scDRgene({prefix}conf, {prefix}meta, input${prefix}_gevge_drX, input${prefix}_gevge_drY, input${prefix}_gevge_inp1, input${prefix}_gevge_sub1, input${prefix}_gevge_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_gevge_siz, input${prefix}_gevge_col1, input${prefix}_gevge_ord1, input${prefix}_gevge_fsz, input${prefix}_gevge_asp, input${prefix}_gevge_txt)
 }})
 
-output${prefix}a3oup1.ui <- renderUI({{
-  imageOutput("{prefix}a3oup1", height = pList[input${prefix}a3psz])
+output${prefix}_gevge_oup1.ui <- renderUI({{
+  imageOutput("{prefix}_gevge_oup1", height = pList[input${prefix}_gevge_psz])
 }})
 
-output${prefix}a3oup1.pdf <- downloadHandler(
-  filename = function() {{ paste0("{prefix}", input${prefix}a3drX, "_", input${prefix}a3drY, "_", input${prefix}a3inp1, ".pdf") }},
+output${prefix}_gevge_oup1.pdf <- downloadHandler(
+  filename = function() {{ paste0("{prefix}", input${prefix}_gevge_drX, "_", input${prefix}_gevge_drY, "_", input${prefix}_gevge_inp1, ".pdf") }},
   content = function(file) {{
     ggsave(
     file, device = "pdf", useDingbats = FALSE,
-    plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp1, input${prefix}a3sub1, input${prefix}a3sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a3siz, input${prefix}a3col1, input${prefix}a3ord1, input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)
+    plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}_gevge_drX, input${prefix}_gevge_drY, input${prefix}_gevge_inp1, input${prefix}_gevge_sub1, input${prefix}_gevge_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_gevge_siz, input${prefix}_gevge_col1, input${prefix}_gevge_ord1, input${prefix}_gevge_fsz, input${prefix}_gevge_asp, input${prefix}_gevge_txt)
     )
 }})
 
-output${prefix}a3oup1.png <- downloadHandler(
-  filename = function() {{ paste0("{prefix}", input${prefix}a3drX, "_", input${prefix}a3drY, "_", input${prefix}a3inp1,".png") }},
+output${prefix}_gevge_oup1.png <- downloadHandler(
+  filename = function() {{ paste0("{prefix}", input${prefix}_gevge_drX, "_", input${prefix}_gevge_drY, "_", input${prefix}_gevge_inp1,".png") }},
   content = function(file) {{
     ggsave(
-    file, device = "png", dpi = input${prefix}a3oup1.res,
-    plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp1, 
-                    input${prefix}a3sub1, input${prefix}a3sub2,
+    file, device = "png", dpi = input${prefix}_gevge_oup1.res,
+    plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}_gevge_drX, input${prefix}_gevge_drY, input${prefix}_gevge_inp1, 
+                    input${prefix}_gevge_sub1, input${prefix}_gevge_sub2,
                     "{prefix}gexpr.h5", {prefix}gene,
-                    input${prefix}a3siz, input${prefix}a3col1, input${prefix}a3ord1,
-                    input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)
+                    input${prefix}_gevge_siz, input${prefix}_gevge_col1, input${prefix}_gevge_ord1,
+                    input${prefix}_gevge_fsz, input${prefix}_gevge_asp, input${prefix}_gevge_txt)
     )
 }})
 
-output${prefix}a3oup2 <- renderPlot({{
-  req(input${prefix}a3inp2)
-  scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp2, input${prefix}a3sub1, input${prefix}a3sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a3siz, input${prefix}a3col2, input${prefix}a3ord2, input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)
+output${prefix}_gevge_oup2 <- renderPlot({{
+  req(input${prefix}_gevge_inp2)
+  scDRgene({prefix}conf, {prefix}meta, input${prefix}_gevge_drX, input${prefix}_gevge_drY, input${prefix}_gevge_inp2, input${prefix}_gevge_sub1, input${prefix}_gevge_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_gevge_siz, input${prefix}_gevge_col2, input${prefix}_gevge_ord2, input${prefix}_gevge_fsz, input${prefix}_gevge_asp, input${prefix}_gevge_txt)
 }})
 
-output${prefix}a3oup2.ui <- renderUI({{
-  imageOutput("{prefix}a3oup2", height = pList[input${prefix}a3psz])
+output${prefix}_gevge_oup2.ui <- renderUI({{
+  imageOutput("{prefix}_gevge_oup2", height = pList[input${prefix}_gevge_psz])
 }})
 
-output${prefix}a3oup2.pdf <- downloadHandler(
-  filename = function() {{ paste0("{prefix}", input${prefix}a3drX, "_", input${prefix}a3drY, "_", input${prefix}a3inp2,".pdf") }},
+output${prefix}_gevge_oup2.pdf <- downloadHandler(
+  filename = function() {{ paste0("{prefix}", input${prefix}_gevge_drX, "_", input${prefix}_gevge_drY, "_", input${prefix}_gevge_inp2,".pdf") }},
   content = function(file) {{
     ggsave(
     file, device = "pdf", useDingbats = FALSE,
-    plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp2, 
-                    input${prefix}a3sub1, input${prefix}a3sub2,
+    plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}_gevge_drX, input${prefix}_gevge_drY, input${prefix}_gevge_inp2, 
+                    input${prefix}_gevge_sub1, input${prefix}_gevge_sub2,
                     "{prefix}gexpr.h5", {prefix}gene,
-                    input${prefix}a3siz, input${prefix}a3col2, input${prefix}a3ord2,
-                    input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)
+                    input${prefix}_gevge_siz, input${prefix}_gevge_col2, input${prefix}_gevge_ord2,
+                    input${prefix}_gevge_fsz, input${prefix}_gevge_asp, input${prefix}_gevge_txt)
     )
 }})
 
-output${prefix}a3oup2.png <- downloadHandler(
-  filename = function() {{ paste0("{prefix}", input${prefix}a3drX, "_", input${prefix}a3drY, "_", input${prefix}a3inp2,".png") }},
+output${prefix}_gevge_oup2.png <- downloadHandler(
+  filename = function() {{ paste0("{prefix}", input${prefix}_gevge_drX, "_", input${prefix}_gevge_drY, "_", input${prefix}_gevge_inp2,".png") }},
   content = function(file) {{
     ggsave(
-    file, device = "png", dpi = input${prefix}a3oup2.res,
-    plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}a3drX, input${prefix}a3drY, input${prefix}a3inp2, input${prefix}a3sub1, input${prefix}a3sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}a3siz, input${prefix}a3col2, input${prefix}a3ord2, input${prefix}a3fsz, input${prefix}a3asp, input${prefix}a3txt)
+    file, device = "png", dpi = input${prefix}_gevge_oup2.res,
+    plot = scDRgene({prefix}conf, {prefix}meta, input${prefix}_gevge_drX, input${prefix}_gevge_drY, input${prefix}_gevge_inp2, input${prefix}_gevge_sub1, input${prefix}_gevge_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_gevge_siz, input${prefix}_gevge_col2, input${prefix}_gevge_ord2, input${prefix}_gevge_fsz, input${prefix}_gevge_asp, input${prefix}_gevge_txt)
     )
-}}) # End of tab 3
+}}) # End of tab gevge
 
 
 ')
 }
 
-#' Write code for tab4
+#' Write code for gene co-expression
 #'
-wrSVtab4 <- function() {
+wr_sv_gec <- function() {
 paste0('
-### Tab 4 ----
+### Tab gec gene co-expression ----
 
-{subst}  output${prefix}b2sub1.ui <- renderUI({{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}b2sub1]$fID, "\\\\|")[[1]]
-{subst}    checkboxGroupInput("{prefix}b2sub2", "Select which cells to show", inline = TRUE, choices = sub, selected = sub)
+{subst}  output${prefix}_gec_sub1.ui <- renderUI({{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_gec_sub1]$fID, "\\\\|")[[1]]
+{subst}    checkboxGroupInput("{prefix}_gec_sub2", "Select which cells to show", inline = TRUE, choices = sub, selected = sub)
 {subst}  }})
-{subst}  observeEvent(input${prefix}b2sub1non, {{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}b2sub1]$fID, "\\\\|")[[1]]
-{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}b2sub2", label = "Select which cells to show", choices = sub, selected = NULL, inline = TRUE)
+{subst}  observeEvent(input${prefix}_gec_sub1non, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_gec_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_gec_sub2", label = "Select which cells to show", choices = sub, selected = NULL, inline = TRUE)
 {subst}  }})
-{subst}  observeEvent(input${prefix}b2sub1all, {{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}b2sub1]$fID, "\\\\|")[[1]]
-{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}b2sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
+{subst}  observeEvent(input${prefix}_gec_sub1all, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_gec_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_gec_sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}b2oup1 <- renderPlot({{
-  scDRcoex({prefix}conf, {prefix}meta, input${prefix}b2drX, input${prefix}b2drY, input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}b2siz, input${prefix}b2col1, input${prefix}b2ord1, input${prefix}b2fsz, input${prefix}b2asp, input${prefix}b2txt)
+output${prefix}_gec_oup1 <- renderPlot({{
+  scDRcoex({prefix}conf, {prefix}meta, input${prefix}_gec_drX, input${prefix}_gec_drY, input${prefix}_gec_inp1, input${prefix}_gec_inp2, input${prefix}_gec_sub1, input${prefix}_gec_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_gec_siz, input${prefix}_gec_col1, input${prefix}_gec_ord1, input${prefix}_gec_fsz, input${prefix}_gec_asp, input${prefix}_gec_txt)
 }})
 
-output${prefix}b2oup1.ui <- renderUI({{
-  imageOutput("{prefix}b2oup1", height = pList2[input${prefix}b2psz])
+output${prefix}_gec_oup1.ui <- renderUI({{
+  imageOutput("{prefix}_gec_oup1", height = pList2[input${prefix}_gec_psz])
 }})
 
-output${prefix}b2oup1.pdf <- downloadHandler(
-  filename = function() {{ paste0("{prefix}", input${prefix}b2drX, "_", input${prefix}b2drY, "_", input${prefix}b2inp1, "_", input${prefix}b2inp2, ".pdf") }},
+output${prefix}_gec_oup1.pdf <- downloadHandler(
+  filename = function() {{ paste0("{prefix}", input${prefix}_gec_drX, "_", input${prefix}_gec_drY, "_", input${prefix}_gec_inp1, "_", input${prefix}_gec_inp2, ".pdf") }},
   content = function(file) {{
     ggsave(
     file, device = "pdf", useDingbats = FALSE,
-    plot = scDRcoex({prefix}conf, {prefix}meta, input${prefix}b2drX, input${prefix}b2drY, input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}b2siz, input${prefix}b2col1, input${prefix}b2ord1, input${prefix}b2fsz, input${prefix}b2asp, input${prefix}b2txt)
+    plot = scDRcoex({prefix}conf, {prefix}meta, input${prefix}_gec_drX, input${prefix}_gec_drY, input${prefix}_gec_inp1, input${prefix}_gec_inp2, input${prefix}_gec_sub1, input${prefix}_gec_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_gec_siz, input${prefix}_gec_col1, input${prefix}_gec_ord1, input${prefix}_gec_fsz, input${prefix}_gec_asp, input${prefix}_gec_txt)
     )
 }})
 
-output${prefix}b2oup1.png <- downloadHandler(
-  filename = function() {{ paste0("{prefix}", input${prefix}b2drX, "_", input${prefix}b2drY, "_", input${prefix}b2inp1, "_", input${prefix}b2inp2, ".png") }},
+output${prefix}_gec_oup1.png <- downloadHandler(
+  filename = function() {{ paste0("{prefix}", input${prefix}_gec_drX, "_", input${prefix}_gec_drY, "_", input${prefix}_gec_inp1, "_", input${prefix}_gec_inp2, ".png") }},
   content = function(file) {{ ggsave(
-    file, device = "png", dpi = input${prefix}b2oup1.res,
-    plot = scDRcoex({prefix}conf, {prefix}meta, input${prefix}b2drX, input${prefix}b2drY, input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}b2siz, input${prefix}b2col1, input${prefix}b2ord1, input${prefix}b2fsz, input${prefix}b2asp, input${prefix}b2txt) )
+    file, device = "png", dpi = input${prefix}_gec_oup1.res,
+    plot = scDRcoex({prefix}conf, {prefix}meta, input${prefix}_gec_drX, input${prefix}_gec_drY, input${prefix}_gec_inp1, input${prefix}_gec_inp2, input${prefix}_gec_sub1, input${prefix}_gec_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_gec_siz, input${prefix}_gec_col1, input${prefix}_gec_ord1, input${prefix}_gec_fsz, input${prefix}_gec_asp, input${prefix}_gec_txt) )
 }})
 
-output${prefix}b2oup2 <- renderPlot({{
-  scDRcoexLeg(input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2col1, input${prefix}b2fsz)
+output${prefix}_gec_oup2 <- renderPlot({{
+  scDRcoexLeg(input${prefix}_gec_inp1, input${prefix}_gec_inp2, input${prefix}_gec_col1, input${prefix}_gec_fsz)
 }})
 
-output${prefix}b2oup2.ui <- renderUI({{
-  imageOutput("{prefix}b2oup2", height = "300px")
+output${prefix}_gec_oup2.ui <- renderUI({{
+  imageOutput("{prefix}_gec_oup2", height = "300px")
 }})
 
-output${prefix}b2oup2.pdf <- downloadHandler(
-  filename = function() {{ paste0("{prefix}", input${prefix}b2drX, "_", input${prefix}b2drY, "_", input${prefix}b2inp1, "_", input${prefix}b2inp2, "_leg.pdf") }},
+output${prefix}_gec_oup2.pdf <- downloadHandler(
+  filename = function() {{ paste0("{prefix}", input${prefix}_gec_drX, "_", input${prefix}_gec_drY, "_", input${prefix}_gec_inp1, "_", input${prefix}_gec_inp2, "_leg.pdf") }},
   content = function(file) {{ ggsave(
     file, device = "pdf", height = 3, width = 4, useDingbats = FALSE,
-    plot = scDRcoexLeg(input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2col1, input${prefix}b2fsz) )
+    plot = scDRcoexLeg(input${prefix}_gec_inp1, input${prefix}_gec_inp2, input${prefix}_gec_col1, input${prefix}_gec_fsz) )
 }})
 
-output${prefix}b2oup2.png <- downloadHandler(
-  filename = function() {{ paste0("{prefix}",input${prefix}b2drX,"_",input${prefix}b2drY,"_", 
-                                  input${prefix}b2inp1,"_",input${prefix}b2inp2,"_leg.png") }},
+output${prefix}_gec_oup2.png <- downloadHandler(
+  filename = function() {{ paste0("{prefix}",input${prefix}_gec_drX,"_",input${prefix}_gec_drY,"_", 
+                                  input${prefix}_gec_inp1,"_",input${prefix}_gec_inp2,"_leg.png") }},
   content = function(file) {{ ggsave(
     file, device = "png", height = 3, width = 4,
-    plot = scDRcoexLeg(input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2col1, input${prefix}b2fsz) )
+    plot = scDRcoexLeg(input${prefix}_gec_inp1, input${prefix}_gec_inp2, input${prefix}_gec_col1, input${prefix}_gec_fsz) )
 }})
 
-output${prefix}b2.dt <- renderDataTable({{
-  ggData = scDRcoexNum({prefix}conf, {prefix}meta, input${prefix}b2inp1, input${prefix}b2inp2, input${prefix}b2sub1, input${prefix}b2sub2, "{prefix}gexpr.h5", {prefix}gene)
+output${prefix}_gec_.dt <- renderDataTable({{
+  ggData = scDRcoexNum({prefix}conf, {prefix}meta, input${prefix}_gec_inp1, input${prefix}_gec_inp2, input${prefix}_gec_sub1, input${prefix}_gec_sub2, "{prefix}gexpr.h5", {prefix}gene)
   datatable(ggData, rownames = FALSE, extensions = "Buttons", options = list(pageLength = -1, dom = "tB", buttons = c("copy", "csv", "excel"))) %>%
             formatRound(columns = c("percent"), digits = 2)
-}}) # End of tab 4
+}}) # End of tab gec
 
 ')
 }
 
-#' Write code for tab5
+#' Write code for violinplot / boxplot
 #'
-wrSVtab5 <- function() {
+wr_sv_vio <- function() {
 paste0('
-### Tab 5 ----
+### Tab vio violinplot / boxplot ----
 
-{subst}  output${prefix}c1sub1.ui <- renderUI({{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c1sub1]$fID, "\\\\|")[[1]]
-{subst}    checkboxGroupInput("{prefix}c1sub2", "Select which cells to show", inline = TRUE, choices = sub, selected = sub)
+{subst}  output${prefix}_vio_sub1.ui <- renderUI({{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_vio_sub1]$fID, "\\\\|")[[1]]
+{subst}    checkboxGroupInput("{prefix}_vio_sub2", "Select which cells to show", inline = TRUE, choices = sub, selected = sub)
 {subst}  }})
-{subst}  observeEvent(input${prefix}c1sub1non, {{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c1sub1]$fID, "\\\\|")[[1]]
-{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}c1sub2", label = "Select which cells to show", choices = sub, selected = NULL, inline = TRUE)
+{subst}  observeEvent(input${prefix}_vio_sub1non, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_vio_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_vio_sub2", label = "Select which cells to show", choices = sub, selected = NULL, inline = TRUE)
 {subst}  }})
-{subst}  observeEvent(input${prefix}c1sub1all, {{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c1sub1]$fID, "\\\\|")[[1]]
-{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}c1sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
+{subst}  observeEvent(input${prefix}_vio_sub1all, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_vio_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_vio_sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}c1oup <- renderPlot({{
-  scVioBox({prefix}conf, {prefix}meta, input${prefix}c1inp1, input${prefix}c1inp2, input${prefix}c1sub1, input${prefix}c1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}c1typ, input${prefix}c1pts, input${prefix}c1siz, input${prefix}c1fsz)
+output${prefix}_vio_oup <- renderPlot({{
+  scVioBox({prefix}conf, {prefix}meta, input${prefix}_vio_inp1, input${prefix}_vio_inp2, input${prefix}_vio_sub1, input${prefix}_vio_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_vio_typ, input${prefix}_vio_pts, input${prefix}_vio_siz, input${prefix}_vio_fsz)
 }})
 
-output${prefix}c1oup.ui <- renderUI({{
-  imageOutput("{prefix}c1oup", height = pList2[input${prefix}c1psz])
+output${prefix}_vio_oup.ui <- renderUI({{
+  imageOutput("{prefix}_vio_oup", height = pList2[input${prefix}_vio_psz])
 }})
 
-output${prefix}c1oup.pdf <- downloadHandler(
-  filename = function() {{ paste0("{prefix}", input${prefix}c1typ, "_", input${prefix}c1inp1, "_", input${prefix}c1inp2, ".pdf") }},
+output${prefix}_vio_oup.pdf <- downloadHandler(
+  filename = function() {{ paste0("{prefix}", input${prefix}_vio_typ, "_", input${prefix}_vio_inp1, "_", input${prefix}_vio_inp2, ".pdf") }},
   content = function(file) {{
     ggsave(
     file, device = "pdf", useDingbats = FALSE,
-    plot = scVioBox({prefix}conf, {prefix}meta, input${prefix}c1inp1, input${prefix}c1inp2, input${prefix}c1sub1, input${prefix}c1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}c1typ, input${prefix}c1pts, input${prefix}c1siz, input${prefix}c1fsz)
+    plot = scVioBox({prefix}conf, {prefix}meta, input${prefix}_vio_inp1, input${prefix}_vio_inp2, input${prefix}_vio_sub1, input${prefix}_vio_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_vio_typ, input${prefix}_vio_pts, input${prefix}_vio_siz, input${prefix}_vio_fsz)
     )
 }})
 
-output${prefix}c1oup.png <- downloadHandler(
-  filename = function() {{ paste0("{prefix}", input${prefix}c1typ, "_", input${prefix}c1inp1, "_", input${prefix}c1inp2,".png") }},
+output${prefix}_vio_oup.png <- downloadHandler(
+  filename = function() {{ paste0("{prefix}", input${prefix}_vio_typ, "_", input${prefix}_vio_inp1, "_", input${prefix}_vio_inp2,".png") }},
   content = function(file) {{
     ggsave(
-    file, device = "png", dpi = input${prefix}c1oup.res,
-    plot = scVioBox({prefix}conf, {prefix}meta, input${prefix}c1inp1, input${prefix}c1inp2, input${prefix}c1sub1, input${prefix}c1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}c1typ, input${prefix}c1pts, input${prefix}c1siz, input${prefix}c1fsz)
+    file, device = "png", dpi = input${prefix}_vio_oup.res,
+    plot = scVioBox({prefix}conf, {prefix}meta, input${prefix}_vio_inp1, input${prefix}_vio_inp2, input${prefix}_vio_sub1, input${prefix}_vio_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_vio_typ, input${prefix}_vio_pts, input${prefix}_vio_siz, input${prefix}_vio_fsz)
     )
-}}) # End of tab 5
+}}) # End of tab vio
 
 
 ')
 }
 
-#' Write code for tab6
+#' Write code for pro
 #'
-wrSVtab6 <- function() {
+wr_sv_pro <- function() {
 paste0('
-### Tab 6 ----
+### Tab pro proportion plot ----
 
-{subst}  output${prefix}c2sub1.ui <- renderUI({{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c2sub1]$fID, "\\\\|")[[1]]
-{subst}    checkboxGroupInput("{prefix}c2sub2", "Select which cells to show", inline = TRUE, choices = sub, selected = sub)
+{subst}  output${prefix}_pro_sub1.ui <- renderUI({{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_pro_sub1]$fID, "\\\\|")[[1]]
+{subst}    checkboxGroupInput("{prefix}_pro_sub2", "Select which cells to show", inline = TRUE, choices = sub, selected = sub)
 {subst}  }})
-{subst}  observeEvent(input${prefix}c2sub1non, {{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c2sub1]$fID, "\\\\|")[[1]]
-{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}c2sub2", label = "Select which cells to show", choices = sub, selected = NULL, inline = TRUE)
+{subst}  observeEvent(input${prefix}_pro_sub1non, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_pro_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_pro_sub2", label = "Select which cells to show", choices = sub, selected = NULL, inline = TRUE)
 {subst}  }})
-{subst}  observeEvent(input${prefix}c2sub1all, {{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}c2sub1]$fID, "\\\\|")[[1]]
-{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}c2sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
+{subst}  observeEvent(input${prefix}_pro_sub1all, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_pro_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_pro_sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}c2oup <- renderPlot({{
-  scProp({prefix}conf, {prefix}meta, input${prefix}c2inp1, input${prefix}c2inp2, input${prefix}c2sub1, input${prefix}c2sub2, input${prefix}c2typ, input${prefix}c2flp, input${prefix}c2fsz)
+output${prefix}_pro_oup <- renderPlot({{
+  scProp({prefix}conf, {prefix}meta, input${prefix}_pro_inp1, input${prefix}_pro_inp2, input${prefix}_pro_sub1, input${prefix}_pro_sub2, input${prefix}_pro_typ, input${prefix}_pro_flp, input${prefix}_pro_fsz)
 }})
 
-output${prefix}c2oup.ui <- renderUI({{
-  imageOutput("{prefix}c2oup", height = pList2[input${prefix}c2psz])
+output${prefix}_pro_oup.ui <- renderUI({{
+  imageOutput("{prefix}_pro_oup", height = pList2[input${prefix}_pro_psz])
 }})
 
-output${prefix}c2oup.pdf <- downloadHandler(
-  filename = function() {{ paste0("{prefix}", input${prefix}c2typ, "_", input${prefix}c2inp1, "_", input${prefix}c2inp2, ".pdf") }},
+output${prefix}_pro_oup.pdf <- downloadHandler(
+  filename = function() {{ paste0("{prefix}", input${prefix}_pro_typ, "_", input${prefix}_pro_inp1, "_", input${prefix}_pro_inp2, ".pdf") }},
   content = function(file) {{
     ggsave(
     file, device = "pdf", useDingbats = FALSE,
-    plot = scProp({prefix}conf, {prefix}meta, input${prefix}c2inp1, input${prefix}c2inp2, input${prefix}c2sub1, input${prefix}c2sub2, input${prefix}c2typ, input${prefix}c2flp, input${prefix}c2fsz)
+    plot = scProp({prefix}conf, {prefix}meta, input${prefix}_pro_inp1, input${prefix}_pro_inp2, input${prefix}_pro_sub1, input${prefix}_pro_sub2, input${prefix}_pro_typ, input${prefix}_pro_flp, input${prefix}_pro_fsz)
     )
   }})
 
-output${prefix}c2oup.png <- downloadHandler(
-  filename = function() {{ paste0("{prefix}", input${prefix}c2typ, "_", input${prefix}c2inp1, "_", input${prefix}c2inp2, ".png") }},
+output${prefix}_pro_oup.png <- downloadHandler(
+  filename = function() {{ paste0("{prefix}", input${prefix}_pro_typ, "_", input${prefix}_pro_inp1, "_", input${prefix}_pro_inp2, ".png") }},
   content = function(file) {{
     ggsave(
-    file, device = "png", dpi = input${prefix}c2oup.res,
-    plot = scProp({prefix}conf, {prefix}meta, input${prefix}c2inp1, input${prefix}c2inp2, input${prefix}c2sub1, input${prefix}c2sub2, input${prefix}c2typ, input${prefix}c2flp, input${prefix}c2fsz)
+    file, device = "png", dpi = input${prefix}_pro_oup.res,
+    plot = scProp({prefix}conf, {prefix}meta, input${prefix}_pro_inp1, input${prefix}_pro_inp2, input${prefix}_pro_sub1, input${prefix}_pro_sub2, input${prefix}_pro_typ, input${prefix}_pro_flp, input${prefix}_pro_fsz)
     )
-  }}) # End of tab 6\n
+  }}) # End of tab pro
 
 ')
 }
 
-#' Write code for tab7
+#' Write code for heatmap / dotplot
 #'
-wrSVtab7 <- function() {
+wr_sv_hea <- function() {
 paste0('
-### Tab 7 ----
+### Tab hea heatmap / dotplot ----
 
-{subst}  output${prefix}d1sub1.ui <- renderUI({{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}d1sub1]$fID, "\\\\|")[[1]]
-{subst}    checkboxGroupInput("{prefix}d1sub2", "Select which cells to show", inline = TRUE, choices = sub, selected = sub)
+{subst}  output${prefix}_hea_sub1.ui <- renderUI({{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_hea_sub1]$fID, "\\\\|")[[1]]
+{subst}    checkboxGroupInput("{prefix}_hea_sub2", "Select which cells to show", inline = TRUE, choices = sub, selected = sub)
 {subst}  }})
-{subst}  observeEvent(input${prefix}d1sub1non, {{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}d1sub1]$fID, "\\\\|")[[1]]
-{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}d1sub2", label = "Select which cells to show", choices = sub, selected = NULL, inline = TRUE)
+{subst}  observeEvent(input${prefix}_hea_sub1non, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_hea_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_hea_sub2", label = "Select which cells to show", choices = sub, selected = NULL, inline = TRUE)
 {subst}  }})
-{subst}  observeEvent(input${prefix}d1sub1all, {{
-{subst}    sub = strsplit({prefix}conf[UI == input${prefix}d1sub1]$fID, "\\\\|")[[1]]
-{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}d1sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
+{subst}  observeEvent(input${prefix}_hea_sub1all, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_hea_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_hea_sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 
-output${prefix}d1oupTxt <- renderUI({{
-  geneList = scGeneList(input${prefix}d1inp, {prefix}gene)
+output${prefix}_hea_oupTxt <- renderUI({{
+  geneList = scGeneList(input${prefix}_hea_inp, {prefix}gene)
   if(nrow(geneList) > 50){{
     HTML("More than 50 input genes! Please reduce the gene list!")
   }} else {{
@@ -1182,87 +1373,130 @@ output${prefix}d1oupTxt <- renderUI({{
   }}
 }})
 
-output${prefix}d1oup <- renderPlot({{
-  scBubbHeat({prefix}conf, {prefix}meta, input${prefix}d1inp, input${prefix}d1grp, input${prefix}d1plt, input${prefix}d1sub1, input${prefix}d1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}d1scl, input${prefix}d1row, input${prefix}d1col, input${prefix}d1cols, input${prefix}d1fsz)
+output${prefix}_hea_oup <- renderPlot({{
+  scBubbHeat({prefix}conf, {prefix}meta, input${prefix}_hea_inp, input${prefix}_hea_grp, input${prefix}_hea_plt, input${prefix}_hea_sub1, input${prefix}_hea_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_hea_scl, input${prefix}_hea_row, input${prefix}_hea_col, input${prefix}_hea_cols, input${prefix}_hea_fsz)
 }})
 
-output${prefix}d1oup.ui <- renderUI({{
-  imageOutput("{prefix}d1oup", height = pList3[input${prefix}d1psz])
+output${prefix}_hea_oup.ui <- renderUI({{
+  imageOutput("{prefix}_hea_oup", height = pList3[input${prefix}_hea_psz])
 }})
 
-output${prefix}d1oup.pdf <- downloadHandler(
-  filename = function() {{ paste0("{prefix}",input${prefix}d1plt,"_",input${prefix}d1grp,".pdf") }},
+output${prefix}_hea_oup.pdf <- downloadHandler(
+  filename = function() {{ paste0("{prefix}",input${prefix}_hea_plt,"_",input${prefix}_hea_grp,".pdf") }},
   content = function(file) {{
     ggsave(
     file, device = "pdf", useDingbats = FALSE,
-    plot = scBubbHeat({prefix}conf, {prefix}meta, input${prefix}d1inp, input${prefix}d1grp, input${prefix}d1plt, input${prefix}d1sub1, input${prefix}d1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}d1scl, input${prefix}d1row, input${prefix}d1col, input${prefix}d1cols, input${prefix}d1fsz, save = TRUE)
+    plot = scBubbHeat({prefix}conf, {prefix}meta, input${prefix}_hea_inp, input${prefix}_hea_grp, input${prefix}_hea_plt, input${prefix}_hea_sub1, input${prefix}_hea_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_hea_scl, input${prefix}_hea_row, input${prefix}_hea_col, input${prefix}_hea_cols, input${prefix}_hea_fsz, save = TRUE)
     )
 }})
 
-output${prefix}d1oup.png <- downloadHandler(
-  filename = function() {{ paste0("{prefix}",input${prefix}d1plt,"_",input${prefix}d1grp,".png") }},
+output${prefix}_hea_oup.png <- downloadHandler(
+  filename = function() {{ paste0("{prefix}",input${prefix}_hea_plt,"_",input${prefix}_hea_grp,".png") }},
   content = function(file) {{
     ggsave(
-    file, device = "png", dpi = input${prefix}d1oup.res,
-    plot = scBubbHeat({prefix}conf, {prefix}meta, input${prefix}d1inp, input${prefix}d1grp, input${prefix}d1plt, input${prefix}d1sub1, input${prefix}d1sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}d1scl, input${prefix}d1row, input${prefix}d1col, input${prefix}d1cols, input${prefix}d1fsz, save = TRUE)
+    file, device = "png", dpi = input${prefix}_hea_oup.res,
+    plot = scBubbHeat({prefix}conf, {prefix}meta, input${prefix}_hea_inp, input${prefix}_hea_grp, input${prefix}_hea_plt, input${prefix}_hea_sub1, input${prefix}_hea_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_hea_scl, input${prefix}_hea_row, input${prefix}_hea_col, input${prefix}_hea_cols, input${prefix}_hea_fsz, save = TRUE)
     )
-}}) # End of tab 7         
+}}) # End of tab hea      
        
+')
+}
+
+#' Write code for gene expression multi
+#'
+wr_sv_gem <- function() {
+  paste0('
+### Tab gem gene expression multi ----
+
+output${prefix}_gem_sub1.ui <- renderUI({{
+  sub = strsplit({prefix}conf[UI == input${prefix}_gem_sub1]$fID, "\\\\|")[[1]]
+  checkboxGroupInput("{prefix}_gem_sub2", "Select which cells to show", inline = TRUE, choices = sub, selected = sub)
+}})
+observeEvent(input${prefix}_gem_sub1non, {{
+  sub = strsplit({prefix}conf[UI == input${prefix}_gem_sub1]$fID, "\\\\|")[[1]]
+  updateCheckboxGroupInput(session, inputId = "{prefix}_gem_sub2", label = "Select which cells to show", choices = sub, selected = NULL, inline = TRUE)
+}})
+observeEvent(input${prefix}_gem_sub1all, {{
+  sub = strsplit({prefix}conf[UI == input${prefix}_gem_sub1]$fID, "\\\\|")[[1]]
+  updateCheckboxGroupInput(session, inputId = "{prefix}_gem_sub2", label = "Select which cells to show", choices = sub, selected = sub, inline = TRUE)
+}})
+
+output${prefix}_gem_oup1 <- renderPlot({{
+  req(input${prefix}_gem_inp)
+  
+  scFeature({prefix}conf, {prefix}meta, input${prefix}_gem_drX, input${prefix}_gem_drY, input${prefix}_gem_inp, input${prefix}_gem_sub1, input${prefix}_gem_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_gem_siz, input${prefix}_gem_col, input${prefix}_gem_ord, input${prefix}_gem_fsz, input${prefix}_gem_asp, input${prefix}_gem_txt, input${prefix}_gem_ncol)
+}})
+
+output${prefix}_gem_oup1.ui <- renderUI({{
+  imageOutput("{prefix}_gem_oup1", height = pList[input${prefix}_gem_psz])
+}})
+
+output${prefix}_gem_oup1.pdf <- downloadHandler(
+  filename = function() {{ paste0("{prefix}", input${prefix}_gem_drX, "_", input${prefix}_gem_drY, "_expression.pdf") },
+  content = function(file) {{ ggsave(
+    file, device = "pdf", useDingbats = FALSE,
+    plot = scFeature({prefix}conf, {prefix}meta, input${prefix}_gem_drX, input${prefix}_gem_drY, input${prefix}_gem_inp, input${prefix}_gem_sub1, input${prefix}_gem_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_gem_siz, input${prefix}_gem_col, input${prefix}_gem_ord, input${prefix}_gem_fsz, input${prefix}_gem_asp, input${prefix}_gem_txt, input${prefix}_gem_ncol))
+}})
+
+output${prefix}_gem_oup1.png <- downloadHandler(
+  filename = function() {{ paste0("{prefix}", input${prefix}_gem_drX, "_", input${prefix}_gem_drY, "_expression.png") }},
+  content = function(file) {{
+    ggsave(
+      file, device = "png", dpi = input${prefix}_gem_oup1.res,
+      plot = scFeature({prefix}conf, {prefix}meta, input${prefix}_gem_drX, input${prefix}_gem_drY, input${prefix}_gem_inp, input${prefix}_gem_sub1, input${prefix}_gem_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_gem_siz, input${prefix}_gem_col, input${prefix}_gem_ord, input${prefix}_gem_fsz, input${prefix}_gem_asp, input${prefix}_gem_txt, input${prefix}_gem_ncol)
+    )
+}}) # End of tab gem
+
 ')
 }
 
 #' Write code for main block of server.R
 #' @param prefix file prefix
 #' @param subst Conditional
-#' @param tabs Vector of tab numbers to include
-#' @rdname wrSVmain
-#' @export wrSVmain
+#' @param tabs Vector of tab names to include
+#' @rdname wr_sv_main
+#' @export wr_sv_main
 #'
-wrSVmain <- function(prefix, subst = "", tabs = c(1,2,3,4,5,6,7)) {
+wr_sv_main <- function(prefix, subst = "", tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea")) {
+  
 glue::glue(
 'optCrt="{{ option_create: function(data,escape) {{return(\'<div class=\\"create\\"><strong>\' + \'</strong></div>\');}} }}"
-updateSelectizeInput(session, "{prefix}a1inp2", choices = names({prefix}gene), server = TRUE,
+updateSelectizeInput(session, "{prefix}_civge_inp2", choices = names({prefix}gene), server = TRUE,
                      selected = {prefix}def$gene1, options = list(
                        maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))
-updateSelectizeInput(session, "{prefix}a3inp1", choices = names({prefix}gene), server = TRUE,
+updateSelectizeInput(session, "{prefix}_gevge_inp1", choices = names({prefix}gene), server = TRUE,
                      selected = {prefix}def$gene1, options = list(
                        maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))
-updateSelectizeInput(session, "{prefix}a3inp2", choices = names({prefix}gene), server = TRUE,
+updateSelectizeInput(session, "{prefix}_gevge_inp2", choices = names({prefix}gene), server = TRUE,
                      selected = {prefix}def$gene2, options = list(
                        maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))
-updateSelectizeInput(session, "{prefix}b2inp1", choices = names({prefix}gene), server = TRUE,
+updateSelectizeInput(session, "{prefix}_gec_inp1", choices = names({prefix}gene), server = TRUE,
                      selected = {prefix}def$gene1, options = list(
                        maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))
-updateSelectizeInput(session, "{prefix}b2inp2", choices = names({prefix}gene), server = TRUE,
+updateSelectizeInput(session, "{prefix}_gec_inp2", choices = names({prefix}gene), server = TRUE,
                      selected = {prefix}def$gene2, options = list(
                        maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))
-updateSelectizeInput(session, "{prefix}c1inp2", server = TRUE,
+updateSelectizeInput(session, "{prefix}_vio_inp2", server = TRUE,
                      choices = c({prefix}conf[is.na(fID)]$UI,names({prefix}gene)),
                      selected = {prefix}conf[is.na(fID)]$UI[1], options = list(
                        maxOptions = length({prefix}conf[is.na(fID)]$UI) + 3,
                        create = TRUE, persist = TRUE, render = I(optCrt)))',
-  ifelse(1 %in% tabs, wrSVtab1(), ""),
-  ifelse(2 %in% tabs, wrSVtab2(), ""),
-  ifelse(3 %in% tabs, wrSVtab3(), ""),
-  ifelse(4 %in% tabs, wrSVtab4(), ""),
-  ifelse(5 %in% tabs, wrSVtab5(), ""),
-  ifelse(6 %in% tabs, wrSVtab6(), ""),
-  ifelse(7 %in% tabs, wrSVtab7(), ""),
-  .sep = "\n"
+paste(unlist(lapply(tabs, function(x) eval(parse(text = paste0("wr_sv_",x,"()"))))), collapse = "\n")
 )
 }
 
 #' Write code for final portion of server.R
 #'
-#' @rdname wrSVend
-#' @export wrSVend
+#' @rdname wr_sv_end
+#' @export wr_sv_end
 #'
-wrSVend <- function() {
+wr_sv_end <- function() {
   paste0(
-    '
-    })
-    
-    '
+'
+})
+
+
+'
   )
 }
 
@@ -1270,10 +1504,10 @@ wrSVend <- function() {
 #'
 #' @param prefix file prefix
 #'
-#' @rdname wrUIload
-#' @export wrUIload
+#' @rdname wr_ui_load
+#' @export wr_ui_load
 #'
-wrUIload <- function(prefix) {
+wr_ui_load <- function(prefix) {
   glue::glue('
 
 {prefix}conf = readRDS("{prefix}conf.rds")
@@ -1287,10 +1521,10 @@ wrUIload <- function(prefix) {
 #' @param theme bootstrap theme
 #' @param ganalytics Google analytics tracking ID (e.g. "UA-123456789-0")
 #' @importFrom shinythemes shinytheme
-#' @rdname wrUIsingle
-#' @export wrUIsingle
+#' @rdname wr_ui_single
+#' @export wr_ui_single
 #'
-wrUIsingle <- function(title, theme = "flatly", ganalytics = NA) {
+wr_ui_single <- function(title, theme = "flatly", ganalytics = NA) {
   if (!is.na(ganalytics)) {
     ga <- 'tags$head(includeHTML(("google-analytics.html"))),'
   } else {
@@ -1312,11 +1546,11 @@ navbarPage(
   )
 }
 
-#' Write code for tab1 of ui.R
+#' Write code for civge
 #'
-wrUItab1 <- function() {
+wr_ui_civge <- function() {
 paste0(',
-# tab 1 ----
+# tab civge ----
 tabPanel(
   "CellInfo vs GeneExpr",
   fluidRow(
@@ -1341,11 +1575,11 @@ tabPanel(
           div(
             class = "input-panel",
             h4("Dimension Reduction"),
-            selectInput("{prefix}a1drX", "X-axis:",
+            selectInput("{prefix}_civge_drX", "X-axis:",
               choices = {prefix}conf[dimred == TRUE]$UI,
               selected = {prefix}def$dimred[1]
             ),
-            selectInput("{prefix}a1drY", "Y-axis:",
+            selectInput("{prefix}_civge_drY", "Y-axis:",
               choices = {prefix}conf[dimred == TRUE]$UI,
               selected = {prefix}def$dimred[2]
             )
@@ -1356,16 +1590,16 @@ tabPanel(
           {subst}4,
           {subst}div(
             {subst}class = "input-panel",
-            {subst}checkboxInput("{prefix}a1togL", "Subset cells"),
+            {subst}checkboxInput("{prefix}_civge_togL", "Subset cells"),
             {subst}conditionalPanel(
-              {subst}condition = "input.{prefix}a1togL == true",
-              {subst}selectInput("{prefix}a1sub1", "Cell information to subset:",
+              {subst}condition = "input.{prefix}_civge_togL == true",
+              {subst}selectInput("{prefix}_civge_sub1", "Cell information to subset:",
                 {subst}choices = {prefix}conf[grp == TRUE]$UI,
                 {subst}selected = {prefix}def$grp1
               {subst}),
-              {subst}uiOutput("{prefix}a1sub1.ui"),
-              {subst}actionButton("{prefix}a1sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
-              {subst}actionButton("{prefix}a1sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+              {subst}uiOutput("{prefix}_civge_sub1.ui"),
+              {subst}actionButton("{prefix}_civge_sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+              {subst}actionButton("{prefix}_civge_sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
             {subst})
           {subst})
         {subst}), # End of column
@@ -1374,25 +1608,25 @@ tabPanel(
           4,
           div(
             class = "input-panel",
-            checkboxInput("{prefix}a1tog0", "Adjust graphics"),
+            checkboxInput("{prefix}_civge_tog0", "Adjust graphics"),
             conditionalPanel(
-              condition = "input.{prefix}a1tog0 == true",
-              sliderInput("{prefix}a1siz", "Point size:",
+              condition = "input.{prefix}_civge_tog0 == true",
+              sliderInput("{prefix}_civge_siz", "Point size:",
                 min = 0, max = 4, value = 1.25, step = 0.25
               ),
-              radioButtons("{prefix}a1psz", "Plot size:",
+              radioButtons("{prefix}_civge_psz", "Plot size:",
                 choices = c("Small", "Medium", "Large"),
                 selected = "Medium", inline = TRUE
               ),
-              radioButtons("{prefix}a1fsz", "Font size:",
+              radioButtons("{prefix}_civge_fsz", "Font size:",
                 choices = c("Small", "Medium", "Large"),
                 selected = "Small", inline = TRUE
               ),
-              radioButtons("{prefix}a1asp", "Aspect ratio:",
+              radioButtons("{prefix}_civge_asp", "Aspect ratio:",
                 choices = c("Square", "Fixed", "Free"),
                 selected = "Square", inline = TRUE
               ),
-              checkboxInput("{prefix}a1txt", "Show axis text", value = FALSE)
+              checkboxInput("{prefix}_civge_txt", "Show axis text", value = FALSE)
             )
           )
         ) # row 2 col 3
@@ -1411,7 +1645,7 @@ tabPanel(
               6,
               div(
                 class = "input-panel",
-                selectInput("{prefix}a1inp1", "Cell info:",
+                selectInput("{prefix}_civge_inp1", "Cell info:",
                   choices = {prefix}conf$UI,
                   selected = {prefix}def$meta1
                 ) %>%
@@ -1434,18 +1668,18 @@ tabPanel(
               6,
               div(
                 class = "input-panel",
-                checkboxInput("{prefix}a1tog1", "Adjust graphics"),
+                checkboxInput("{prefix}_civge_tog1", "Adjust graphics"),
                 conditionalPanel(
-                  condition = "input.{prefix}a1tog1 == true",
-                  radioButtons("{prefix}a1col1", "Colour (Continuous data):",
+                  condition = "input.{prefix}_civge_tog1 == true",
+                  radioButtons("{prefix}_civge_col1", "Colour (Continuous data):",
                     choices = c("White-Red", "Blue-Yellow-Red", "Yellow-Green-Purple"),
                     selected = "Blue-Yellow-Red"
                   ),
-                  radioButtons("{prefix}a1ord1", "Plot order:",
+                  radioButtons("{prefix}_civge_ord1", "Plot order:",
                     choices = c("Max-1st", "Min-1st", "Original", "Random"),
                     selected = "Original", inline = TRUE
                   ),
-                  checkboxInput("{prefix}a1lab1", "Show cell info labels", value = TRUE)
+                  checkboxInput("{prefix}_civge_lab1", "Show cell info labels", value = TRUE)
                 )
               )
             )
@@ -1455,7 +1689,7 @@ tabPanel(
             class = "tab-section",
             column(
               12,
-              uiOutput("{prefix}a1oup1.ui")
+              uiOutput("{prefix}_civge_oup1.ui")
             )
           ),
           # row 3 col 1 row 3
@@ -1465,21 +1699,21 @@ tabPanel(
               12,
               div(
                 class = "input-panel",
-                numericInput("{prefix}a1oup1.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
-                downloadButton("{prefix}a1oup1.pdf", "Download PDF", class = "btn-sm"),
-                downloadButton("{prefix}a1oup1.png", "Download PNG", class = "btn-sm"),
-                checkboxInput("{prefix}a1tog9", "Show cell numbers / statistics")
+                numericInput("{prefix}_civge_oup1.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
+                downloadButton("{prefix}_civge_oup1.pdf", "Download PDF", class = "btn-sm"),
+                downloadButton("{prefix}_civge_oup1.png", "Download PNG", class = "btn-sm"),
+                checkboxInput("{prefix}_civge_tog9", "Show cell numbers / statistics")
               )
             )
           ),
           conditionalPanel(
-            condition = "input.{prefix}a1tog9 == true",
+            condition = "input.{prefix}_civge_tog9 == true",
             h4("Cell numbers / statistics"),
-            radioButtons("{prefix}a1splt", "Split continuous cell info into:",
+            radioButtons("{prefix}_civge_splt", "Split continuous cell info into:",
               choices = c("Quartile", "Decile"),
               selected = "Decile", inline = TRUE
             ),
-            dataTableOutput("{prefix}a1.dt")
+            dataTableOutput("{prefix}_civge_.dt")
           )
         ), # row 3 col 1
         # row 3 col 2
@@ -1492,7 +1726,7 @@ tabPanel(
               6,
               div(
                 class = "input-panel",
-                selectInput("{prefix}a1inp2", "Gene name:", choices = NULL) %>%
+                selectInput("{prefix}_civge_inp2", "Gene name:", choices = NULL) %>%
                   helper(
                     type = "inline", size = "m", fade = TRUE,
                     title = "Gene expression to colour cells by",
@@ -1511,14 +1745,14 @@ tabPanel(
               6,
               div(
                 class = "input-panel",
-                checkboxInput("{prefix}a1tog2", "Adjust graphics"),
+                checkboxInput("{prefix}_civge_tog2", "Adjust graphics"),
                 conditionalPanel(
-                  condition = "input.{prefix}a1tog2 == true",
-                  radioButtons("{prefix}a1col2", "Colour:",
+                  condition = "input.{prefix}_civge_tog2 == true",
+                  radioButtons("{prefix}_civge_col2", "Colour:",
                     choices = c("White-Red", "Blue-Yellow-Red", "Yellow-Green-Purple"),
                     selected = "White-Red"
                   ),
-                  radioButtons("{prefix}a1ord2", "Plot order:",
+                  radioButtons("{prefix}_civge_ord2", "Plot order:",
                     choices = c("Max-1st", "Min-1st", "Original", "Random"),
                     selected = "Max-1st", inline = TRUE
                   )
@@ -1530,7 +1764,7 @@ tabPanel(
             class = "tab-section",
             column(
               12,
-              uiOutput("{prefix}a1oup2.ui")
+              uiOutput("{prefix}_civge_oup2.ui")
             )
           ),
           fluidRow(
@@ -1539,9 +1773,9 @@ tabPanel(
               12,
               div(
                 class = "input-panel",
-                numericInput("{prefix}a1oup2.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
-                downloadButton("{prefix}a1oup2.pdf", "Download PDF", class = "btn-sm"),
-                downloadButton("{prefix}a1oup2.png", "Download PNG", class = "btn-sm")
+                numericInput("{prefix}_civge_oup2.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
+                downloadButton("{prefix}_civge_oup2.pdf", "Download PDF", class = "btn-sm"),
+                downloadButton("{prefix}_civge_oup2.png", "Download PNG", class = "btn-sm")
               )
             )
           )
@@ -1550,16 +1784,16 @@ tabPanel(
       hr()
     )
   )
-) # End of tab 1
+) # End of tab civge
 ')
 }
 
-#' Write code for tab2 of ui.R
+#' Write code for civci
 #'
 #'
-wrUItab2 <- function() {
+wr_ui_civci <- function() {
 paste0(',
-# tab 2 ----
+# tab civci ----
 tabPanel(
   "CellInfo vs CellInfo",
   fluidRow(
@@ -1583,11 +1817,11 @@ tabPanel(
           div(
             class = "input-panel",
             h4("Dimension Reduction"),
-            selectInput("{prefix}a2drX", "X-axis:",
+            selectInput("{prefix}_civci_drX", "X-axis:",
               choices = {prefix}conf[dimred == TRUE]$UI,
               selected = {prefix}def$dimred[1]
             ),
-            selectInput("{prefix}a2drY", "Y-axis:",
+            selectInput("{prefix}_civci_drY", "Y-axis:",
               choices = {prefix}conf[dimred == TRUE]$UI,
               selected = {prefix}def$dimred[2]
             )
@@ -1597,16 +1831,16 @@ tabPanel(
         {subst}column(4,
           {subst}div(
             {subst}class = "input-panel",
-            {subst}checkboxInput("{prefix}a2togL", "Subset cells"),
+            {subst}checkboxInput("{prefix}_civci_togL", "Subset cells"),
             {subst}conditionalPanel(
-              {subst}condition = "input.{prefix}a2togL == true",
-              {subst}selectInput("{prefix}a2sub1", "Cell information to subset:",
+              {subst}condition = "input.{prefix}_civci_togL == true",
+              {subst}selectInput("{prefix}_civci_sub1", "Cell information to subset:",
                {subst} choices = {prefix}conf[grp == TRUE]$UI,
                {subst} selected = {prefix}def$grp1
               {subst}),
-              {subst}uiOutput("{prefix}a2sub1.ui"),
-              {subst}actionButton("{prefix}a2sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
-              {subst}actionButton("{prefix}a2sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+              {subst}uiOutput("{prefix}_civci_sub1.ui"),
+              {subst}actionButton("{prefix}_civci_sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+              {subst}actionButton("{prefix}_civci_sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
             {subst})
           {subst})
         {subst}), # row 2 col 2
@@ -1615,25 +1849,25 @@ tabPanel(
           4,
           div(
             class = "input-panel",
-            checkboxInput("{prefix}a2tog0", "Adjust graphics"),
+            checkboxInput("{prefix}_civci_tog0", "Adjust graphics"),
             conditionalPanel(
-              condition = "input.{prefix}a2tog0 == true",
-              sliderInput("{prefix}a2siz", "Point size:",
+              condition = "input.{prefix}_civci_tog0 == true",
+              sliderInput("{prefix}_civci_siz", "Point size:",
                 min = 0, max = 4, value = 1.25, step = 0.25
               ),
-              radioButtons("{prefix}a2psz", "Plot size:",
+              radioButtons("{prefix}_civci_psz", "Plot size:",
                 choices = c("Small", "Medium", "Large"),
                 selected = "Medium", inline = TRUE
               ),
-              radioButtons("{prefix}a2fsz", "Font size:",
+              radioButtons("{prefix}_civci_fsz", "Font size:",
                 choices = c("Small", "Medium", "Large"),
                 selected = "Small", inline = TRUE
               ),
-              radioButtons("{prefix}a2asp", "Aspect ratio:",
+              radioButtons("{prefix}_civci_asp", "Aspect ratio:",
                 choices = c("Square", "Fixed", "Free"),
                 selected = "Square", inline = TRUE
               ),
-              checkboxInput("{prefix}a2txt", "Show axis text", value = FALSE)
+              checkboxInput("{prefix}_civci_txt", "Show axis text", value = FALSE)
             )
           )
         ) # row 2 col 3
@@ -1653,7 +1887,7 @@ tabPanel(
               6,
               div(
                 class = "input-panel",
-                selectInput("{prefix}a2inp1", "Cell info:",
+                selectInput("{prefix}_civci_inp1", "Cell info:",
                   choices = {prefix}conf$UI,
                   selected = {prefix}def$meta1
                 ) %>%
@@ -1676,27 +1910,27 @@ tabPanel(
               6,
               div(
                 class = "input-panel",
-                checkboxInput("{prefix}a2tog1", "Adjust graphics"),
+                checkboxInput("{prefix}_civci_tog1", "Adjust graphics"),
                 conditionalPanel(
-                  condition = "input.{prefix}a2tog1 == true",
-                  radioButtons("{prefix}a2col1", "Colour (Continuous data):",
+                  condition = "input.{prefix}_civci_tog1 == true",
+                  radioButtons("{prefix}_civci_col1", "Colour (Continuous data):",
                     choices = c(
                       "White-Red", "Blue-Yellow-Red",
                       "Yellow-Green-Purple"
                     ),
                     selected = "Blue-Yellow-Red"
                   ),
-                  radioButtons("{prefix}a2ord1", "Plot order:",
+                  radioButtons("{prefix}_civci_ord1", "Plot order:",
                     choices = c("Max-1st", "Min-1st", "Original", "Random"),
                     selected = "Original", inline = TRUE
                   ),
-                  checkboxInput("{prefix}a2lab1", "Show cell info labels", value = TRUE)
+                  checkboxInput("{prefix}_civci_lab1", "Show cell info labels", value = TRUE)
                 )
               )
             )
           ),
           # row 3 col 1 row 2
-          fluidRow(column(12, uiOutput("{prefix}a2oup1.ui"))),
+          fluidRow(column(12, uiOutput("{prefix}_civci_oup1.ui"))),
           # row 3 col 1 row 3
           fluidRow(
             class = "tab-section",
@@ -1704,9 +1938,9 @@ tabPanel(
               12,
               div(
                 class = "input-panel",
-                numericInput("{prefix}a2oup1.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
-                downloadButton("{prefix}a2oup1.pdf", "Download PDF", class = "btn-sm"),
-                downloadButton("{prefix}a2oup1.png", "Download PNG", class = "btn-sm")
+                numericInput("{prefix}_civci_oup1.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
+                downloadButton("{prefix}_civci_oup1.pdf", "Download PDF", class = "btn-sm"),
+                downloadButton("{prefix}_civci_oup1.png", "Download PNG", class = "btn-sm")
               )
             )
           )
@@ -1720,7 +1954,7 @@ tabPanel(
               6,
               div(
                 class = "input-panel",
-                selectInput("{prefix}a2inp2", "Cell info:",
+                selectInput("{prefix}_civci_inp2", "Cell info:",
                   choices = {prefix}conf$UI,
                   selected = {prefix}def$meta2
                 ) %>%
@@ -1743,35 +1977,35 @@ tabPanel(
               6,
               div(
                 class = "input-panel",
-                checkboxInput("{prefix}a2tog2", "Adjust graphics"),
+                checkboxInput("{prefix}_civci_tog2", "Adjust graphics"),
                 conditionalPanel(
-                  condition = "input.{prefix}a2tog2 == true",
-                  radioButtons("{prefix}a2col2", "Colour (Continuous data):",
+                  condition = "input.{prefix}_civci_tog2 == true",
+                  radioButtons("{prefix}_civci_col2", "Colour (Continuous data):",
                     choices = c(
                       "White-Red", "Blue-Yellow-Red",
                       "Yellow-Green-Purple"
                     ),
                     selected = "Blue-Yellow-Red"
                   ),
-                  radioButtons("{prefix}a2ord2", "Plot order:",
+                  radioButtons("{prefix}_civci_ord2", "Plot order:",
                     choices = c("Max-1st", "Min-1st", "Original", "Random"),
                     selected = "Original", inline = TRUE
                   ),
-                  checkboxInput("{prefix}a2lab2", "Show cell info labels", value = TRUE)
+                  checkboxInput("{prefix}_civci_lab2", "Show cell info labels", value = TRUE)
                 )
               )
             )
           ),
-          fluidRow(column(12, uiOutput("{prefix}a2oup2.ui"))),
+          fluidRow(column(12, uiOutput("{prefix}_civci_oup2.ui"))),
           fluidRow(
             class = "tab-section",
             column(
               12,
               div(
                 class = "input-panel",
-                numericInput("{prefix}a2oup2.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
-                downloadButton("{prefix}a2oup2.pdf", "Download PDF", class = "btn-sm"),
-                downloadButton("{prefix}a2oup2.png", "Download PNG", class = "btn-sm")
+                numericInput("{prefix}_civci_oup2.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
+                downloadButton("{prefix}_civci_oup2.pdf", "Download PDF", class = "btn-sm"),
+                downloadButton("{prefix}_civci_oup2.png", "Download PNG", class = "btn-sm")
               )
             )
           )
@@ -1780,15 +2014,15 @@ tabPanel(
       hr()
     )
   )
-) # End of tab 2
+) # End of tab civci
 ')
 }
 
-#' Write code for tab3 of ui.R
+#' Write code for gevge
 #'
-wrUItab3 <- function() {
+wr_ui_gevge <- function() {
 paste0(',
-# tab 3 ----
+# tab gevge ----
 tabPanel(
   "GeneExpr vs GeneExpr",
   fluidRow(
@@ -1813,11 +2047,11 @@ tabPanel(
           div(
             class = "input-panel",
             h4("Dimension Reduction"),
-            selectInput("{prefix}a3drX", "X-axis:",
+            selectInput("{prefix}_gevge_drX", "X-axis:",
               choices = {prefix}conf[dimred == TRUE]$UI,
               selected = {prefix}def$dimred[1]
             ),
-            selectInput("{prefix}a3drY", "Y-axis:",
+            selectInput("{prefix}_gevge_drY", "Y-axis:",
               choices = {prefix}conf[dimred == TRUE]$UI,
               selected = {prefix}def$dimred[2]
             )
@@ -1827,16 +2061,16 @@ tabPanel(
         {subst}column(4,
           {subst}div(
             {subst}class = "input-panel",
-            {subst}checkboxInput("{prefix}a3togL", "Subset cells"),
+            {subst}checkboxInput("{prefix}_gevge_togL", "Subset cells"),
             {subst}conditionalPanel(
-             {subst} condition = "input.{prefix}a3togL == true",
-              {subst}selectInput("{prefix}a3sub1", "Cell information to subset:",
+             {subst} condition = "input.{prefix}_gevge_togL == true",
+              {subst}selectInput("{prefix}_gevge_sub1", "Cell information to subset:",
                {subst} choices = {prefix}conf[grp == TRUE]$UI,
                 {subst}selected = {prefix}def$grp1
               {subst}),
-              {subst}uiOutput("{prefix}a3sub1.ui"),
-              {subst}actionButton("{prefix}a3sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
-              {subst}actionButton("{prefix}a3sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+              {subst}uiOutput("{prefix}_gevge_sub1.ui"),
+              {subst}actionButton("{prefix}_gevge_sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+              {subst}actionButton("{prefix}_gevge_sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
             {subst})
           {subst})
         {subst}), # End of column
@@ -1845,25 +2079,25 @@ tabPanel(
           4,
           div(
             class = "input-panel",
-            checkboxInput("{prefix}a3tog0", "Adjust graphics"),
+            checkboxInput("{prefix}_gevge_tog0", "Adjust graphics"),
             conditionalPanel(
-              condition = "input.{prefix}a3tog0 == true",
-              sliderInput("{prefix}a3siz", "Point size:",
+              condition = "input.{prefix}_gevge_tog0 == true",
+              sliderInput("{prefix}_gevge_siz", "Point size:",
                 min = 0, max = 4, value = 1.25, step = 0.25
               ),
-              radioButtons("{prefix}a3psz", "Plot size:",
+              radioButtons("{prefix}_gevge_psz", "Plot size:",
                 choices = c("Small", "Medium", "Large"),
                 selected = "Medium", inline = TRUE
               ),
-              radioButtons("{prefix}a3fsz", "Font size:",
+              radioButtons("{prefix}_gevge_fsz", "Font size:",
                 choices = c("Small", "Medium", "Large"),
                 selected = "Small", inline = TRUE
               ),
-              radioButtons("{prefix}a3asp", "Aspect ratio:",
+              radioButtons("{prefix}_gevge_asp", "Aspect ratio:",
                 choices = c("Square", "Fixed", "Free"),
                 selected = "Square", inline = TRUE
               ),
-              checkboxInput("{prefix}a3txt", "Show axis text", value = FALSE)
+              checkboxInput("{prefix}_gevge_txt", "Show axis text", value = FALSE)
             )
           )
         ) # row 2 col 3
@@ -1881,7 +2115,7 @@ tabPanel(
               6,
               div(
                 class = "input-panel",
-                selectInput("{prefix}a3inp1", "Gene name:", choices = NULL) %>%
+                selectInput("{prefix}_gevge_inp1", "Gene name:", choices = NULL) %>%
                   helper(
                     type = "inline", size = "m", fade = TRUE,
                     title = "Gene expression to colour cells by",
@@ -1900,17 +2134,17 @@ tabPanel(
               6,
               div(
                 class = "input-panel",
-                checkboxInput("{prefix}a3tog1", "Adjust graphics"),
+                checkboxInput("{prefix}_gevge_tog1", "Adjust graphics"),
                 conditionalPanel(
-                  condition = "input.{prefix}a3tog1 == true",
-                  radioButtons("{prefix}a3col1", "Colour:",
+                  condition = "input.{prefix}_gevge_tog1 == true",
+                  radioButtons("{prefix}_gevge_col1", "Colour:",
                     choices = c(
                       "White-Red", "Blue-Yellow-Red",
                       "Yellow-Green-Purple"
                     ),
                     selected = "White-Red"
                   ),
-                  radioButtons("{prefix}a3ord1", "Plot order:",
+                  radioButtons("{prefix}_gevge_ord1", "Plot order:",
                     choices = c("Max-1st", "Min-1st", "Original", "Random"),
                     selected = "Max-1st", inline = TRUE
                   )
@@ -1921,7 +2155,7 @@ tabPanel(
           # row 3 col 1 row 2
           fluidRow(
             class = "tab-section",
-            column(12, uiOutput("{prefix}a3oup1.ui"))
+            column(12, uiOutput("{prefix}_gevge_oup1.ui"))
           ),
           # row 3 col 1 row 3
           fluidRow(
@@ -1930,9 +2164,9 @@ tabPanel(
               12,
               div(
                 class = "input-panel",
-                numericInput("{prefix}a3oup1.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
-                downloadButton("{prefix}a3oup1.pdf", "Download PDF", class = "btn-sm"),
-                downloadButton("{prefix}a3oup1.png", "Download PNG", class = "btn-sm")
+                numericInput("{prefix}_gevge_oup1.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
+                downloadButton("{prefix}_gevge_oup1.pdf", "Download PDF", class = "btn-sm"),
+                downloadButton("{prefix}_gevge_oup1.png", "Download PNG", class = "btn-sm")
               )
             )
           )
@@ -1946,7 +2180,7 @@ tabPanel(
               6,
               div(
                 class = "input-panel",
-                selectInput("{prefix}a3inp2", "Gene name:", choices = NULL) %>%
+                selectInput("{prefix}_gevge_inp2", "Gene name:", choices = NULL) %>%
                   helper(
                     type = "inline", size = "m", fade = TRUE,
                     title = "Gene expression to colour cells by",
@@ -1965,17 +2199,17 @@ tabPanel(
               6,
               div(
                 class = "input-panel",
-                checkboxInput("{prefix}a3tog2", "Adjust graphics"),
+                checkboxInput("{prefix}_gevge_tog2", "Adjust graphics"),
                 conditionalPanel(
-                  condition = "input.{prefix}a3tog2 == true",
-                  radioButtons("{prefix}a3col2", "Colour:",
+                  condition = "input.{prefix}_gevge_tog2 == true",
+                  radioButtons("{prefix}_gevge_col2", "Colour:",
                     choices = c(
                       "White-Red", "Blue-Yellow-Red",
                       "Yellow-Green-Purple"
                     ),
                     selected = "White-Red"
                   ),
-                  radioButtons("{prefix}a3ord2", "Plot order:",
+                  radioButtons("{prefix}_gevge_ord2", "Plot order:",
                     choices = c("Max-1st", "Min-1st", "Original", "Random"),
                     selected = "Max-1st", inline = TRUE
                   )
@@ -1985,7 +2219,7 @@ tabPanel(
           ),
           fluidRow(
             class = "tab-section",
-            column(12, uiOutput("{prefix}a3oup2.ui"))
+            column(12, uiOutput("{prefix}_gevge_oup2.ui"))
           ),
           fluidRow(
             class = "tab-section",
@@ -1993,9 +2227,9 @@ tabPanel(
               12,
               div(
                 class = "input-panel",
-                  numericInput("{prefix}a3oup2.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
-                  downloadButton("{prefix}a3oup2.pdf", "Download PDF", class = "btn-sm"),
-                  downloadButton("{prefix}a3oup2.png", "Download PNG", class = "btn-sm")
+                  numericInput("{prefix}_gevge_oup2.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
+                  downloadButton("{prefix}_gevge_oup2.pdf", "Download PDF", class = "btn-sm"),
+                  downloadButton("{prefix}_gevge_oup2.png", "Download PNG", class = "btn-sm")
               )
             )
           )
@@ -2004,15 +2238,15 @@ tabPanel(
       hr()
     )
   )
-) # End of tab 3
+) # End of tab gevge
 ')
 }
 
-#' Write code for tab4 of ui.R
+#' Write code for gec
 #'
-wrUItab4 <- function() {
+wr_ui_gec <- function() {
 paste0(',
-# tab 4 ----
+# tab gec ----
 tabPanel(
   "Gene coexpression",
   fluidRow(
@@ -2037,11 +2271,11 @@ tabPanel(
           div(
             class = "input-panel",
             h4("Dimension Reduction"),
-            selectInput("{prefix}b2drX", "X-axis:",
+            selectInput("{prefix}_gec_drX", "X-axis:",
               choices = {prefix}conf[dimred == TRUE]$UI,
               selected = {prefix}def$dimred[1]
             ),
-            selectInput("{prefix}b2drY", "Y-axis:",
+            selectInput("{prefix}_gec_drY", "Y-axis:",
               choices = {prefix}conf[dimred == TRUE]$UI,
               selected = {prefix}def$dimred[2]
             )
@@ -2051,16 +2285,16 @@ tabPanel(
         {subst}column(4,
           {subst}div(
             {subst}class = "input-panel",
-            {subst}checkboxInput("{prefix}b2togL", "Subset cells"),
+            {subst}checkboxInput("{prefix}_gec_togL", "Subset cells"),
             {subst}conditionalPanel(
-             {subst} condition = "input.{prefix}b2togL == true",
-             {subst} selectInput("{prefix}b2sub1", "Cell information to subset:",
+             {subst} condition = "input.{prefix}_gec_togL == true",
+             {subst} selectInput("{prefix}_gec_sub1", "Cell information to subset:",
               {subst}  choices = {prefix}conf[grp == TRUE]$UI,
               {subst}  selected = {prefix}def$grp1
               {subst}),
-              {subst}uiOutput("{prefix}b2sub1.ui"),
-              {subst}actionButton("{prefix}b2sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
-              {subst}actionButton("{prefix}b2sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+              {subst}uiOutput("{prefix}_gec_sub1.ui"),
+              {subst}actionButton("{prefix}_gec_sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+              {subst}actionButton("{prefix}_gec_sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
             {subst})
           {subst})
         {subst}), # End of column
@@ -2069,25 +2303,25 @@ tabPanel(
           4,
           div(
             class = "input-panel",
-            checkboxInput("{prefix}b2tog0", "Adjust graphics"),
+            checkboxInput("{prefix}_gec_tog0", "Adjust graphics"),
             conditionalPanel(
-              condition = "input.{prefix}b2tog0 == true",
-              sliderInput("{prefix}b2siz", "Point size:",
+              condition = "input.{prefix}_gec_tog0 == true",
+              sliderInput("{prefix}_gec_siz", "Point size:",
                 min = 0, max = 4, value = 1.25, step = 0.25
               ),
-              radioButtons("{prefix}b2psz", "Plot size:",
+              radioButtons("{prefix}_gec_psz", "Plot size:",
                 choices = c("Small", "Medium", "Large"),
                 selected = "Medium", inline = TRUE
               ),
-              radioButtons("{prefix}b2fsz", "Font size:",
+              radioButtons("{prefix}_gec_fsz", "Font size:",
                 choices = c("Small", "Medium", "Large"),
                 selected = "Small", inline = TRUE
               ),
-              radioButtons("{prefix}b2asp", "Aspect ratio:",
+              radioButtons("{prefix}_gec_asp", "Aspect ratio:",
                 choices = c("Square", "Fixed", "Free"),
                 selected = "Square", inline = TRUE
               ),
-              checkboxInput("{prefix}b2txt", "Show axis text", value = FALSE)
+              checkboxInput("{prefix}_gec_txt", "Show axis text", value = FALSE)
             )
           )
         ) # row 2 col 3
@@ -2102,7 +2336,7 @@ tabPanel(
           div(
             class = "input-panel",
             h4("Gene Expression"),
-            selectInput("{prefix}b2inp1", "Gene 1:", choices = NULL) %>%
+            selectInput("{prefix}_gec_inp1", "Gene 1:", choices = NULL) %>%
               helper(
                 type = "inline", size = "m", fade = TRUE,
                 title = "Gene expression to colour cells by",
@@ -2115,7 +2349,7 @@ tabPanel(
                   )
                 )
               ),
-            selectInput("{prefix}b2inp2", "Gene 2:", choices = NULL) %>%
+            selectInput("{prefix}_gec_inp2", "Gene 2:", choices = NULL) %>%
               helper(
                 type = "inline", size = "m", fade = TRUE,
                 title = "Gene expression to colour cells by",
@@ -2128,10 +2362,10 @@ tabPanel(
                   )
                 )
               ),
-            checkboxInput("{prefix}b2tog1", "Adjust graphics"),
+            checkboxInput("{prefix}_gec_tog1", "Adjust graphics"),
             conditionalPanel(
-              condition = "input.{prefix}b2tog1 == true",
-              radioButtons("{prefix}b2col1", "Colour:",
+              condition = "input.{prefix}_gec_tog1 == true",
+              radioButtons("{prefix}_gec_col1", "Colour:",
                 choices = c(
                   "Red (Gene1); Blue (Gene2)",
                   "Orange (Gene1); Blue (Gene2)",
@@ -2140,7 +2374,7 @@ tabPanel(
                 ),
                 selected = "Red (Gene1); Blue (Gene2)"
               ),
-              radioButtons("{prefix}b2ord1", "Plot order:",
+              radioButtons("{prefix}_gec_ord1", "Plot order:",
                 choices = c("Max-1st", "Min-1st", "Original", "Random"),
                 selected = "Max-1st", inline = TRUE
               )
@@ -2151,36 +2385,36 @@ tabPanel(
         column(
           6,
           style = "border-right: 2px solid #f3f6f4",
-          uiOutput("{prefix}b2oup1.ui"),
+          uiOutput("{prefix}_gec_oup1.ui"),
           div(
             class = "input-panel",
-            numericInput("{prefix}b2oup1.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
-            downloadButton("{prefix}b2oup1.pdf", "Download PDF", class = "btn-sm"),
-            downloadButton("{prefix}b2oup1.png", "Download PNG", class = "btn-sm")
+            numericInput("{prefix}_gec_oup1.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
+            downloadButton("{prefix}_gec_oup1.pdf", "Download PDF", class = "btn-sm"),
+            downloadButton("{prefix}_gec_oup1.png", "Download PNG", class = "btn-sm")
           )
         ), # row 3 col 2
         # row 3 col 3
         column(
           3,
-          uiOutput("{prefix}b2oup2.ui"),
-          downloadButton("{prefix}b2oup2.pdf", "Download PDF", class = "btn-sm"),
-          downloadButton("{prefix}b2oup2.png", "Download PNG", class = "btn-sm"),
+          uiOutput("{prefix}_gec_oup2.ui"),
+          downloadButton("{prefix}_gec_oup2.pdf", "Download PDF", class = "btn-sm"),
+          downloadButton("{prefix}_gec_oup2.png", "Download PNG", class = "btn-sm"),
           h4("Cell numbers"),
-          dataTableOutput("{prefix}b2.dt")
+          dataTableOutput("{prefix}_gec_.dt")
         ) # row 3 col 3
       ), # row 3
       hr()
     )
   )
-) # End of tab 4
+) # End of tab gec
 ')
 }
 
-#' Write code for tab5 of ui.R
+#' Write code for vio
 #'
-wrUItab5 <- function() {
+wr_ui_vio<- function() {
 paste0(',
-# tab 5 ----
+# tab vio ----
 tabPanel(
   "Violinplot / Boxplot",
   fluidRow(
@@ -2205,7 +2439,7 @@ tabPanel(
           div(
             class = "input-panel",
             style = "border-right: 2px solid #f3f6f4",
-            selectInput("{prefix}c1inp1", "Cell information (X-axis):",
+            selectInput("{prefix}_vio_inp1", "Cell info (X-axis):",
               choices = {prefix}conf[grp == TRUE]$UI,
               selected = {prefix}def$grp1
             ) %>%
@@ -2218,7 +2452,7 @@ tabPanel(
                   "- Plotted as the X-axis of the violin plot / box plot"
                 )
               ),
-            selectInput("{prefix}c1inp2", "Cell Info / Gene name (Y-axis):", choices = NULL) %>%
+            selectInput("{prefix}_vio_inp2", "Cell info / Gene (Y-axis):", choices = NULL) %>%
               helper(
                 type = "inline", size = "m", fade = TRUE,
                 title = "Cell Info / Gene to plot",
@@ -2228,33 +2462,33 @@ tabPanel(
                   "- Can also be gene expression"
                 )
               ),
-            radioButtons("{prefix}c1typ", "Plot type:",
+            radioButtons("{prefix}_vio_typ", "Plot type:",
               choices = c("violin", "boxplot"),
               selected = "violin", inline = TRUE
             ),
-            checkboxInput("{prefix}c1pts", "Show data points", value = FALSE),
-            {subst}checkboxInput("{prefix}c1togL", "Subset cells"),
+            checkboxInput("{prefix}_vio_pts", "Show data points", value = FALSE),
+            {subst}checkboxInput("{prefix}_vio_togL", "Subset cells"),
             {subst}conditionalPanel(
-              {subst}condition = "input.{prefix}c1togL == true",
-              {subst}selectInput("{prefix}c1sub1", "Cell information to subset:",
+              {subst}condition = "input.{prefix}_vio_togL == true",
+              {subst}selectInput("{prefix}_vio_sub1", "Cell information to subset:",
                {subst} choices = {prefix}conf[grp == TRUE]$UI,
                {subst} selected = {prefix}def$grp1
               {subst}),
-              {subst}uiOutput("{prefix}c1sub1.ui"),
-              {subst}actionButton("{prefix}c1sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
-              {subst}actionButton("{prefix}c1sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+              {subst}uiOutput("{prefix}_vio_sub1.ui"),
+              {subst}actionButton("{prefix}_vio_sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+              {subst}actionButton("{prefix}_vio_sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
             {subst}),
-            checkboxInput("{prefix}c1tog", "Adjust graphics"),
+            checkboxInput("{prefix}_vio_tog", "Adjust graphics"),
             conditionalPanel(
-              condition = "input.{prefix}c1tog == true",
-              sliderInput("{prefix}c1siz", "Data point size:",
+              condition = "input.{prefix}_vio_tog == true",
+              sliderInput("{prefix}_vio_siz", "Data point size:",
                 min = 0, max = 4, value = 1.25, step = 0.25
               ),
-              radioButtons("{prefix}c1psz", "Plot size:",
+              radioButtons("{prefix}_vio_psz", "Plot size:",
                 choices = c("Small", "Medium", "Large"),
                 selected = "Small", inline = TRUE
               ),
-              radioButtons("{prefix}c1fsz", "Font size:",
+              radioButtons("{prefix}_vio_fsz", "Font size:",
                 choices = c("Small", "Medium", "Large"),
                 selected = "Small", inline = TRUE
               )
@@ -2262,28 +2496,28 @@ tabPanel(
           ),
           div(
             class = "input-panel",
-            numericInput("{prefix}c1oup.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
-            downloadButton("{prefix}c1oup.pdf", "Download PDF", class = "btn-sm"),
-            downloadButton("{prefix}c1oup.png", "Download PNG", class = "btn-sm")
+            numericInput("{prefix}_vio_oup.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
+            downloadButton("{prefix}_vio_oup.pdf", "Download PDF", class = "btn-sm"),
+            downloadButton("{prefix}_vio_oup.png", "Download PNG", class = "btn-sm")
           )
         ), # row 2 col 1
         # row 2 col 2
         column(
-          9, uiOutput("{prefix}c1oup.ui")
+          9, uiOutput("{prefix}_vio_oup.ui")
         ) # row 2 col 2
       ), # row 2
       hr()
     )
   )
-) # End of tab 5
+) # End of tab vio
 ')
 }
 
-#' Write code for tab6 of ui.R
+#' Write code for pro
 #'
-wrUItab6 <- function() {
+wr_ui_pro <- function() {
 paste0(',
-# tab 6 ----
+# tab pro ----
 tabPanel(
   "Proportion plot",
   fluidRow(
@@ -2308,7 +2542,7 @@ tabPanel(
           style = "border-right: 2px solid #f3f6f4",
           div(
             class = "input-panel",
-            selectInput("{prefix}c2inp1", "Cell information to plot (X-axis):",
+            selectInput("{prefix}_pro_inp1", "Cell information to plot (X-axis):",
               choices = {prefix}conf[grp == TRUE]$UI,
               selected = {prefix}def$grp2
             ) %>%
@@ -2320,7 +2554,7 @@ tabPanel(
                   "- Plotted as the X-axis of the proportion plot"
                 )
               ),
-            selectInput("{prefix}c2inp2", "Cell information to group / colour by:",
+            selectInput("{prefix}_pro_inp2", "Cell information to group / colour by:",
               choices = {prefix}conf[grp == TRUE]$UI,
               selected = {prefix}def$grp1
             ) %>%
@@ -2332,30 +2566,30 @@ tabPanel(
                   "- Proportion / cell numbers are shown in different colours"
                 )
               ),
-            radioButtons("{prefix}c2typ", "Plot value:",
+            radioButtons("{prefix}_pro_typ", "Plot value:",
               choices = c("Proportion", "CellNumbers"),
               selected = "Proportion", inline = TRUE
             ),
-            checkboxInput("{prefix}c2flp", "Flip X/Y", value = FALSE),
-            {subst}checkboxInput("{prefix}c2togL", "Subset cells"),
+            checkboxInput("{prefix}_pro_flp", "Flip X/Y", value = FALSE),
+            {subst}checkboxInput("{prefix}_pro_togL", "Subset cells"),
             {subst}conditionalPanel(
-             {subst} condition = "input.{prefix}c2togL == true",
-             {subst} selectInput("{prefix}c2sub1", "Cell information to subset:",
+             {subst} condition = "input.{prefix}_pro_togL == true",
+             {subst} selectInput("{prefix}_pro_sub1", "Cell information to subset:",
               {subst}  choices = {prefix}conf[grp == TRUE]$UI,
                {subst} selected = {prefix}def$grp1
               {subst}),
-              {subst}uiOutput("{prefix}c2sub1.ui"),
-              {subst}actionButton("{prefix}c2sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
-              {subst}actionButton("{prefix}c2sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+              {subst}uiOutput("{prefix}_pro_sub1.ui"),
+              {subst}actionButton("{prefix}_pro_sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+              {subst}actionButton("{prefix}_pro_sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
             ),
-            checkboxInput("{prefix}c2tog", "Adjust graphics"),
+            checkboxInput("{prefix}_pro_tog", "Adjust graphics"),
             conditionalPanel(
-              condition = "input.{prefix}c2tog == true",
-              radioButtons("{prefix}c2psz", "Plot size:",
+              condition = "input.{prefix}_pro_tog == true",
+              radioButtons("{prefix}_pro_psz", "Plot size:",
                 choices = c("Small", "Medium", "Large"),
                 selected = "Medium", inline = TRUE
               ),
-              radioButtons("{prefix}c2fsz", "Font size:",
+              radioButtons("{prefix}_pro_fsz", "Font size:",
                 choices = c("Small", "Medium", "Large"),
                 selected = "Small", inline = TRUE
               )
@@ -2363,28 +2597,28 @@ tabPanel(
           ),
           div(
             class = "input-panel",
-            numericInput("{prefix}c2oup.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
-            downloadButton("{prefix}c2oup.pdf", "Download PDF", class = "btn-sm"),
-            downloadButton("{prefix}c2oup.png", "Download PNG", class = "btn-sm")
+            numericInput("{prefix}_pro_oup.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
+            downloadButton("{prefix}_pro_oup.pdf", "Download PDF", class = "btn-sm"),
+            downloadButton("{prefix}_pro_oup.png", "Download PNG", class = "btn-sm")
           )
         ), # row 2 col 1
         # row 2 col 2
         column(
-          9, uiOutput("{prefix}c2oup.ui")
+          9, uiOutput("{prefix}_pro_oup.ui")
         ) # row 2 col 2
       ), # row 2
       hr()
     )
   )
-) # End of tab 6
+) # End of tab pro
 ')
 }
 
-#' Write code for tab7 of ui.R
+#' Write code for hea
 #'
-wrUItab7 <- function() {
+wr_ui_hea <- function() {
 paste0(',
-# tab 7 ----
+# tab hea ----
 tabPanel(
   "Bubbleplot / Heatmap",
   fluidRow(
@@ -2408,10 +2642,8 @@ tabPanel(
           style = "border-right: 2px solid #f3f6f4",
           div(
             class = "input-panel",
-            textAreaInput("{prefix}d1inp", HTML("List of gene names <br />
-                                        (Max 50 genes, separated <br />
-                                         by , or ; or newline):"),
-              height = "200px",
+            textAreaInput("{prefix}_hea_inp", "Gene names",
+              height = "150px",
               value = paste0({prefix}def$genes, collapse = ", ")
             ) %>%
               helper(
@@ -2423,7 +2655,7 @@ tabPanel(
                   "- Genes should be separated by comma, semicolon or newline"
                 )
               ),
-            selectInput("{prefix}d1grp", "Group by:",
+            selectInput("{prefix}_hea_grp", "Group by:",
               choices = {prefix}conf[grp == TRUE]$UI,
               selected = {prefix}conf[grp == TRUE]$UI[1]
             ) %>%
@@ -2436,39 +2668,39 @@ tabPanel(
                   "- Plotted as the X-axis of the bubbleplot / heatmap"
                 )
               ),
-            radioButtons("{prefix}d1plt", "Plot type:",
+            radioButtons("{prefix}_hea_plt", "Plot type:",
               choices = c("Bubbleplot", "Heatmap"),
               selected = "Bubbleplot", inline = TRUE
             ),
-            checkboxInput("{prefix}d1scl", "Scale gene expression", value = TRUE),
-            checkboxInput("{prefix}d1row", "Cluster rows (genes)", value = TRUE),
-            checkboxInput("{prefix}d1col", "Cluster columns (samples)", value = FALSE),
-            {subst}checkboxInput("{prefix}d1togL", "Subset cells"),
+            checkboxInput("{prefix}_hea_scl", "Scale gene expression", value = TRUE),
+            checkboxInput("{prefix}_hea_row", "Cluster rows (genes)", value = TRUE),
+            checkboxInput("{prefix}_hea_col", "Cluster columns (samples)", value = FALSE),
+            {subst}checkboxInput("{prefix}_hea_togL", "Subset cells"),
             {subst}conditionalPanel(
-              {subst}condition = "input.{prefix}d1togL == true",
-              {subst}selectInput("{prefix}d1sub1", "Cell information to subset:",
+              {subst}condition = "input.{prefix}_hea_togL == true",
+              {subst}selectInput("{prefix}_hea_sub1", "Cell information to subset:",
                 {subst}choices = {prefix}conf[grp == TRUE]$UI,
                 {subst}selected = {prefix}def$grp1
               {subst}),
-              {subst}uiOutput("{prefix}d1sub1.ui"),
-              {subst}actionButton("{prefix}d1sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
-              {subst}actionButton("{prefix}d1sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+              {subst}uiOutput("{prefix}_hea_sub1.ui"),
+              {subst}actionButton("{prefix}_hea_sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+              {subst}actionButton("{prefix}_hea_sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
             {subst}),
-            checkboxInput("{prefix}d1tog", "Adjust graphics"),
+            checkboxInput("{prefix}_hea_tog", "Adjust graphics"),
             conditionalPanel(
-              condition = "input.{prefix}d1tog == true",
-              radioButtons("{prefix}d1cols", "Colour scheme:",
+              condition = "input.{prefix}_hea_tog == true",
+              radioButtons("{prefix}_hea_cols", "Colour scheme:",
                 choices = c(
                   "White-Red", "Blue-Yellow-Red",
                   "Yellow-Green-Purple"
                 ),
                 selected = "Blue-Yellow-Red"
               ),
-              radioButtons("{prefix}d1psz", "Plot size:",
+              radioButtons("{prefix}_hea_psz", "Plot size:",
                 choices = c("Small", "Medium", "Large"),
                 selected = "Medium", inline = TRUE
               ),
-              radioButtons("{prefix}d1fsz", "Font size:",
+              radioButtons("{prefix}_hea_fsz", "Font size:",
                 choices = c("Small", "Medium", "Large"),
                 selected = "Small", inline = TRUE
               )
@@ -2476,27 +2708,141 @@ tabPanel(
           ),
           div(
             class = "input-panel",
-            numericInput("{prefix}d1oup.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
-            downloadButton("{prefix}d1oup.pdf", "Download PDF", class = "btn-sm"),
-            downloadButton("{prefix}d1oup.png", "Download PNG", class = "btn-sm")
+            numericInput("{prefix}_hea_oup.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
+            downloadButton("{prefix}_hea_oup.pdf", "Download PDF", class = "btn-sm"),
+            downloadButton("{prefix}_hea_oup.png", "Download PNG", class = "btn-sm")
           )
         ), # row 2 col 1
         # row 2 col 2
         column(
-          9, h4(htmlOutput("{prefix}d1oupTxt")),
-          uiOutput("{prefix}d1oup.ui")
+          9, h4(htmlOutput("{prefix}_hea_oupTxt")),
+          uiOutput("{prefix}_hea_oup.ui")
         ) # row 2 col 2
       ), # row 2
       hr()
     )
   )
-) # End of tab 7
+) # End of tab hea
+')
+}
+
+#' Write code for gem
+#'
+wr_ui_gem <- function() {
+paste0(',
+# tab gem ----
+tabPanel(
+  "Expression",
+  fluidRow(
+    class = "container page",
+    column(
+      12,
+      # row 1 ----
+      fluidRow(
+        class = "tab-section",
+        column(
+          12,
+          h3("Gene expression"),
+          p("Explore gene expression on low-dimensional represention.")
+        ) # row 1 col 1
+      ), # row 1
+      # row 2 ----
+      fluidRow(
+        class = "tab-section",
+        column(4,
+               fluidRow(
+        column(
+          12,
+          div(
+            class = "input-panel input-panel-section",
+            textAreaInput("{prefix}_gem_inp", "Gene names:",
+                          height = "100px",
+                          value = paste0({prefix}def$genes, collapse = ", ")
+            ) %>%
+              helper(
+                type = "inline", size = "m", fade = TRUE,
+                title = "List of genes to plot on bubbleplot / heatmap",
+                content = c(
+                  "Input genes to plot",
+                  "- Maximum 16 genes (due to ploting space limitations)",
+                  "- Genes should be separated by comma, semicolon or newline"
+                )
+              ),
+            selectInput("{prefix}_gem_drX", "X-axis:",
+                        choices = {prefix}conf[dimred == TRUE]$UI,
+                        selected = {prefix}def$dimred[1]
+            ),
+            selectInput("{prefix}_gem_drY", "Y-axis:",
+                        choices = {prefix}conf[dimred == TRUE]$UI,
+                        selected = {prefix}def$dimred[2]
+            ),
+            checkboxInput("{prefix}_gem_togL", "Subset cells"),
+            conditionalPanel(
+              condition = "input.{prefix}_gem_togL == true",
+              selectInput("{prefix}_gem_sub1", "Cell information to subset:",
+                          choices = {prefix}conf[grp == TRUE]$UI,
+                          selected = {prefix}def$grp1
+              ),
+              uiOutput("{prefix}_gem_sub1.ui"),
+              actionButton("{prefix}_gem_sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+              actionButton("{prefix}_gem_sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+            ),
+            checkboxInput("{prefix}_gem_tog0", "Adjust graphics"),
+            conditionalPanel(
+              condition = "input.{prefix}_gem_tog0 == true",
+              sliderInput("{prefix}_gem_siz", "Point size:",
+                          min = 0, max = 3, value = 0.5, step = 0.1
+              ),
+              radioButtons("{prefix}_gem_psz", "Plot size:",
+                           choices = c("Small", "Medium", "Large"),
+                           selected = "Medium", inline = TRUE
+              ),
+              radioButtons("{prefix}_gem_fsz", "Font size:",
+                           choices = c("Small", "Medium", "Large"),
+                           selected = "Small", inline = TRUE
+              ),
+              radioButtons("{prefix}_gem_asp", "Aspect ratio:",
+                           choices = c("Square", "Fixed", "Free"),
+                           selected = "Square", inline = TRUE
+              ),
+              checkboxInput("{prefix}_gem_txt", "Show axis text", value = FALSE),
+              radioButtons("{prefix}_gem_col", "Colour (Continuous data):",
+                           choices = c(
+                             "White-Red", "Blue-Yellow-Red",
+                             "Yellow-Green-Purple"
+                           ),
+                           selected = "Blue-Yellow-Red"
+              ),
+              radioButtons("{prefix}_gem_ord", "Plot order:",
+                           choices = c("Max-1st", "Min-1st", "Original", "Random"),
+                           selected = "Max-1st", inline = TRUE
+              ),
+              numericInput("{prefix}_gem_ncol", "Number of colums", value = 0, min = 0, step = 1)
+            )
+          ),
+          div(
+            class = "input-panel",
+            numericInput("{prefix}_gem_oup1.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
+            downloadButton("{prefix}_gem_oup1.pdf", "Download PDF", class = "btn-sm"),
+            downloadButton("{prefix}_gem_oup1.png", "Download PNG", class = "btn-sm")
+          )
+        )
+               )
+      ),
+      column(8,
+             uiOutput("{prefix}_gem_oup1.ui")
+      )
+      ),
+      hr()
+    )
+  )
+) # End of tab gem
 ')
 }
 
 #' Write code for about page
 #'
-wrUIabout <- function() {
+wr_ui_about <- function() {
 paste0('\n,
 # about ----
 tabPanel(
@@ -2516,30 +2862,24 @@ tabPanel(
 #' @param prefix file prefix
 #' @param subst Conditional
 #' @param ptsiz Point size
-#' @param tabs Vector of tab numbers to include
+#' @param tabs Vector of tab names to include
 #' @param about Should about page be added as a tab?
-#' @rdname wrUImain
-#' @export wrUImain
+#' @rdname wr_ui_main
+#' @export wr_ui_main
 #'
-wrUImain <- function(prefix, subst = "", ptsiz = "1.25", tabs = c(1,2,3,4,5,6,7), about = TRUE) {
+wr_ui_main <- function(prefix, subst = "", ptsiz = "1.25", tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea"), about = TRUE) {
   glue::glue(
-    ifelse(1 %in% tabs, wrUItab1(), ""),
-    ifelse(2 %in% tabs, wrUItab2(), ""),
-    ifelse(3 %in% tabs, wrUItab3(), ""),
-    ifelse(4 %in% tabs, wrUItab4(), ""),
-    ifelse(5 %in% tabs, wrUItab5(), ""),
-    ifelse(6 %in% tabs, wrUItab6(), ""),
-    ifelse(7 %in% tabs, wrUItab7(), ""),
-    ifelse(about, wrUIabout(), "")
+    paste(unlist(lapply(tabs, function(x) eval(parse(text = paste0("wr_ui_",x,"()"))))), collapse = "\n"),
+    "\n"
   )
 }
 
 #' Write code for final portion of ui.R
 #'
-#' @rdname wrUIend
-#' @export wrUIend
+#' @rdname wr_ui_end
+#' @export wr_ui_end
 #'
-wrUIend <- function() {
+wr_ui_end <- function() {
   glue::glue(
 '
 )
@@ -2552,10 +2892,10 @@ wrUIend <- function() {
 #' Write code for google-analytics.html
 #' @param gaID Google analytics tracking ID (e.g. "UA-123456789-0")
 #'
-#' @rdname wrUIga
-#' @export wrUIga
+#' @rdname wr_ui_ga
+#' @export wr_ui_ga
 #'
-wrUIga <- function(gaID) {
+wr_ui_ga <- function(gaID) {
   glue::glue(
     '<!-- Global site tag (gtag.js) - Google Analytics -->
       <script async src="https://www.googletagmanager.com/gtag/js?id={gaID}"></script>
@@ -2570,10 +2910,10 @@ wrUIga <- function(gaID) {
 }
 
 #' Write code for about. about.md
-#' @rdname wrAbout
-#' @export wrAbout
+#' @rdname wr_about
+#' @export wr_about
 #'
-wrAbout <- function(){
+wr_about <- function(){
   paste('
 ### About
 
@@ -2583,10 +2923,10 @@ App description and author info.
 }
 
 #' Write code for custom css. www/styles.css
-#' @rdname wrCSS
-#' @export wrCSS
+#' @rdname wr_css
+#' @export wr_css
 #'
-wrCSS <- function(){
+wr_css <- function(){
   paste('
 /* easyshiny */
 /* custom css styles */
@@ -2603,6 +2943,10 @@ wrCSS <- function(){
   background-color: #f3f6f4;
   padding: 15px;
   border-radius: 6px;
+}
+
+.input-panel-section {
+  margin-bottom: 1em;
 }
 
 a:hover,
