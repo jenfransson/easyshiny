@@ -50,7 +50,7 @@ make_code <- function(shiny.title, shiny.prefix, shiny.dir, enableSubset = TRUE,
   readr::write_file(wr_lib(slibs), file = fname)
   readr::write_file(wr_font(font = font), append = TRUE, file = fname)
   readr::write_file(wr_sv_load(shiny.prefix), append = TRUE, file = fname)
-  readr::write_file(wr_sv_fix(), append = TRUE, file = fname)
+  readr::write_file(wr_sv_fix(font = font), append = TRUE, file = fname)
   readr::write_file(wr_sv_main(shiny.prefix, subst, tabs = tabs), append = TRUE, file = fname)
   readr::write_file(wr_sv_end(), append = TRUE, file = fname)
 

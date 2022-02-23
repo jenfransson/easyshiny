@@ -28,8 +28,8 @@ To generate and launch the app using a **Seurat** file, run as shown below.
 
 ```r
 library(easyshiny)
-obj_conf = createConfig(obj)
-makeShinyApp(obj, obj_conf, gex.assay="RNA", gex.slot="data", gene.mapping = FALSE, shiny.title = "My Awesome App", shiny.dir="app")
+obj_conf = create_config(obj)
+make_app(obj, obj_conf, gex.assay="RNA", gex.slot="data", gene.mapping = FALSE, shiny.title = "My Awesome App", shiny.dir="app")
 shiny::runApp("app")
 ```
 
@@ -38,11 +38,11 @@ shiny::runApp("app")
 To use multiple Seurat datasets, see code below.
 
 ```r
-obj1_conf = createConfig(obj1)
-makeShinyFiles(obj1, obj1_conf, gex.assay="RNA", gex.slot="data", gene.mapping = FALSE, shiny.prefix = "sc1", shiny.dir="app")
-obj2_conf = createConfig(obj2)
-makeShinyFiles(obj2, obj2_conf, gex.assay="RNA", gex.slot="data", gene.mapping = FALSE, shiny.prefix = "sc2", shiny.dir="app")
-makeShinyCodesMulti(
+obj1_conf = create_config(obj1)
+make_file(obj1, obj1_conf, gex.assay="RNA", gex.slot="data", gene.mapping = FALSE, shiny.prefix = "sc1", shiny.dir="app")
+obj2_conf = create_config(obj2)
+make_file(obj2, obj2_conf, gex.assay="RNA", gex.slot="data", gene.mapping = FALSE, shiny.prefix = "sc2", shiny.dir="app")
+make_code_multi(
   shiny.title = "Multi-data",
   shiny.prefix = c("sc1", "sc2"),
   shiny.headers = c("Label 1", "Label 2"),

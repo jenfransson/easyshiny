@@ -4,7 +4,10 @@
 \alias{wr_sv_fix}
 \title{Write code for fixed portion of server.R}
 \usage{
-wr_sv_fix()
+wr_sv_fix(font = "Lato")
+}
+\arguments{
+\item{font}{(Character) Google font}
 }
 \description{
 Write code for fixed portion of server.R

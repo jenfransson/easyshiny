@@ -64,7 +64,7 @@ make_code_multi <- function(shiny.title, shiny.prefix, shiny.headers, shiny.dir,
   for (i in shiny.prefix) {
     readr::write_file(wr_sv_load(i), append = TRUE, file = fname)
   }
-  readr::write_file(wr_sv_fix(), append = TRUE, file = fname)
+  readr::write_file(wr_sv_fix(font = font), append = TRUE, file = fname)
   for (i in shiny.prefix) {
     readr::write_file(wr_sv_main(i, subst, tabs = tabs), append = TRUE, file = fname)
   }
