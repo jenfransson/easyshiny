@@ -16,7 +16,8 @@ make_file(
   default.gene2 = NA,
   default.multigene = NA,
   default.dimred = NA,
-  chunkSize = 500
+  chunkSize = 500,
+  tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea")
 )
 }
 \arguments{
@@ -65,6 +66,8 @@ reductions. Default is to use UMAP if not TSNE embeddings}
 
 \item{chunkSize}{number of genes written to h5file at any one time. Lower 
 this number to reduce memory consumption. Should not be less than 10}
+
+\item{tabs}{Vector of tab names to include}
 }
 \value{
 data files required for shiny app

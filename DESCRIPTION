@@ -26,6 +26,7 @@ Imports:
     methods,
     RColorBrewer,
     readr (>= 1.4.0),
+    shinycssloaders,
     shinyhelper,
     shinythemes,
     showtext,

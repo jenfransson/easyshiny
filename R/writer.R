@@ -19,26 +19,29 @@ wr_lib <- function(lib) {
 wr_font <- function(font = "Lato") {
   paste0(
 '
+# load font for plot
 sysfonts::font_add_google(name = "',font,'", family = "',font,'")
 showtext::showtext_auto()
+
 '
   )
 }
 
 #' Write code for loading objects for server.R
 #' @param prefix file prefix
+#' @param tabs Vector of tab names to include
 #' @rdname wr_sv_load
 #' @export wr_sv_load
 #'
-wr_sv_load <- function(prefix) {
-glue::glue('
-
+wr_sv_load <- function(prefix, tabs) {
+x <- paste0('
 {prefix}conf = readRDS("{prefix}conf.rds")
 {prefix}def  = readRDS("{prefix}def.rds")
 {prefix}gene = readRDS("{prefix}gene.rds")
 {prefix}meta = readRDS("{prefix}meta.rds")
-
 ')
+if("mar" %in% tabs) x <- paste0(x,'{prefix}mar = readRDS("{prefix}mar.rds")\n')
+glue::glue(x,"\n")
 }
 
 #' Write code for fixed portion of server.R
@@ -88,6 +91,11 @@ g_legend <- function(a.gplot) {{
   leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
   legend <- tmp$grobs[[leg]]
   legend
+}}
+
+# progress indicator
+show_progress <- function(...){{
+  return(shinycssloaders::withSpinner(..., type = 7, color = "#95a5a6"))
 }}
 
 # Plot theme
@@ -1043,7 +1051,7 @@ output${prefix}_civge_oup1 <- renderPlot({{
 }})
 
 output${prefix}_civge_oup1.ui <- renderUI({{
-  imageOutput("{prefix}_civge_oup1", height = pList[input${prefix}_civge_psz])
+  show_progress(imageOutput("{prefix}_civge_oup1", height = pList[input${prefix}_civge_psz]))
 }})
 
 output${prefix}_civge_oup1.pdf <- downloadHandler(
@@ -1077,7 +1085,7 @@ output${prefix}_civge_oup2 <- renderPlot({{
 }})
 
 output${prefix}_civge_oup2.ui <- renderUI({{
- imageOutput("{prefix}_civge_oup2", height = pList[input${prefix}_civge_psz])
+ show_progress(imageOutput("{prefix}_civge_oup2", height = pList[input${prefix}_civge_psz]))
 }})
 
 output${prefix}_civge_oup2.pdf <- downloadHandler(
@@ -1126,7 +1134,7 @@ output${prefix}_civci_oup1 <- renderPlot({{
 }})
 
 output${prefix}_civci_oup1.ui <- renderUI({{
-  imageOutput("{prefix}_civci_oup1", height = pList[input${prefix}_civci_psz])
+  show_progress(imageOutput("{prefix}_civci_oup1", height = pList[input${prefix}_civci_psz]))
 }})
 
 output${prefix}_civci_oup1.pdf <- downloadHandler(
@@ -1151,7 +1159,7 @@ output${prefix}_civci_oup2 <- renderPlot({{
 }})
 
 output${prefix}_civci_oup2.ui <- renderUI({{
-  imageOutput("{prefix}_civci_oup2", height = pList[input${prefix}_civci_psz])
+  show_progress(imageOutput("{prefix}_civci_oup2", height = pList[input${prefix}_civci_psz]))
 }})
 
 output${prefix}_civci_oup2.pdf <- downloadHandler(
@@ -1200,7 +1208,7 @@ output${prefix}_gevge_oup1 <- renderPlot({{
 }})
 
 output${prefix}_gevge_oup1.ui <- renderUI({{
-  imageOutput("{prefix}_gevge_oup1", height = pList[input${prefix}_gevge_psz])
+  show_progress(imageOutput("{prefix}_gevge_oup1", height = pList[input${prefix}_gevge_psz]))
 }})
 
 output${prefix}_gevge_oup1.pdf <- downloadHandler(
@@ -1231,7 +1239,7 @@ output${prefix}_gevge_oup2 <- renderPlot({{
 }})
 
 output${prefix}_gevge_oup2.ui <- renderUI({{
-  imageOutput("{prefix}_gevge_oup2", height = pList[input${prefix}_gevge_psz])
+  show_progress(imageOutput("{prefix}_gevge_oup2", height = pList[input${prefix}_gevge_psz]))
 }})
 
 output${prefix}_gevge_oup2.pdf <- downloadHandler(
@@ -1284,7 +1292,7 @@ output${prefix}_gec_oup1 <- renderPlot({{
 }})
 
 output${prefix}_gec_oup1.ui <- renderUI({{
-  imageOutput("{prefix}_gec_oup1", height = pList2[input${prefix}_gec_psz])
+  show_progress(imageOutput("{prefix}_gec_oup1", height = pList2[input${prefix}_gec_psz]))
 }})
 
 output${prefix}_gec_oup1.pdf <- downloadHandler(
@@ -1336,7 +1344,7 @@ output${prefix}_vio_oup <- renderPlot({{
 }})
 
 output${prefix}_vio_oup.ui <- renderUI({{
-  imageOutput("{prefix}_vio_oup", height = pList2[input${prefix}_vio_psz])
+  show_progress(imageOutput("{prefix}_vio_oup", height = pList2[input${prefix}_vio_psz]))
 }})
 
 output${prefix}_vio_oup.pdf <- downloadHandler(
@@ -1385,7 +1393,7 @@ output${prefix}_pro_oup <- renderPlot({{
 }})
 
 output${prefix}_pro_oup.ui <- renderUI({{
-  imageOutput("{prefix}_pro_oup", height = pList2[input${prefix}_pro_psz])
+  show_progress(imageOutput("{prefix}_pro_oup", height = pList2[input${prefix}_pro_psz]))
 }})
 
 output${prefix}_pro_oup.pdf <- downloadHandler(
@@ -1445,7 +1453,7 @@ output${prefix}_hea_oup <- renderPlot({{
 }})
 
 output${prefix}_hea_oup.ui <- renderUI({{
-  imageOutput("{prefix}_hea_oup", height = pList3[input${prefix}_hea_psz])
+  show_progress(imageOutput("{prefix}_hea_oup", height = pList3[input${prefix}_hea_psz]))
 }})
 
 output${prefix}_hea_oup.pdf <- downloadHandler(
@@ -1495,7 +1503,7 @@ output${prefix}_gem_oup1 <- renderPlot({{
 }})
 
 output${prefix}_gem_oup1.ui <- renderUI({{
-  imageOutput("{prefix}_gem_oup1", height = pList[input${prefix}_gem_psz])
+  show_progress(imageOutput("{prefix}_gem_oup1", height = pList[input${prefix}_gem_psz]))
 }})
 
 output${prefix}_gem_oup1.pdf <- downloadHandler(
@@ -1513,6 +1521,21 @@ output${prefix}_gem_oup1.png <- downloadHandler(
       plot = scFeature({prefix}conf, {prefix}meta, input${prefix}_gem_drX, input${prefix}_gem_drY, input${prefix}_gem_inp, input${prefix}_gem_sub1, input${prefix}_gem_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_gem_siz, input${prefix}_gem_col, input${prefix}_gem_ord, input${prefix}_gem_fsz, input${prefix}_gem_asp, input${prefix}_gem_txt, input${prefix}_gem_ncol)
     )
 }}) # End of tab gem
+
+')
+}
+
+
+#' Write code for markers
+#'
+wr_sv_mar <- function() {
+  paste0('
+### Tab markers ----
+
+output${prefix}_mar_table <- renderDataTable({{
+  req(input${prefix}_mar_cls)
+  datatable({prefix}mar[[input${prefix}_mar_cls]], rownames = FALSE, extensions = "Buttons", options = list(dom = "lftiprB", buttons = c("copy", "csv", "excel")))
+}}) # End of tab mar
 
 ')
 }
@@ -1579,6 +1602,7 @@ wr_ui_load <- function(prefix) {
 
 {prefix}conf = readRDS("{prefix}conf.rds")
 {prefix}def  = readRDS("{prefix}def.rds")
+{prefix}meta  = readRDS("{prefix}meta.rds")
 
 ')
 }
@@ -2881,6 +2905,55 @@ tabPanel(
 ')
 }
 
+#' Write code for mar
+#'
+wr_ui_mar <- function() {
+  paste0(',
+# tab mar ----
+tabPanel(
+  "Markers",
+  fluidRow(
+    class = "container page",
+    column(
+      12,
+      # row 1 ----
+      fluidRow(
+        class = "tab-section",
+        column(
+          12,
+          h3("Markers"),
+          p("Explore markers for different clustering.")
+        ) # row 1 col 1
+      ), # row 1
+      # row 2 ----
+      fluidRow(
+        class = "tab-section",
+        column(3,
+               fluidRow(
+                 column(
+                   12,
+                   div(
+                     class = "input-panel input-panel-section",
+                     selectInput("{prefix}_mar_cls","Select clustering:", choices = colnames({prefix}meta)[grep("^clusters_",colnames({prefix}meta))],selected = 1)
+                   )
+                 )
+               )
+        )
+      ), # end of row 2
+      # row 3 ----
+      fluidRow(
+      column(12,
+        DTOutput("{prefix}_mar_table")
+      )
+      ), # end of row 3
+      hr()
+    )
+  )
+) # End of tab mar
+')
+}
+
+
 #' Write code for about page
 #'
 wr_ui_about <- function() {
@@ -3007,7 +3080,14 @@ a:active,
 }
 
 .dt-buttons {
-  margin: 1em 0em;
+  padding-top: 0.25em;
+  
+}
+
+.dataTables_info,
+.dataTables_paginate,
+.dt-buttons {
+  margin: 0.5em 0em;
 }
 
 ')  

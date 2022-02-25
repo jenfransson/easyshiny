@@ -44,7 +44,7 @@
 #'   reductions. Default is to use UMAP if not TSNE embeddings
 #' @param chunkSize number of genes written to h5file at any one time. Lower 
 #'   this number to reduce memory consumption. Should not be less than 10
-#'
+#' @param tabs Vector of tab names to include
 #' @return data files required for shiny app
 #'
 #' @author John F. Ouyang
@@ -58,9 +58,11 @@ make_file <- function(
   obj, scConf, gex.assay = NA, gex.slot = c("data", "scale.data", "counts"), 
   gene.mapping = FALSE, shiny.prefix = "sc1", shiny.dir = "shinyApp/",
   default.gene1 = NA, default.gene2 = NA, default.multigene = NA, 
-  default.dimred = NA, chunkSize = 500){
+  default.dimred = NA, chunkSize = 500, tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea")){
+  
   ### Preprocessing and checks
-  # Generate defaults for gex.assay / gex.slot
+  
+  # Generate defaults for gex.assay / gex.slot ----
   if(class(obj)[1] == "Seurat"){
     # Seurat Object
     if(is.na(gex.assay[1])){gex.assay = "RNA"}
@@ -198,7 +200,9 @@ make_file <- function(
   
 
   ### Actual object generation
-  # Make XXXmeta.rds and XXXconf.rds (updated with dimred info)
+  # Make XXXmeta.rds and XXXconf.rds---- 
+  # (updated with dimred info)
+  
   sc1conf = scConf
   sc1conf$dimred = FALSE
   sc1meta = sc1meta[, c("sampleID", as.character(sc1conf$ID)), with = FALSE]
@@ -288,7 +292,8 @@ make_file <- function(
   }
   sc1conf$ID = as.character(sc1conf$ID)     # Remove levels
   
-  # Make XXXgexpr.h5
+  # Make XXXgexpr.h5 ----
+  
   if(!dir.exists(shiny.dir)){dir.create(shiny.dir)}
   filename = paste0(shiny.dir, "/", shiny.prefix, "gexpr.h5")
   sc1gexpr <- H5File$new(filename, mode = "w")
@@ -357,7 +362,8 @@ make_file <- function(
     sc1meta$sampleID = as.character(sc1meta$sampleID)
   }
   
-  # Make XXXgenes.rds
+  # Make XXXgenes.rds ----
+  
   sc1gene = seq(gex.matdim[1])
   names(gene.mapping) = NULL
   names(sc1gene) = gene.mapping
@@ -418,6 +424,15 @@ make_file <- function(
     }
   }
   sc1conf = sc1conf[, -c("fUI", "default"), with = FALSE]
+  
+  ## marker objects ----
+  if("mar" %in% tabs){
+    if(class(obj)[1] == "Seurat"){
+        sc1mar <- obj@assays$RNA@misc
+        saveRDS(sc1mar, file = paste0(shiny.dir, "/", shiny.prefix, "mar.rds"))
+        if(length(obj@assays$RNA@misc) == 0) warning("Marker slot (obj@assays$RNA@misc) is empty.")
+    }
+  }
   
   ### Saving objects
   saveRDS(sc1conf, file = paste0(shiny.dir, "/", shiny.prefix, "conf.rds"))

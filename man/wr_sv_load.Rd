@@ -4,10 +4,12 @@
 \alias{wr_sv_load}
 \title{Write code for loading objects for server.R}
 \usage{
-wr_sv_load(prefix)
+wr_sv_load(prefix, tabs)
 }
 \arguments{
 \item{prefix}{file prefix}
+
+\item{tabs}{Vector of tab names to include}
 }
 \description{
 Write code for loading objects for server.R

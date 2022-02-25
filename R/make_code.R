@@ -32,7 +32,7 @@
 #' 
 make_code <- function(shiny.title, shiny.prefix, shiny.dir, enableSubset = TRUE, defPtSiz = 1.25, theme = "flatly", tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea"), about = TRUE, font = "Lato", ganalytics = NA) {
   
-  tbs <- c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea")
+  tbs <- c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea", "mar")
   if(length(tabs) < 1) stop("At least 1 tab must be specified.")
   if(any(!tabs %in% tbs)) stop(paste("One of more tabs are incorrect. Tab options are:",paste(tbs,collapse=", "),"."))
   
@@ -42,14 +42,14 @@ make_code <- function(shiny.title, shiny.prefix, shiny.dir, enableSubset = TRUE,
     subst <- ""
   }
   defPtSiz <- as.character(defPtSiz)
-  slibs <- c("shiny", "shinyhelper", "data.table", "Matrix", "DT", "magrittr", "ggplot2", "ggplotify", "ggrepel", "hdf5r", "ggdendro", "gridExtra")
+  slibs <- c("shiny", "shinyhelper", "data.table", "Matrix", "DT", "magrittr", "ggplot2", "ggplotify", "ggrepel", "hdf5r", "ggdendro", "gridExtra", "shinycssloaders")
   ulibs <- c("shiny", "shinyhelper", "shinythemes", "showtext", "data.table", "Matrix", "DT", "magrittr")
 
   ### Write code for server.R
   fname <- paste0(shiny.dir, "/server.R")
   readr::write_file(wr_lib(slibs), file = fname)
   readr::write_file(wr_font(font = font), append = TRUE, file = fname)
-  readr::write_file(wr_sv_load(shiny.prefix), append = TRUE, file = fname)
+  readr::write_file(wr_sv_load(shiny.prefix, tabs = tabs), append = TRUE, file = fname)
   readr::write_file(wr_sv_fix(font = font), append = TRUE, file = fname)
   readr::write_file(wr_sv_main(shiny.prefix, subst, tabs = tabs), append = TRUE, file = fname)
   readr::write_file(wr_sv_end(), append = TRUE, file = fname)

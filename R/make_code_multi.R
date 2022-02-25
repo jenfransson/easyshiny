@@ -38,7 +38,7 @@
 make_code_multi <- function(shiny.title, shiny.prefix, shiny.headers, shiny.dir, enableSubset = TRUE, defPtSiz = 1.25, theme = "flatly", tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea"), about = TRUE, font = "Lato", ganalytics = NA) {
   
   ### Checks
-  tbs <- c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea")
+  tbs <- c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea", "mar")
   if(length(tabs) < 1) stop("At least 1 tab must be specified.")
   if(any(!tabs %in% tbs)) stop(paste("One of more tabs are incorrect. Tab options are:",paste(tbs,collapse=", "),"."))
   
@@ -53,7 +53,7 @@ make_code_multi <- function(shiny.title, shiny.prefix, shiny.headers, shiny.dir,
     defPtSiz <- rep(defPtSiz[1], length(shiny.prefix))
   }
   defPtSiz <- as.character(defPtSiz)
-  slibs <- c("shiny", "shinyhelper", "data.table", "Matrix", "DT", "magrittr", "ggplot2", "ggplotify", "ggrepel", "hdf5r", "ggdendro", "gridExtra")
+  slibs <- c("shiny", "shinyhelper", "data.table", "Matrix", "DT", "magrittr", "ggplot2", "ggplotify", "ggrepel", "hdf5r", "ggdendro", "gridExtra", "shinycssloaders")
   ulibs <- c("shiny", "shinyhelper", "shinythemes", "showtext", "data.table", "Matrix", "DT", "magrittr")
 
 
@@ -62,7 +62,7 @@ make_code_multi <- function(shiny.title, shiny.prefix, shiny.headers, shiny.dir,
   readr::write_file(wr_lib(slibs), file = fname)
   readr::write_file(wr_font(font = font), append = TRUE, file = fname)
   for (i in shiny.prefix) {
-    readr::write_file(wr_sv_load(i), append = TRUE, file = fname)
+    readr::write_file(wr_sv_load(i, tabs = tabs), append = TRUE, file = fname)
   }
   readr::write_file(wr_sv_fix(font = font), append = TRUE, file = fname)
   for (i in shiny.prefix) {

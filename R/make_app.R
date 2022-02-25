@@ -53,7 +53,7 @@
 #' 
 make_app <- function(obj, scConf, gex.assay = NA, gex.slot = c("data", "scale.data", "counts"), gene.mapping = FALSE, shiny.title = "scRNA-seq shiny app", shiny.dir = "shinyApp/", enableSubset = TRUE, defPtSiz = 1.25, ganalytics = NA, default.gene1 = NA, default.gene2 = NA, default.multigene = NA, default.dimred = NA, tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea"), theme = "flatly", font = "Lato") {
 
-  tbs <- c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea")
+  tbs <- c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea", "mar")
   if(length(tabs) < 1) stop("At least 1 tab must be specified.")
   if(any(!tabs %in% tbs)) stop(paste("One of more tabs are incorrect. Tab options are:",paste(tbs,collapse=", "),"."))
     
@@ -64,7 +64,8 @@ make_app <- function(obj, scConf, gex.assay = NA, gex.slot = c("data", "scale.da
     gex.assay = gex.assay[1], gex.slot = gex.slot[1],
     gene.mapping = gene.mapping,
     shiny.prefix = "sc1", shiny.dir = shiny.dir,
-    default.gene1, default.gene2, default.multigene, default.dimred
+    default.gene1, default.gene2, default.multigene, default.dimred,
+    tabs = tabs
   )
 
   make_code(
