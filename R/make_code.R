@@ -49,7 +49,7 @@ make_code <- function(shiny.title, shiny.prefix, shiny.dir, enableSubset = TRUE,
   fname <- paste0(shiny.dir, "/server.R")
   readr::write_file(wr_lib(slibs), file = fname)
   readr::write_file(wr_font(font = font), append = TRUE, file = fname)
-  readr::write_file(wr_sv_load(shiny.prefix, tabs = tabs), append = TRUE, file = fname)
+  readr::write_file(wr_load(shiny.prefix, tabs = tabs), append = TRUE, file = fname)
   readr::write_file(wr_sv_fix(font = font), append = TRUE, file = fname)
   readr::write_file(wr_sv_main(shiny.prefix, subst, tabs = tabs), append = TRUE, file = fname)
   readr::write_file(wr_sv_end(), append = TRUE, file = fname)
@@ -58,7 +58,7 @@ make_code <- function(shiny.title, shiny.prefix, shiny.dir, enableSubset = TRUE,
   ### Write code for ui.R
   fname <- paste0(shiny.dir, "/ui.R")
   readr::write_file(wr_lib(ulibs), file = fname)
-  readr::write_file(wr_ui_load(shiny.prefix), append = TRUE, file = fname)
+  readr::write_file(wr_load(shiny.prefix, tabs = tabs), append = TRUE, file = fname)
   readr::write_file(wr_ui_single(shiny.title, theme = theme, ganalytics = ganalytics), append = TRUE, file = fname)
   readr::write_file(wr_ui_main(shiny.prefix, subst, defPtSiz, tabs = tabs, about = about), append = TRUE, file = fname)
   ## readr::write_file('\n)\n', append = TRUE, file = fname)

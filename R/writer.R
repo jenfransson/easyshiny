@@ -27,20 +27,20 @@ showtext::showtext_auto()
   )
 }
 
-#' Write code for loading objects for server.R
+#' Write code for loading objects for ui.R and server.R
 #' @param prefix file prefix
 #' @param tabs Vector of tab names to include
-#' @rdname wr_sv_load
-#' @export wr_sv_load
+#' @rdname wr_load
+#' @export wr_load
 #'
-wr_sv_load <- function(prefix, tabs) {
+wr_load <- function(prefix, tabs) {
 x <- paste0('
-{prefix}conf = readRDS("{prefix}conf.rds")
-{prefix}def  = readRDS("{prefix}def.rds")
-{prefix}gene = readRDS("{prefix}gene.rds")
-{prefix}meta = readRDS("{prefix}meta.rds")
+if(!exists("{prefix}conf")) {prefix}conf = readRDS("{prefix}conf.rds")
+if(!exists("{prefix}def")) {prefix}def  = readRDS("{prefix}def.rds")
+if(!exists("{prefix}gene")) {prefix}gene = readRDS("{prefix}gene.rds")
+if(!exists("{prefix}meta")) {prefix}meta = readRDS("{prefix}meta.rds")
 ')
-if("mar" %in% tabs) x <- paste0(x,'{prefix}mar = readRDS("{prefix}mar.rds")\n')
+if("mar" %in% tabs) x <- paste0(x,'if(!exists("{prefix}mar")) {prefix}mar = readRDS("{prefix}mar.rds")\n')
 glue::glue(x,"\n")
 }
 
@@ -1590,23 +1590,6 @@ wr_sv_end <- function() {
   )
 }
 
-#' Write code for loading objects for ui.R
-#'
-#' @param prefix file prefix
-#'
-#' @rdname wr_ui_load
-#' @export wr_ui_load
-#'
-wr_ui_load <- function(prefix) {
-  glue::glue('
-
-{prefix}conf = readRDS("{prefix}conf.rds")
-{prefix}def  = readRDS("{prefix}def.rds")
-{prefix}meta  = readRDS("{prefix}meta.rds")
-
-')
-}
-
 #' Write code for front portion of ui.R
 #' @param title shiny app title
 #' @param theme bootstrap theme
@@ -2934,7 +2917,7 @@ tabPanel(
                    12,
                    div(
                      class = "input-panel input-panel-section",
-                     selectInput("{prefix}_mar_cls","Select clustering:", choices = colnames({prefix}meta)[grep("^clusters_",colnames({prefix}meta))],selected = 1)
+                     selectInput("{prefix}_mar_cls","Select clustering:", choices = names({prefix}mar),selected = 1)
                    )
                  )
                )

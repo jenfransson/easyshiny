@@ -62,7 +62,7 @@ make_code_multi <- function(shiny.title, shiny.prefix, shiny.headers, shiny.dir,
   readr::write_file(wr_lib(slibs), file = fname)
   readr::write_file(wr_font(font = font), append = TRUE, file = fname)
   for (i in shiny.prefix) {
-    readr::write_file(wr_sv_load(i, tabs = tabs), append = TRUE, file = fname)
+    readr::write_file(wr_load(i, tabs = tabs), append = TRUE, file = fname)
   }
   readr::write_file(wr_sv_fix(font = font), append = TRUE, file = fname)
   for (i in shiny.prefix) {
@@ -75,7 +75,7 @@ make_code_multi <- function(shiny.title, shiny.prefix, shiny.headers, shiny.dir,
   fname <- paste0(shiny.dir, "/ui.R")
   readr::write_file(wr_lib(ulibs), file = fname)
   for (i in shiny.prefix) {
-    readr::write_file(wr_ui_load(i), append = TRUE, file = fname)
+    readr::write_file(wr_load(i, tabs = tabs), append = TRUE, file = fname)
   }
   readr::write_file(wr_ui_single(shiny.title, theme = theme, ganalytics = ganalytics), append = TRUE, file = fname)
   for (i in seq_along(shiny.prefix)) {

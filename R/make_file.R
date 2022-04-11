@@ -428,9 +428,11 @@ make_file <- function(
   ## marker objects ----
   if("mar" %in% tabs){
     if(class(obj)[1] == "Seurat"){
-        sc1mar <- obj@assays$RNA@misc
-        saveRDS(sc1mar, file = paste0(shiny.dir, "/", shiny.prefix, "mar.rds"))
-        if(length(obj@assays$RNA@misc) == 0) warning("Marker slot (obj@assays$RNA@misc) is empty.")
+      if(length(obj@misc) == 0) warning("Marker slot (obj@misc) is empty.")
+      if(is.null(obj@misc$mar)) warning("Marker slot (obj@misc$mar) is empty.")
+      if(!is.null(obj@misc$mar)){
+        saveRDS(obj@misc$mar, file = paste0(shiny.dir, "/", shiny.prefix, "mar.rds"))
+      }
     }
   }
   
