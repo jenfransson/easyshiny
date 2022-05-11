@@ -26,13 +26,7 @@ display name, see \code{?mod_meta_name}.
 \dontrun{
 showLegend(scConf)
 
-# Can also save the legend for plotting later
-scLegend = show_legend(scConf)
-leg = do.call(gtable_rbind, scLegend)
-grid.newpage()
-grid.draw(leg)
 }
-
 }
 \author{
 John F. Ouyang
