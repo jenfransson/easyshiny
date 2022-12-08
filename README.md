@@ -30,7 +30,7 @@ To generate and launch the app using a **Seurat** file, here is an example using
 library(easyshiny)
 library(Seurat)
 obj_conf = create_config(pbmc_small)
-make_app(pbmc_small, obj_conf, gex.assay="RNA", gex.slot="data", gene.mapping = FALSE, shiny.title = "My Awesome App", shiny.dir="app")
+make_app(pbmc_small, obj_conf, gex.assay="RNA", gex.slot="data", gene.mapping = FALSE, shiny.title = "App", shiny.dir="app")
 shiny::runApp("app")
 ```
 
