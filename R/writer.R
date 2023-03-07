@@ -20,8 +20,8 @@ wr_font <- function(font = "Lato") {
   paste0(
 '
 # load font for plot
-sysfonts::font_add_google(name = "',font,'", family = "',font,'")
-showtext::showtext_auto()
+if(!system.file(package="showtext")=="") sysfonts::font_add_google(name = "',font,'", family = "',font,'")
+if(!system.file(package="showtext")=="") showtext::showtext_auto()
 
 '
   )

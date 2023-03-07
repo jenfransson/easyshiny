@@ -49,12 +49,11 @@ make_code <- function(shiny.title = "App", shiny.prefix = "sc1", shiny.dir = "ap
   ### Write code for server.R
   fname <- paste0(shiny.dir, "/server.R")
   readr::write_file(wr_lib(slibs), file = fname)
-  if(!system.file(package="showtext")=="") readr::write_file(wr_font(font = font), append = TRUE, file = fname)
+  readr::write_file(wr_font(font = font), append = TRUE, file = fname)
   readr::write_file(wr_load(shiny.prefix, tabs = tabs), append = TRUE, file = fname)
   readr::write_file(wr_sv_fix(font = font), append = TRUE, file = fname)
   readr::write_file(wr_sv_main(shiny.prefix, subst, font = font, tabs = tabs), append = TRUE, file = fname)
   readr::write_file(wr_sv_end(), append = TRUE, file = fname)
-
 
   ### Write code for ui.R
   fname <- paste0(shiny.dir, "/ui.R")

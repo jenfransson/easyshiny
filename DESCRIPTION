@@ -1,7 +1,7 @@
 Package: easyshiny
 Type: Package
 Title: Shiny Interactive Web Apps for Single-Cell Data
-Version: 0.1.1
+Version: 0.1.2
 Author: ´Roy Francis
 Maintainer: Roy Francis <roy.francis@outlook.com>
 Description: Quick shiny web app for interactive exploration of single-cell data.

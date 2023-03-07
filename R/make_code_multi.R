@@ -54,13 +54,13 @@ make_code_multi <- function(shiny.title, shiny.prefix, shiny.headers, shiny.dir,
   }
   defPtSiz <- as.character(defPtSiz)
   slibs <- c("shiny", "shinyhelper", "data.table", "Matrix", "DT", "magrittr", "ggplot2", "ggplotify", "ggrepel", "hdf5r", "ggdendro", "grid", "shinycssloaders","patchwork")
-  ulibs <- c("shiny", "shinyhelper", "shinythemes", "showtext", "data.table", "Matrix", "DT", "magrittr")
+  ulibs <- c("shiny", "shinyhelper", "shinythemes", "data.table", "Matrix", "DT", "magrittr")
   if(!system.file(package="showtext")=="") ulibs <- c(ulibs,"showtext")
 
   ### Write code for server.R
   fname <- paste0(shiny.dir, "/server.R")
   readr::write_file(wr_lib(slibs), file = fname)
-  if(!system.file(package="showtext")=="") readr::write_file(wr_font(font = font), append = TRUE, file = fname)
+  readr::write_file(wr_font(font = font), append = TRUE, file = fname)
   for (i in shiny.prefix) {
     readr::write_file(wr_load(i, tabs = tabs), append = TRUE, file = fname)
   }
