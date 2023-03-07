@@ -1538,9 +1538,9 @@ output${prefix}_hea_oup.pdf <- downloadHandler(
   filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_hea_plt,"_",input${prefix}_hea_grp,".pdf")) }},
   content = function(file) {{
     pdf(file, useDingbats = FALSE, bg = "white", height = input${prefix}_hea_oup.height/2.54, width = input${prefix}_hea_oup.width/2.54, onefile = TRUE)
-    showtext::showtext_begin()
+    if(!system.file(package="showtext")=="") showtext::showtext_begin()
     print(scBubbHeat({prefix}conf, {prefix}meta, input${prefix}_hea_inp, input${prefix}_hea_grp, input${prefix}_hea_plt, input${prefix}_hea_sub1, input${prefix}_hea_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_hea_scl, input${prefix}_hea_row, input${prefix}_hea_col, input${prefix}_hea_cols, input${prefix}_hea_fsz))
-    showtext::showtext_end()
+    if(!system.file(package="showtext")=="") showtext::showtext_end()
     dev.off()
 }})
 
@@ -1598,9 +1598,9 @@ output${prefix}_gem_oup1.pdf <- downloadHandler(
   filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_gem_drX, "_", input${prefix}_gem_drY, "_expression.pdf")) },
   content = function(file) {{
   pdf(file, useDingbats = FALSE, height = input${prefix}_gem_oup1.height/2.54, width = input${prefix}_gem_oup1.width/2.54, bg = "white", onefile = TRUE)
-  showtext::showtext_begin()
+  if(!system.file(package="showtext")=="") showtext::showtext_begin()
   print(scFeature({prefix}conf, {prefix}meta, input${prefix}_gem_drX, input${prefix}_gem_drY, input${prefix}_gem_inp, input${prefix}_gem_sub1, input${prefix}_gem_sub2, "{prefix}gexpr.h5", {prefix}gene, input${prefix}_gem_siz, input${prefix}_gem_col, input${prefix}_gem_ord, input${prefix}_gem_fsz, input${prefix}_gem_asp, input${prefix}_gem_txt, input${prefix}_gem_ncol))
-  showtext::showtext_end()
+  if(!system.file(package="showtext")=="") showtext::showtext_end()
   dev.off()
 }})
 

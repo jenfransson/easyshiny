@@ -43,7 +43,7 @@ users have to specify one value for each dataset}
 
 \item{about}{Should about page be added as a tab?}
 
-\item{font}{Google font for plots}
+\item{font}{Google font for plots. Defaults to "Lato". Requires package `showtext`.}
 
 \item{ganalytics}{Google analytics tracking ID (e.g. "UA-123456789-0")}
 }

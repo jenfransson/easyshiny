@@ -36,7 +36,7 @@ smaller size can be used if you have many cells in your dataset}
 
 \item{about}{Should about page be added as a tab?}
 
-\item{font}{Google font for plots. Defaults to "Lato".}
+\item{font}{Google font for plots. Defaults to "Lato". Requires package `showtext`.}
 
 \item{ganalytics}{Google analytics tracking ID (e.g. "UA-123456789-0")}
 }

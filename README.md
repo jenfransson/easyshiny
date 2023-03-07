@@ -7,11 +7,14 @@
 Run the following code to check if the dependency packages required are installed, else install them if required:
 
 ``` r
-reqPkg = c("data.table", "DT", "ggdendro", "ggplot2", "ggrepel", "glue", "grid", "hdf5r", "magrittr", "Matrix", "patchwork" ,"RColorBrewer", "readr", "remotes", "reticulate", "R.utils", "Seurat", "shiny", "shinyhelper", "shinythemes", "shinycssloaders", "showtext")
+pkgs = c("data.table", "DT", "ggdendro", "ggplot2", "ggrepel", "glue", "grid", "hdf5r", "magrittr", "Matrix", "patchwork" ,"RColorBrewer", "readr", "remotes", "reticulate", "R.utils", "Seurat", "shiny", "shinyhelper", "shinythemes", "shinycssloaders")
 
-newPkg = reqPkg[!(reqPkg %in% installed.packages()[,"Package"])]
-if(length(newPkg)){install.packages(newPkg)}
+pkg = pkgs[!(pkgs %in% installed.packages()[,"Package"])]
+if(length(pkg)){install.packages(pkg)}
 
+# optional if you want to use custom fonts
+install.packages("showtext")
+ 
 # If you are using h5ad file as input, run the code below as well
 # reticulate::py_install("anndata")
 ```
@@ -19,7 +22,7 @@ if(length(newPkg)){install.packages(newPkg)}
 `easyshiny` can then be installed from GitHub as follows:
 
 ``` r
-remotes::install_github("royfrancis/easyshiny", ref="revamp")
+remotes::install_github("nbisweden/easyshiny", ref="revamp")
 ```
 
 ## Usage
@@ -89,7 +92,7 @@ This project is built on [ShinyCell](https://github.com/SGDDNB/ShinyCell). This 
 
 ## Issues
 
-Report issues [here](https://github.com/royfrancis/easyshiny/issues).
+Report issues [here](https://github.com/nbisweden/easyshiny/issues).
 
 ---
 

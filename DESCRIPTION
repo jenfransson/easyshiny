@@ -1,7 +1,7 @@
 Package: easyshiny
 Type: Package
 Title: Shiny Interactive Web Apps for Single-Cell Data
-Version: 0.1.0
+Version: 0.1.1
 Author: ´Roy Francis
 Maintainer: Roy Francis <roy.francis@outlook.com>
 Description: Quick shiny web app for interactive exploration of single-cell data.
@@ -29,13 +29,13 @@ Imports:
     shinycssloaders,
     shinyhelper,
     shinythemes,
-    showtext,
     SummarizedExperiment,
     utils
 Suggests:
     Seurat               (>= 3.0.0),
-    SingleCellExperiment (>= 1.4.1)
+    SingleCellExperiment (>= 1.4.1),
+    showtext
 Encoding: UTF-8
 LazyData: TRUE
 BugReports: https://github.com/royfrancis/easyshiny/issues
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
