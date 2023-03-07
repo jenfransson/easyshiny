@@ -22,7 +22,7 @@ install.packages("showtext")
 `easyshiny` can then be installed from GitHub as follows:
 
 ``` r
-remotes::install_github("nbisweden/easyshiny", ref="revamp")
+remotes::install_github("NBISweden/easyshiny", ref="revamp")
 ```
 
 ## Usage
