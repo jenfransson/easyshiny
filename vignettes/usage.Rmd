@@ -213,8 +213,8 @@ fam <- function(obj,ids=NULL,...){
   if(!is.character(ids)) stop("Argument 'ids' must be a character.")
   if(!"Seurat" %in% class(obj)) stop("Argument 'obj' must be a Seurat V4 object.")
   
-  if(any(!ids %in% colnames(pbmc_small@meta.data))) {
-    stop(paste("Following ids not found in metadata:",paste(ids[!ids %in% colnames(pbmc_small@meta.data)],collapse=",")))
+  if(any(!ids %in% colnames(obj@meta.data))) {
+    stop(paste("Following ids not found in metadata:",paste(ids[!ids %in% colnames(obj@meta.data)],collapse=",")))
   }
 
   fn <- function(id=NULL,obj,...){
