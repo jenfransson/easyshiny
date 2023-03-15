@@ -187,7 +187,7 @@ shiny::runApp("pbmc")
 
 ### About page
 
-The **about** page is a tab that is displayed by default. It contains acknowledgements by default and the user can modify it as needed. The **about** page can be disabled by removing it from `tabs`. When multiple datasets are used, a common about page is created.
+The **about** page is a tab that is displayed by default. It contains acknowledgements by default and the user can modify it as needed. Markdown formatting is supported. The **about** page can be disabled by removing it from `tabs`. When multiple datasets are used, a common **about** page is created.
 
 ```{r}
 # app without about page
@@ -217,22 +217,22 @@ fam <- function(obj,ids=NULL,...){
     stop(paste("Following ids not found in metadata:",paste(ids[!ids %in% colnames(pbmc_small@meta.data)],collapse=",")))
   }
 
-  fn <- function(id=NULL,obj){
+  fn <- function(id=NULL,obj,...){
     if(!is.null(id)) {
       if(!id %in% colnames(obj@meta.data)) stop(paste0("Following column does not exist: ",id,"."))
       Idents(obj) <- obj@meta.data[,id]
     }
-    FindAllMarkers(obj,...) %>%
-      return()
+    return(FindAllMarkers(obj,...))
   }
   
-    return(setNames(lapply(ids,fn,obj=obj),ids))
+    return(setNames(lapply(ids,fn,obj=obj,...),ids))
 }
 ```
 
 One can compute marker genes for one or more metadata columns and resulting named list of marker tables are stored in `seurat@misc$markers`.
 
 ```{r}
+# find marker genes for all levels in metadata column "letter.idents"
 pbmc_small@misc$markers <- fam(pbmc_small,"letter.idents")
 
 pbmc_conf <- create_config(pbmc_small)
@@ -259,7 +259,7 @@ shiny::runApp("pbmc")
 
 ## Session
 
-```{r,eval=TRUE}
+```{r,eval=TRUE,class.output="foldable"}
 sessionInfo()
 ```
 

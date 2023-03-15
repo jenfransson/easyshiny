@@ -106,11 +106,10 @@ end user.</p>
 <div class="section level2">
 <h2 id="r">R<a class="anchor" aria-label="anchor" href="#r"></a>
 </h2>
-<p>The app directory with all the files can be archived (ie; .zip,
-.tar.gz etc.) and shared. The receiver will need to install R as well as
-all the dependency packages (listed on home page) to be able to launch
-the app by running <code><a href="https://shiny.rstudio.com/reference/shiny/latest/runApp.html" class="external-link">shiny::runApp()</a></code> in the app
-directory.</p>
+<p>The app directory with all the files can be archived (.zip, .tar.gz
+etc.) and shared. The receiver will need to install R as well as all the
+dependency packages (listed on home page) and then launch the app by
+running <code><a href="https://shiny.rstudio.com/reference/shiny/latest/runApp.html" class="external-link">shiny::runApp()</a></code> in the app directory.</p>
 </div>
 <div class="section level2">
 <h2 id="docker">Docker<a class="anchor" aria-label="anchor" href="#docker"></a>
@@ -158,8 +157,10 @@ the personal or org account and not to a specific repository. To link
 packages to a repository, add the following to the Dockerfile:</p>
 <p><code>LABEL org.opencontainers.image.source https://github.com/OWNER/REPO</code></p>
 <p>In the terminal, change to the app directory and build the image
-using the syntax <code>docker build -t &lt;image-name&gt; .</code>. Note
-that everything in the app folder will be copied into the image.</p>
+using the syntax <code>docker build -t &lt;image-name&gt; .</code>. My
+docker image will be named <code>shiny-ifnb</code>. You can name it <a href="https://docs.docker.com/engine/reference/commandline/tag/" class="external-link">anything</a>
+you like. Note that everything in the app folder will be copied into the
+image.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ifnb</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">-t</span> shiny-ifnb .</span></code></pre></div>
 <p>This will take a while to build and when done, you can list all
@@ -173,7 +174,8 @@ images and find your app:</p>
 </h3>
 <p>The docker image can be distributed through image repositories. The
 docker image can be run through the terminal and also graphically
-through Docker Desktop on Mac and Windows.</p>
+through <a href="https://www.docker.com/products/docker-desktop/" class="external-link">Docker
+Desktop</a> on Linux, Mac and Windows.</p>
 <p>I will discuss two options: DockerHub and GitHub packages.</p>
 <div class="section level4">
 <h4 id="dockerhub">DockerHub<a class="anchor" aria-label="anchor" href="#dockerhub"></a>
@@ -201,12 +203,12 @@ should be available at <code>http://0.0.0.0:8787</code>.</p>
 <div class="section level4">
 <h4 id="github-packages">GitHub packages<a class="anchor" aria-label="anchor" href="#github-packages"></a>
 </h4>
-<p>GitHub packages are pushed to the personal or org account and not to
-a specific repository. To link packages to a repository, add the
+<p>GitHub packages are pushed to a personal or organisation account and
+not to a specific repository. To link packages to a repository, add the
 following to the Dockerfile:</p>
 <p><code>LABEL org.opencontainers.image.source https://github.com/OWNER/REPO</code></p>
 <p>Create a personal access token <a href="https://github.com/settings/tokens" class="external-link">here</a>. Select
-<strong>Tokens (Classic)</strong> and check
+<strong>Tokens (Classic)</strong> and check permissions
 <strong>read:packages</strong> and <strong>write:packages</strong>.</p>
 <p>Login to github package repository.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"personalaccesstoken"</span> <span class="kw">|</span> <span class="ex">docker</span> login ghcr.io <span class="at">-u</span> githubusername <span class="at">--password-stdin</span></span></code></pre></div>
@@ -247,11 +249,15 @@ create a new <strong>Project</strong>. Then <strong>Serve &gt; New &gt;
 Shiny App</strong>. Fill in the form:</p>
 <pre><code>Name: IFNB scRNA-Seq
 Description: IFNB single-cell transcriptomics data
-Subdomain: ifnb.serve.scilifelab.se (Add ifnb as a new domain)
+Subdomain: ifnb.serve.scilifelab.se
 Permissions: Project
 Persistent Volume: project-vol
 App port: 8787
-Image: ghcr.io/nbisweden/shiny-ifnb:latest</code></pre>
+Image: royfrancis/shiny-ifnb</code></pre>
+<p>For subdomain, <strong>ifnb</strong> was added as a new domain to
+have a persistent URL. The image refers to DockerHub username and
+repo.</p>
+<p>The app is available at <a href="https://ifnb.serve.scilifelab.se/" class="external-link">https://ifnb.serve.scilifelab.se/</a>.</p>
 </div>
 <div class="section level3">
 <h3 id="cloud">Cloud<a class="anchor" aria-label="anchor" href="#cloud"></a>

@@ -17,7 +17,7 @@ In this vignette, we look at various ways to deploy your app to the end user.
 
 ## R
 
-The app directory with all the files can be archived (ie; .zip, .tar.gz etc.) and shared. The receiver will need to install R as well as all the dependency packages (listed on home page) to be able to launch the app by running `shiny::runApp()` in the app directory.
+The app directory with all the files can be archived (.zip, .tar.gz etc.) and shared. The receiver will need to install R as well as all the dependency packages (listed on home page) and then launch the app by running `shiny::runApp()` in the app directory.
 
 ## Docker
 
@@ -66,7 +66,7 @@ This will write out a Dockerfile into the same directory as the app.
 
 `LABEL org.opencontainers.image.source https://github.com/OWNER/REPO`
 
-In the terminal, change to the app directory and build the image using the syntax `docker build -t <image-name> .`. Note that everything in the app folder will be copied into the image.
+In the terminal, change to the app directory and build the image using the syntax `docker build -t <image-name> .`. My docker image will be named `shiny-ifnb`. You can name it [anything](https://docs.docker.com/engine/reference/commandline/tag/) you like. Note that everything in the app folder will be copied into the image.
 
 ```{bash}
 cd ifnb
@@ -87,7 +87,7 @@ docker run --rm -p 8787:8787 shiny-ifnb
 
 ### Distributing the image
 
-The docker image can be distributed through image repositories. The docker image can be run through the terminal and also graphically through Docker Desktop on Mac and Windows.
+The docker image can be distributed through image repositories. The docker image can be run through the terminal and also graphically through [Docker Desktop](https://www.docker.com/products/docker-desktop/) on Linux, Mac and Windows.
 
 I will discuss two options: DockerHub and GitHub packages.
 
@@ -127,11 +127,11 @@ This should fetch the image from dockerhub and launch the app. The should be ava
 
 #### GitHub packages
 
-GitHub packages are pushed to the personal or org account and not to a specific repository. To link packages to a repository, add the following to the Dockerfile:
+GitHub packages are pushed to a personal or organisation account and not to a specific repository. To link packages to a repository, add the following to the Dockerfile:
 
 `LABEL org.opencontainers.image.source https://github.com/OWNER/REPO`
 
-Create a personal access token [here](https://github.com/settings/tokens). Select **Tokens (Classic)** and check **read:packages** and **write:packages**.
+Create a personal access token [here](https://github.com/settings/tokens). Select **Tokens (Classic)** and check permissions **read:packages** and **write:packages**.
 
 Login to github package repository.
 
@@ -177,12 +177,16 @@ SciLifeLab users have the possibility of hosting the docker image on [SciLifeLab
 ```
 Name: IFNB scRNA-Seq
 Description: IFNB single-cell transcriptomics data
-Subdomain: ifnb.serve.scilifelab.se (Add ifnb as a new domain)
+Subdomain: ifnb.serve.scilifelab.se
 Permissions: Project
 Persistent Volume: project-vol
 App port: 8787
-Image: ghcr.io/nbisweden/shiny-ifnb:latest
+Image: royfrancis/shiny-ifnb
 ```
+
+For subdomain, **ifnb** was added as a new domain to have a persistent URL. The image refers to DockerHub username and repo.
+
+The app is available at [https://ifnb.serve.scilifelab.se/](https://ifnb.serve.scilifelab.se/).
 
 ### Cloud
 
