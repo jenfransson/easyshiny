@@ -11,8 +11,7 @@ make_code(
   enableSubset = TRUE,
   defPtSiz = 1.25,
   theme = "flatly",
-  tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea"),
-  about = TRUE,
+  tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea", "about"),
   font = "Lato",
   ganalytics = NA
 )
@@ -24,17 +23,13 @@ make_code(
 
 \item{shiny.dir}{specify directory to create the shiny app in}
 
-\item{enableSubset}{specify whether to enable "Toggle to subset cells"
-functionality in the shiny app. Default is to enable this functionality}
+\item{enableSubset}{specify whether to enable "Toggle to subset cells" functionality in the shiny app. Default is to enable this functionality}
 
-\item{defPtSiz}{specify default point size for single cells. For example, a
-smaller size can be used if you have many cells in your dataset}
+\item{defPtSiz}{specify default point size for single cells. For example, a smaller size can be used if you have many cells in your dataset}
 
 \item{theme}{Bootsrap theme}
 
 \item{tabs}{Vector of tab names to include}
-
-\item{about}{Should about page be added as a tab?}
 
 \item{font}{Google font for plots. Defaults to "Lato". Requires package `showtext`.}
 
@@ -44,13 +39,10 @@ smaller size can be used if you have many cells in your dataset}
 server.R and ui.R required for shiny app
 }
 \description{
-Generate code files required for shiny app containing only one dataset. In
-particular, two R scripts will be generated, namely \code{server.R} and
-\code{ui.R}. If users want to include multiple dataset in one shiny app,
-please use \code{make_code_multi()} instead. Note that both
-\code{make_file} and \code{make_code} functions are ran when
-running the wrapper function \code{make_app}.
+Generate code files required for shiny app containing only one dataset. In particular, two R scripts will be generated, namely \code{server.R} and \code{ui.R}. If users want to include multiple dataset in one shiny app, please use \code{make_code_multi()} instead. Note that both \code{make_file} and \code{make_code} functions are ran when running the wrapper function \code{make_app}.
 }
 \author{
 John F. Ouyang
+
+Roy Francis
 }

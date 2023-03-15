@@ -43,8 +43,9 @@ with each metadata.
 \dontrun{
 scConf = create_config(obj)
 }
-
 }
 \author{
 John F. Ouyang
+
+Roy Francis
 }

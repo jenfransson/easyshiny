@@ -23,8 +23,9 @@ Remove a metadata from being included in the shiny app.
 \dontrun{
 scConf = del_meta(scConf, c("orig.ident"))
 }
-
 }
 \author{
 John F. Ouyang
+
+Roy Francis
 }

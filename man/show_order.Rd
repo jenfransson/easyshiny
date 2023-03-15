@@ -21,8 +21,9 @@ helps users to decide if the display order is ok. If not, users can use
 \dontrun{
 show_order(scConf)
 }
-
 }
 \author{
 John F. Ouyang
+
+Roy Francis
 }

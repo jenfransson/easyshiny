@@ -1,7 +1,7 @@
-#' Add a metadata to be included in the shiny app
-#' Add a metadata to be included in the shiny app.
+#' @title Add a metadata to be included in the shiny app
+#' @description Add a metadata to be included in the shiny app.
 #' @param scConf shinycell config data.table
-#' @param meta.to.add metadata to add from the single-cell metadata.  
+#' @param meta metadata to add from the single-cell metadata.  
 #'   Must match one of the following:
 #'   \itemize{
 #'     \item{Seurat objects}: column names in \code{seu@meta.data} 
@@ -19,19 +19,16 @@
 #'   Metadata with nlevels > maxLevels will throw up an error message
 #' @return updated shinycell config data.table
 #' @author John F. Ouyang
-#'
 #' @import data.table hdf5r
 #' @importFrom reticulate import py_to_r
 #' @importFrom grDevices colorRampPalette
-#'
 #' @examples
 #' \dontrun{
 #' scConf = add_meta(scConf, c("orig.ident"), seu)
 #' }
-#'
 #' @export
 #' 
-add_meta <- function(scConf, meta.to.add, obj, maxLevels = 50){
+add_meta <- function(scConf, meta, obj, maxLevels = 50){
   # Extract corresponding metadata
   if(class(obj)[1] == "Seurat"){
     # Seurat Object
@@ -74,13 +71,13 @@ add_meta <- function(scConf, meta.to.add, obj, maxLevels = 50){
     stop("Only Seurat/SCE objects or h5ad/loom file paths are accepted!")
   }
   
-  # Check if meta.to.add exist in obj metadata
-  if(!all(meta.to.add %in% colnames(objMeta))){
-    stop("meta.to.add not found in single-cell data object!")
+  # Check if meta exist in obj metadata
+  if(!all(meta %in% colnames(objMeta))){
+    stop("meta not found in single-cell data object!")
   }
   
   # Start adding meta.data
-  for(iMeta in meta.to.add){
+  for(iMeta in meta){
     tmpConf = data.table(ID = iMeta, UI = iMeta, fID = NA, fUI = NA, 
                          fCL = NA, fRow = NA, default = 0, grp = FALSE)
     

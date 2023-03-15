@@ -2,10 +2,15 @@
 % Please edit documentation in R/writer.R
 \name{wr_ui_gec}
 \alias{wr_ui_gec}
-\title{Write code for gec}
+\title{Write code for ui gec}
 \usage{
 wr_ui_gec()
 }
 \description{
-Write code for gec
+Write code for ui gene co-expression
+}
+\author{
+John F. Ouyang
+
+Roy Francis
 }

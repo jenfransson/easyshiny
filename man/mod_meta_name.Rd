@@ -33,8 +33,9 @@ scConf = mod_meta_name(scConf,
                      m = c("orig.ident", "seurat_clusters"), 
                      nn = c("library", "cluster"))
 }
-
 }
 \author{
 John F. Ouyang
+
+Roy Francis
 }

@@ -25,8 +25,9 @@ Modify the legend labels for categorical metadata.
 \dontrun{
 scConf = mod_label(scConf, m = "library", new.labels = c("Fib", "Primed", "Naive", "RSeT"))
 }
-
 }
 \author{
 John F. Ouyang
+
+Roy Francis
 }

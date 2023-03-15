@@ -1,25 +1,20 @@
-#' Modify the legend labels for categorical metadata
-#'
-#' Modify the legend labels for categorical metadata.
-#'
+#' @title Modify the legend labels for categorical metadata
+#' @description Modify the legend labels for categorical metadata.
 #' @param scConf shinycell config data.table
 #' @param m metadata for which to modify the legend labels. Users 
 #'   can either use the actual metadata column names or display names. Please 
 #'   specify only one metadata
 #' @param new.labels character vector of new legend labels
-#' 
 #' @return updated shinycell config data.table
-#'
 #' @author John F. Ouyang
-#'
+#' @author Roy Francis
 #' @import data.table
-#'
 #' @examples
 #' \dontrun{
 #' scConf = mod_label(scConf, m = "library", new.labels = c("Fib", "Primed", "Naive", "RSeT"))
 #'}
-#'
 #' @export
+#' 
 mod_label <- function(scConf, m, new.labels){
   # Check that only one metadata is provided
   if(length(m) != 1){

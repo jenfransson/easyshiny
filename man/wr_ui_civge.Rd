@@ -2,10 +2,15 @@
 % Please edit documentation in R/writer.R
 \name{wr_ui_civge}
 \alias{wr_ui_civge}
-\title{Write code for civge}
+\title{Write code for ui civge}
 \usage{
 wr_ui_civge()
 }
 \description{
-Write code for civge
+Write code for ui cell info vs gene expression
+}
+\author{
+John F. Ouyang
+
+Roy Francis
 }

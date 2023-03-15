@@ -2,10 +2,15 @@
 % Please edit documentation in R/writer.R
 \name{wr_sv_gec}
 \alias{wr_sv_gec}
-\title{Write code for gene co-expression}
+\title{Write code for server gec}
 \usage{
 wr_sv_gec()
 }
 \description{
-Write code for gene co-expression
+Write code for server gene co-expression
+}
+\author{
+John F. Ouyang
+
+Roy Francis
 }

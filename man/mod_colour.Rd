@@ -25,8 +25,9 @@ Modify the colour palette for categorical metadata.
 \dontrun{
 scConf = mod_colour(scConf, m = "library", nc = c("black", "darkorange", "blue", "red"))
 }
-
 }
 \author{
 John F. Ouyang
+
+Roy Francis
 }

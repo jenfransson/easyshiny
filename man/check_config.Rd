@@ -26,7 +26,6 @@ not match number of colours and (iii) specified colours are invalid colours.
 \dontrun{
 check_config(scConf, seu)
 }
-
 }
 \author{
 John F. Ouyang

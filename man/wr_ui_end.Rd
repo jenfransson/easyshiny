@@ -9,3 +9,8 @@ wr_ui_end()
 \description{
 Write code for final portion of ui.R
 }
+\author{
+John F. Ouyang
+
+Roy Francis
+}

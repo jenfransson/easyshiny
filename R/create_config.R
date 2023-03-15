@@ -1,10 +1,9 @@
-#' Create a shinycell config data.table
+#' @title Create a shinycell config data.table
 #'
-#' Create a shinycell config data.table containing (i) the single-cell 
+#' @description Create a shinycell config data.table containing (i) the single-cell 
 #' metadata to display on the Shiny app, (ii) ordering of factors / 
 #' categories of categorical metadata and (iii) colour palettes associated 
 #' with each metadata.
-#'
 #' @param obj input single-cell object for Seurat (v3+) / SingleCellExperiment 
 #'   data or input file path for h5ad / loom files
 #' @param meta.to.include columns to include from the single-cell metadata. 
@@ -24,22 +23,19 @@
 #'   legends of categorical metadata
 #' @param maxLevels maximum number of levels allowed for categorical metadata.
 #'   Metadata with nlevels > maxLevels will be discarded automatically
-#'
 #' @return shinycell config data.table
-#'
 #' @author John F. Ouyang
-#'
+#' @author Roy Francis
 #' @import data.table reticulate hdf5r
 #' @importFrom grDevices colorRampPalette
-#' 
+#' @importFrom RColorBrewer brewer.pal
 #' @examples
 #' \dontrun{
 #' scConf = create_config(obj)
 #' }
-#'
 #' @export
-create_config <- function(obj, meta.to.include = NA, legendCols = 4,
-                         maxLevels = 50){
+#' 
+create_config <- function(obj, meta.to.include = NA, legendCols = 4, maxLevels = 50){
   # Extract corresponding metadata
   drExist = TRUE
   if(class(obj)[1] == "Seurat"){
@@ -114,7 +110,7 @@ create_config <- function(obj, meta.to.include = NA, legendCols = 4,
       if(nLevels >= 2){
         tmpConf$fID = paste0(levels(objMeta[[iMeta]]), collapse = "|")
         tmpConf$fUI = tmpConf$fID
-        tmpConf$fCL = paste0(colorRampPalette(brewer.pal(12, "Paired"))(nLevels), 
+        tmpConf$fCL = paste0(colorRampPalette(RColorBrewer::brewer.pal(12, "Paired"))(nLevels), 
                              collapse = "|")
         tmpConf$fRow = ceiling(nLevels / legendCols)
         tmpConf$grp = TRUE
@@ -124,7 +120,7 @@ create_config <- function(obj, meta.to.include = NA, legendCols = 4,
         tmpConf$fCL = "black"
         tmpConf$fRow = 1
       }
-      scConf = rbindlist(list(scConf, tmpConf))
+      scConf = data.table::rbindlist(list(scConf, tmpConf))
     }
   }
   

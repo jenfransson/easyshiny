@@ -2,7 +2,7 @@
 % Please edit documentation in R/writer.R
 \name{wr_load}
 \alias{wr_load}
-\title{Write code for loading objects for ui.R and server.R}
+\title{Write code for loading data}
 \usage{
 wr_load(prefix, tabs)
 }
@@ -13,4 +13,9 @@ wr_load(prefix, tabs)
 }
 \description{
 Write code for loading objects for ui.R and server.R
+}
+\author{
+John F. Ouyang
+
+Roy Francis
 }

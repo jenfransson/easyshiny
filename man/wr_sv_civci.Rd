@@ -2,10 +2,15 @@
 % Please edit documentation in R/writer.R
 \name{wr_sv_civci}
 \alias{wr_sv_civci}
-\title{Write code for cell info vs cell info}
+\title{Write code for server civci}
 \usage{
 wr_sv_civci()
 }
 \description{
-Write code for cell info vs cell info
+Write code for server cell info vs cell info
+}
+\author{
+John F. Ouyang
+
+Roy Francis
 }

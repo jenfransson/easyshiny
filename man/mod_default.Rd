@@ -27,7 +27,6 @@ simultaneously. Default2 is used when plotting two metadata simultaneously.
 \dontrun{
 scConf = mod_default(scConf, default1 = "library", default2 = "cluster")
 }
-
 }
 \author{
 John F. Ouyang

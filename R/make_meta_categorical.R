@@ -1,12 +1,10 @@
-#' Updates shinycell config to recognize a metadata as a discrete one 
-#'
-#' Updates shinycell config to recognize a metadata as a discrete one. This 
+#' @title Updates shinycell config to recognize a metadata as a discrete one 
+#' @description Updates shinycell config to recognize a metadata as a discrete one. This 
 #' function is useful when a discrete metadata only contains integers, e.g.
 #' unspervised cluster labels starting from 0 to (n-1) clusters. If these 
 #' metadata are not factored, then the app is unable to recognise these 
 #' as discrete metadata automatically. This is especially important when 
 #' working with loom files as they do not support factors/levels by default.
-#'
 #' @param scConf shinycell config data.table
 #' @param meta.to.input metadata from the single-cell metadata to be made 
 #'   discrete. Must match one of the following:
@@ -24,33 +22,33 @@
 #'   data or input file path for h5ad / loom files
 #' @param maxLevels maximum number of levels allowed for categorical metadata.
 #'   Metadata with nlevels > maxLevels will throw up an error message
-#' 
 #' @return updated shinycell config data.table
-#'
 #' @author John F. Ouyang
-#'
 #' @import data.table reticulate hdf5r
 #' @importFrom grDevices colorRampPalette
-#' 
+#' @importFrom RColorBrewer brewer.pal
 #' @examples
 #' \dontrun{
 #' scConf = make_meta_categorical(scConf, "clusterID", loom_obj)
 #' }
-#'
 #' @export
+#' 
 make_meta_categorical <- function(scConf, meta.to.input, obj, maxLevels = 50){
   meta = meta.to.input[1]     # use only the first one
   # Extract corresponding metadata
   if(class(obj)[1] == "Seurat"){
     # Seurat Object
+    if(system.file(package = "Seurat")=="") stop("Package 'Seurat' is missing.")
     objMeta = obj@meta.data
     
   } else if (class(obj)[1] == "SingleCellExperiment"){
     # SCE Object
+    if(system.file(package = "SingleCellExperiment")=="") stop("Package 'SingleCellExperiment' is missing.")
     objMeta = SingleCellExperiment::colData(obj)
     
   } else if (tolower(tools::file_ext(obj)) == "h5ad"){
     # h5ad file
+    if(system.file(package = "reticulate")=="") stop("Package 'reticulate' is missing.")
     ad <- import("anndata", convert = FALSE)
     inpH5 = ad$read_h5ad(obj)
     objMeta = data.frame(py_to_r(inpH5$obs$values))

@@ -4,10 +4,10 @@
 
 ## Installation
 
-Run the following code to check if the dependency packages required are installed, else install them if required:
+Run the following code to check if the dependency packages are installed, else install them if required:
 
 ``` r
-pkgs = c("data.table", "DT", "ggdendro", "ggplot2", "ggrepel", "glue", "grid", "hdf5r", "magrittr", "Matrix", "patchwork" ,"RColorBrewer", "readr", "remotes", "reticulate", "R.utils", "Seurat", "shiny", "shinyhelper", "shinythemes", "shinycssloaders")
+pkgs = c("bslib", "data.table", "DT", "ggdendro", "ggplot2", "ggplotify", "ggrepel", "glue", "grid", "hdf5r", "magrittr", "Matrix", "patchwork", "RColorBrewer", "readr", "remotes", "reticulate", "Seurat", "shiny", "shinycssloaders", "shinyhelper")
 
 pkg = pkgs[!(pkgs %in% installed.packages()[,"Package"])]
 if(length(pkg)){install.packages(pkg)}
@@ -25,70 +25,53 @@ install.packages("showtext")
 remotes::install_github("NBISweden/easyshiny", ref="revamp")
 ```
 
-## Usage
-
-To generate and launch the app using a **Seurat** file, here is an example using built-in data from the Seurat package.
-
-```r
-library(easyshiny)
-library(Seurat)
-obj_conf = create_config(pbmc_small)
-make_app(pbmc_small, obj_conf, gex.assay="RNA", gex.slot="data", gene.mapping = FALSE, shiny.title = "App", shiny.dir="app")
-shiny::runApp("app")
-```
-
-![](images/single-cellinfo-geneexp.png)
-
-To use multiple Seurat datasets, see example using built-in data from the Seurat package. In this example, the same data is used for both datasets.
-
-```r
-obj1_conf = create_config(pbmc_small)
-make_file(pbmc_small, obj1_conf, gex.assay="RNA", gex.slot="data", gene.mapping = FALSE, shiny.prefix = "sc1", shiny.dir="app")
-obj2_conf = create_config(pbmc_small)
-make_file(pbmc_small, obj2_conf, gex.assay="RNA", gex.slot="data", gene.mapping = FALSE, shiny.prefix = "sc2", shiny.dir="app")
-make_code_multi(
-  shiny.title = "Multi-data",
-  shiny.prefix = c("sc1", "sc2"),
-  shiny.headers = c("Label 1", "Label 2"),
-  shiny.dir = "app")
-shiny::runApp("app")
-```
-
-![](images/multi.png)
+For usage and deploy guide, see [here](https://nbisweden.github.io/easyshiny).
 
 ## Screenshots
 
-![](images/single-cellinfo-geneexp.png)
+![](man/figures/preview-panc8.jpg)
+
+*Single dataset*
+
+![](man/figures/preview-multiple.jpg)
+
+*Multiple datasets*
+
+![](man/figures/cellinfo-geneexp.jpg)
 
 *Cell information vs gene expression.*
 
-![](images/single-cellinfo-cellinfo.png)
+![](man/figures/cellinfo-cellinfo.jpg)
 
 *Cell information vs cell information.*
 
-![](images/single-geneexp-geneexp.png)
+![](man/figures/geneexp-geneexp.jpg)
 
 *Gene expression vs gene expression.*
 
-![](images/single-gene-coexp.png)
+![](man/figures/gene-coexp.jpg)
 
 *Gene co-expression.*
 
-![](images/single-proportion.png)
+![](man/figures/proportion.jpg)
 
 *Proportion plot.*
 
-![](images/single-bubble.png)
+![](man/figures/bubble.jpg)
 
-*Bubble plot.*
+*Heatmap/Dotplot/Bubble plot.*
 
-![](images/single-violin.png)
+![](man/figures/violin.jpg)
 
 *Violin plot.*
 
 ## Acknowledgements
 
-This project is built on [ShinyCell](https://github.com/SGDDNB/ShinyCell). This was developed in collaboration with [Makinen Lab](http://www.makinenlab.com/). Thanks to [Taija Mäkinen](https://www.igp.uu.se/research/vascular-biology/taija-makinen/) and [Marle Kraft](https://www.katalog.uu.se/profile/?id=N19-1321) for their valuable contribution.
+**easyshiny** is built on [ShinyCell](https://github.com/SGDDNB/ShinyCell). 
+
+Ouyang, J. F., Kamaraj, U. S., Cao, E. Y., & Rackham, O. J. (2021). ShinyCell: simple and sharable visualization of single-cell gene expression data. [Bioinformatics, 37(19), 3374-3376](https://doi.org/10.1093/bioinformatics/btab209).
+
+**easyshiny** was developed in collaboration with [Makinen Lab](http://www.makinenlab.com/). Thanks to [Taija Mäkinen](https://www.igp.uu.se/research/vascular-biology/taija-makinen/) and [Marle Kraft](https://www.katalog.uu.se/profile/?id=N19-1321) for their valuable contribution.
 
 ## Issues
 

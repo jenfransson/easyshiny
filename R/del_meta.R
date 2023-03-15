@@ -1,24 +1,19 @@
-#' Remove a metadata from being included in the shiny app
-#'
-#' Remove a metadata from being included in the shiny app.
-#'
+#' @title Remove a metadata from being included in the shiny app
+#' @description Remove a metadata from being included in the shiny app.
 #' @param scConf shinycell config data.table
 #' @param m metadata to delete. Users can either use the original 
 #'   metadata column names or display names. For more information regarding 
 #'   display name, see \code{?modMetaName}. Multiple metadata can be specified.
-#'
 #' @return updated shinycell config data.table
-#'
 #' @author John F. Ouyang
-#'
+#' @author Roy Francis
 #' @import data.table
-#'
 #' @examples
 #' \dontrun{
 #' scConf = del_meta(scConf, c("orig.ident"))
 #' }
-#'
 #' @export
+#' 
 del_meta <- function(scConf, m){
   # Check if m exist
   if(all(m %in% scConf$ID)){

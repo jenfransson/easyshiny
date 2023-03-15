@@ -2,10 +2,13 @@
 % Please edit documentation in R/writer.R
 \name{wr_ui_gem}
 \alias{wr_ui_gem}
-\title{Write code for gem}
+\title{Write code for ui gem}
 \usage{
 wr_ui_gem()
 }
 \description{
-Write code for gem
+Write code for ui gene expression multi
+}
+\author{
+Roy Francis
 }

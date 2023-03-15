@@ -7,8 +7,11 @@
 wr_lib(lib)
 }
 \arguments{
-\item{lib}{vector of libraries}
+\item{lib}{A string/vector of libraries}
 }
 \description{
 Write code for loading libraries
+}
+\author{
+John F. Ouyang
 }

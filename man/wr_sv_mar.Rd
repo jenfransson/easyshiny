@@ -2,10 +2,13 @@
 % Please edit documentation in R/writer.R
 \name{wr_sv_mar}
 \alias{wr_sv_mar}
-\title{Write code for markers}
+\title{Write code for server mar}
 \usage{
 wr_sv_mar()
 }
 \description{
-Write code for markers
+Write code for server markers
+}
+\author{
+Roy Francis
 }

@@ -2,10 +2,13 @@
 % Please edit documentation in R/writer.R
 \name{wr_sv_end}
 \alias{wr_sv_end}
-\title{Write code for final portion of server.R}
+\title{Write code for server end}
 \usage{
 wr_sv_end()
 }
 \description{
 Write code for final portion of server.R
+}
+\author{
+John F. Ouyang
 }

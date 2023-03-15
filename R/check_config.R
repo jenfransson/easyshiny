@@ -1,40 +1,37 @@
-#' Checks if shinycell config data.table contains any errors
-#'
-#' Checks if shinycell config data.table contains any errors. It is useful and 
+#' @title Checks if shinycell config data.table contains any errors
+#' @description Checks if shinycell config data.table contains any errors. It is useful and 
 #' reccomended to run this function if users have motified the shinycell 
 #' config manually. Errors can include (i) levels in scConf does not match 
 #' that in the Seurat/SingleCellExperiment object, (ii) number of levels does 
 #' not match number of colours and (iii) specified colours are invalid colours.
-#'
 #' @param scConf shinycell config data.table
 #' @param obj input single-cell object for Seurat (v3+) / SingleCellExperiment 
 #'   data or input file path for h5ad / loom files
-#'
 #' @return any potential error messages
-#'
 #' @author John F. Ouyang
-#'
 #' @import data.table reticulate hdf5r
-#'
 #' @examples
 #' \dontrun{
 #' check_config(scConf, seu)
 #' }
-#'
 #' @export
+#' 
 check_config <- function(scConf, obj){
   nErr = 0
   # Extract corresponding metadata
   if(class(obj)[1] == "Seurat"){
     # Seurat Object
+    if(system.file(package = "Seurat")=="") stop("Package 'Seurat' is missing.")
     objMeta = obj@meta.data
     
   } else if (class(obj)[1] == "SingleCellExperiment"){
     # SCE Object
+    if(system.file(package = "SingleCellExperiment")=="") stop("Package 'SingleCellExperiment' is missing.")
     objMeta = SingleCellExperiment::colData(obj)
     
   } else if (tolower(tools::file_ext(obj)) == "h5ad"){
     # h5ad file
+    if(system.file(package = "reticulate")=="") stop("Package 'reticulate' is missing.")
     ad <- import("anndata", convert = FALSE)
     inpH5 = ad$read_h5ad(obj)
     objMeta = data.frame(py_to_r(inpH5$obs$values))

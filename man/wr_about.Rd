@@ -9,3 +9,6 @@ wr_about()
 \description{
 Write code for about. about.md
 }
+\author{
+Roy Francis
+}

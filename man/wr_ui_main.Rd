@@ -8,8 +8,7 @@ wr_ui_main(
   prefix,
   subst = "",
   ptsiz = "1.25",
-  tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea"),
-  about = TRUE
+  tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea", "about")
 )
 }
 \arguments{
@@ -20,8 +19,6 @@ wr_ui_main(
 \item{ptsiz}{Point size}
 
 \item{tabs}{Vector of tab names to include}
-
-\item{about}{Should about page be added as a tab?}
 }
 \description{
 Write code for main block of ui.R

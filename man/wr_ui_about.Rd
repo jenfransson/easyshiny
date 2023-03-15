@@ -9,3 +9,6 @@ wr_ui_about()
 \description{
 Write code for about page
 }
+\author{
+Roy Francis
+}

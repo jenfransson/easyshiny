@@ -23,8 +23,9 @@ shiny app.
 \dontrun{
 scConf = reorder_meta(scConf, scConf$ID[c(1,3,2,4:length(scConf$ID))])
 }
-
 }
 \author{
 John F. Ouyang
+
+Roy Francis
 }

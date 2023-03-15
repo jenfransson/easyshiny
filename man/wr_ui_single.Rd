@@ -2,7 +2,7 @@
 % Please edit documentation in R/writer.R
 \name{wr_ui_single}
 \alias{wr_ui_single}
-\title{Write code for front portion of ui.R}
+\title{Write code for ui beginning}
 \usage{
 wr_ui_single(title, theme = "flatly", ganalytics = NA)
 }
@@ -15,4 +15,9 @@ wr_ui_single(title, theme = "flatly", ganalytics = NA)
 }
 \description{
 Write code for front portion of ui.R
+}
+\author{
+John F. Ouyang
+
+Roy Francis
 }

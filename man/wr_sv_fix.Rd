@@ -12,3 +12,8 @@ wr_sv_fix(font = "Lato")
 \description{
 Write code for fixed portion of server.R
 }
+\author{
+John F. Ouyang
+
+Roy Francis
+}

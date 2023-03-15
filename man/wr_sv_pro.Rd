@@ -2,10 +2,15 @@
 % Please edit documentation in R/writer.R
 \name{wr_sv_pro}
 \alias{wr_sv_pro}
-\title{Write code for pro}
+\title{Write code for server pro}
 \usage{
 wr_sv_pro()
 }
 \description{
-Write code for pro
+Write code for server proportion plot
+}
+\author{
+John F. Ouyang
+
+Roy Francis
 }

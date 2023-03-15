@@ -2,10 +2,15 @@
 % Please edit documentation in R/writer.R
 \name{wr_ui_vio}
 \alias{wr_ui_vio}
-\title{Write code for vio}
+\title{Write code for ui vio}
 \usage{
 wr_ui_vio()
 }
 \description{
-Write code for vio
+Write code for ui violinplot / boxplot
+}
+\author{
+John F. Ouyang
+
+Roy Francis
 }

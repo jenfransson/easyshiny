@@ -15,14 +15,14 @@ make_app(
   shiny.prefix = "sc1",
   enableSubset = TRUE,
   defPtSiz = 1.25,
-  ganalytics = NA,
   default.gene1 = NA,
   default.gene2 = NA,
   default.multigene = NA,
   default.dimred = NA,
-  tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea"),
+  tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea", "about"),
   theme = "flatly",
-  font = "Lato"
+  font = "Lato",
+  ganalytics = NA
 )
 }
 \arguments{
@@ -68,8 +68,6 @@ functionality in the shiny app. Default is to enable this functionality}
 \item{defPtSiz}{specify default point size for single cells. For example, a
 smaller size can be used if you have many cells in your dataset}
 
-\item{ganalytics}{Google analytics tracking ID (e.g. "UA-123456789-0")}
-
 \item{default.gene1}{specify primary default gene to show}
 
 \item{default.gene2}{specify secondary default gene to show}
@@ -85,6 +83,8 @@ reductions. Default is to use UMAP if not TSNE embeddings}
 \item{theme}{Bootstrap theme}
 
 \item{font}{Google font for plots}
+
+\item{ganalytics}{Google analytics tracking ID (e.g. "UA-123456789-0")}
 }
 \value{
 directory containing shiny app
@@ -95,4 +95,6 @@ data object.
 }
 \author{
 John F. Ouyang
+
+Roy Francis
 }

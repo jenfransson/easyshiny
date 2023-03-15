@@ -25,9 +25,10 @@ display name, see \code{?mod_meta_name}.
 \examples{
 \dontrun{
 showLegend(scConf)
-
 }
 }
 \author{
 John F. Ouyang
+
+Roy Francis
 }

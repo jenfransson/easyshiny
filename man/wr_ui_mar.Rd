@@ -2,10 +2,13 @@
 % Please edit documentation in R/writer.R
 \name{wr_ui_mar}
 \alias{wr_ui_mar}
-\title{Write code for mar}
+\title{Write code for ui mar}
 \usage{
 wr_ui_mar()
 }
 \description{
-Write code for mar
+Write code for ui markers
+}
+\author{
+ROy Francis
 }

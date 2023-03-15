@@ -12,8 +12,7 @@ make_code_multi(
   enableSubset = TRUE,
   defPtSiz = 1.25,
   theme = "flatly",
-  tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea"),
-  about = TRUE,
+  tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea", "about"),
   font = "Lato",
   ganalytics = NA
 )
@@ -41,8 +40,6 @@ users have to specify one value for each dataset}
 
 \item{tabs}{Vector of tab names to include}
 
-\item{about}{Should about page be added as a tab?}
-
 \item{font}{Google font for plots. Defaults to "Lato". Requires package `showtext`.}
 
 \item{ganalytics}{Google analytics tracking ID (e.g. "UA-123456789-0")}
@@ -60,4 +57,6 @@ function.
 }
 \author{
 John F. Ouyang
+
+Roy Francis
 }

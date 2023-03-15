@@ -2,7 +2,7 @@
 % Please edit documentation in R/writer.R
 \name{wr_sv_main}
 \alias{wr_sv_main}
-\title{Write code for main block of server.R}
+\title{Write code for server main block}
 \usage{
 wr_sv_main(
   prefix,
@@ -18,7 +18,7 @@ wr_sv_main(
 
 \item{font}{Character denoting font for plots}
 
-\item{tabs}{Vector of tab names to include}
+\item{tabs}{Character vector of tab names to include}
 }
 \description{
 Write code for main block of server.R

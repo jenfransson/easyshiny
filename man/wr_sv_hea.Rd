@@ -2,10 +2,15 @@
 % Please edit documentation in R/writer.R
 \name{wr_sv_hea}
 \alias{wr_sv_hea}
-\title{Write code for heatmap / dotplot}
+\title{Write code for server civge}
 \usage{
 wr_sv_hea()
 }
 \description{
-Write code for heatmap / dotplot
+Write code for server heatmap / dotplot
+}
+\author{
+John F. Ouyang
+
+Roy Francis
 }

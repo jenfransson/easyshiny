@@ -12,3 +12,6 @@ wr_font(font = "Lato")
 \description{
 Write code for font
 }
+\author{
+Roy Francis
+}

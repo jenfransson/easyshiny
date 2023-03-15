@@ -43,7 +43,6 @@ working with loom files as they do not support factors/levels by default.
 \dontrun{
 scConf = make_meta_categorical(scConf, "clusterID", loom_obj)
 }
-
 }
 \author{
 John F. Ouyang

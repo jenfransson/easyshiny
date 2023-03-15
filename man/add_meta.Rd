@@ -2,15 +2,14 @@
 % Please edit documentation in R/add_meta.R
 \name{add_meta}
 \alias{add_meta}
-\title{Add a metadata to be included in the shiny app
-Add a metadata to be included in the shiny app.}
+\title{Add a metadata to be included in the shiny app}
 \usage{
-add_meta(scConf, meta.to.add, obj, maxLevels = 50)
+add_meta(scConf, meta, obj, maxLevels = 50)
 }
 \arguments{
 \item{scConf}{shinycell config data.table}
 
-\item{meta.to.add}{metadata to add from the single-cell metadata.
+\item{meta}{metadata to add from the single-cell metadata.
 Must match one of the following:
 \itemize{
   \item{Seurat objects}: column names in \code{seu@meta.data} 
@@ -33,14 +32,12 @@ Metadata with nlevels > maxLevels will throw up an error message}
 updated shinycell config data.table
 }
 \description{
-Add a metadata to be included in the shiny app
 Add a metadata to be included in the shiny app.
 }
 \examples{
 \dontrun{
 scConf = add_meta(scConf, c("orig.ident"), seu)
 }
-
 }
 \author{
 John F. Ouyang

@@ -1,26 +1,21 @@
-#' Modify the colour palette for categorical metadata
-#'
-#' Modify the colour palette for categorical metadata.
-#'
+#' @title Modify the colour palette for categorical metadata
+#' @description Modify the colour palette for categorical metadata.
 #' @param scConf shinycell config data.table
 #' @param m metadata for which to modify the colour palette. Users 
 #'   can either use the actual metadata column names or display names. Please 
 #'   specify only one metadata
 #' @param nc character vector of new colour palette
-#' 
 #' @return updated shinycell config data.table
-#'
 #' @author John F. Ouyang
-#'
+#' @author Roy Francis
 #' @import data.table
 #' @importFrom grDevices col2rgb
-#'
 #' @examples
 #' \dontrun{
 #' scConf = mod_colour(scConf, m = "library", nc = c("black", "darkorange", "blue", "red"))
 #'}
-#'
 #' @export
+#' 
 mod_colour <- function(scConf, m, nc){
   # Check that only one metadata is provided
   if(length(m) != 1){

@@ -1,0 +1,89 @@
+/* CSS Bootstrap custom style */
+/* 2022 Roy Francis */
+
+/* define font */
+@import url('https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro:300,400,600|Ubuntu+Mono&subset=latin-ext');
+
+:root {
+  --color-primary: #4b6584;
+  --color-border: #ccc;
+  --color-text: #1A1A1A;
+  --color-code-bg: #f9f9f9;
+  --color-code-inline: #d72b3f;
+  --font-base: 'Source Sans Pro';
+  --font-highlight: 'Source Sans Pro';
+  --font-code: 'Ubuntu Mono';
+}
+
+/* body font */
+/* body font family */
+body,p,h1,h2,h3,h4,h5,h6 {
+  font-family: var(--font-base, 'Roboto', 'DIN', 'Helvetica', sans-serif);
+  color: var(--color-text);
+  font-weight: 400;
+  font-size: 17px;
+}
+
+/* title font family, weight and size */
+h1,h2 {
+  font-family: var(--font-highlight, 'Roboto', 'DIN', 'Helvetica', sans-serif);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 1.802em;
+  margin-top: 0.9em;
+  margin-bottom: 0.8em;
+}
+
+h2 {
+  font-size: 1.602em;
+  margin-top: 0.2em;
+  margin-bottom: 0.6em;
+}
+
+h3 {
+  font-size: 1.424em;
+  margin-top: 0.6em;
+  margin-bottom: 0.4em;
+}
+
+h4 {
+  font-size: 1.266em;
+  margin-top: 0.5em;
+  margin-bottom: 0.3em;
+}
+
+h5 {
+  font-size: 1.266em;
+  margin-top: 0.5em;
+  margin-bottom: 0.3em;
+}
+
+h6 {
+  font-size: 1.125em;
+  margin-top: 0.5em;
+  margin-bottom: 0.3em;
+}
+
+/* code style */
+pre {
+  font-family: var(--font-code,"Menlo","Monaco", "Consolas","Liberation Mono", "Courier New", monospace);
+  background-color: var(--color-code-bg);
+  border: 1px solid var(--color-border);
+  font-size: 16px;
+}
+code {
+  font-family: var(--font-code,"Menlo","Monaco", "Consolas","Liberation Mono", "Courier New", monospace);
+  font-size: 16px;
+}
+
+/* table even shading colour */
+.even {
+    background-color: var(--color-code-bg);
+}
+
+body {
+  line-height: 1.6;
+}

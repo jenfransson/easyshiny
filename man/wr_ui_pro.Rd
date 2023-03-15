@@ -2,10 +2,15 @@
 % Please edit documentation in R/writer.R
 \name{wr_ui_pro}
 \alias{wr_ui_pro}
-\title{Write code for pro}
+\title{Write code for ui pro}
 \usage{
 wr_ui_pro()
 }
 \description{
-Write code for pro
+Write code for ui proportion plot
+}
+\author{
+John F. Ouyang
+
+Roy Francis
 }

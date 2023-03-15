@@ -1,8 +1,6 @@
-#' Make a shiny app
-#'
-#' Make a shiny app based on the shinycell config data.table and single-cell
+#' @title Make a shiny app
+#' @description Make a shiny app based on the shinycell config data.table and single-cell
 #' data object.
-#'
 #' @param obj input single-cell object for Seurat (v3+) / SingleCellExperiment
 #'   data or input file path for h5ad / loom files
 #' @param scConf shinycell config data.table
@@ -35,7 +33,6 @@
 #'   functionality in the shiny app. Default is to enable this functionality
 #' @param defPtSiz specify default point size for single cells. For example, a
 #'   smaller size can be used if you have many cells in your dataset
-#' @param ganalytics Google analytics tracking ID (e.g. "UA-123456789-0")
 #' @param default.gene1 specify primary default gene to show
 #' @param default.gene2 specify secondary default gene to show
 #' @param default.multigene character vector specifying the default genes to
@@ -45,18 +42,22 @@
 #' @param tabs Vector of tab names to include
 #' @param theme Bootstrap theme
 #' @param font Google font for plots
-#'
+#' @param ganalytics Google analytics tracking ID (e.g. "UA-123456789-0")
 #' @return directory containing shiny app
-#'
 #' @author John F. Ouyang
-#'
+#' @author Roy Francis
 #' @export
 #' 
-make_app <- function(obj, scConf, gex.assay = NA, gex.slot = c("data", "scale.data", "counts"), gene.mapping = FALSE, shiny.title = "scRNA-seq shiny app", shiny.dir = "shinyApp/", shiny.prefix = "sc1", enableSubset = TRUE, defPtSiz = 1.25, ganalytics = NA, default.gene1 = NA, default.gene2 = NA, default.multigene = NA, default.dimred = NA, tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea"), theme = "flatly", font = "Lato") {
+make_app <- function(obj, scConf, gex.assay = NA, gex.slot = c("data", "scale.data", "counts"), gene.mapping = FALSE, shiny.title = "scRNA-seq shiny app", shiny.dir = "shinyApp/", shiny.prefix = "sc1", enableSubset = TRUE, defPtSiz = 1.25, default.gene1 = NA, default.gene2 = NA, default.multigene = NA, default.dimred = NA, tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea", "about"), theme = "flatly", font = "Lato", ganalytics = NA) {
 
-  tbs <- c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea", "mar")
+  tbs <- c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea", "mar", "about")
   if(length(tabs) < 1) stop("At least 1 tab must be specified.")
   if(any(!tabs %in% tbs)) stop(paste("One of more tabs are incorrect. Tab options are:",paste(tbs,collapse=", "),"."))
+  if("mar" %in% tabs) {
+    mar <- TRUE
+  }else{
+    mar <- FALSE
+  }
     
   # Checks are performed in respective functions
   # Wrapper for two main functions
@@ -66,13 +67,13 @@ make_app <- function(obj, scConf, gex.assay = NA, gex.slot = c("data", "scale.da
     gene.mapping = gene.mapping,
     shiny.prefix = shiny.prefix, shiny.dir = shiny.dir,
     default.gene1, default.gene2, default.multigene, default.dimred,
-    tabs = tabs
+    mar = mar
   )
 
   make_code(
     shiny.title = shiny.title,
     shiny.prefix = shiny.prefix, shiny.dir = shiny.dir,
-    theme = theme, enableSubset = enableSubset, defPtSiz = defPtSiz,
-    ganalytics = ganalytics, tabs = tabs, font = font
+    enableSubset = enableSubset, defPtSiz = defPtSiz,
+    tabs = tabs, theme = theme, font = font, ganalytics = ganalytics
   )
 }

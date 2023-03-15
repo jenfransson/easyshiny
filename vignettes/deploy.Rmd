@@ -1,0 +1,189 @@
+---
+title: "Deploying your app"
+author: "Roy Francis"
+date: "`r format(Sys.time(), '%d-%b-%Y')`"
+output:
+  html_document:
+    theme: flatly
+    highlight: tango
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+In this vignette, we look at various ways to deploy your app to the end user.
+
+## R
+
+The app directory with all the files can be archived (ie; .zip, .tar.gz etc.) and shared. The receiver will need to install R as well as all the dependency packages (listed on home page) to be able to launch the app by running `shiny::runApp()` in the app directory.
+
+## Docker
+
+A better solution is to package the shiny app into a docker image. In this example, we will create an app and containerize it into a docker image.
+
+```{r,eval=TRUE,message=FALSE,warning=FALSE}
+library(easyshiny)
+library(Seurat)
+library(SeuratData)
+
+ifnb <- LoadData("ifnb")
+ifnb <- ifnb |>
+  NormalizeData() |>
+  ScaleData() |>
+  FindVariableFeatures() |>
+  RunPCA() |>
+  RunUMAP(dims=1:20)
+
+ifnb
+```
+
+```
+An object of class Seurat 
+14053 features across 13999 samples within 1 assay 
+Active assay: RNA (14053 features, 2000 variable features)
+ 2 dimensional reductions calculated: pca, umap
+```
+
+After pre-processing (normalisation, scaling, PCA, UMAP), we can proceed to building the app.
+
+```{r}
+ifnb_conf <- create_config(ifnb)
+make_app(ifnb, ifnb_conf, gex.assay="RNA", gex.slot="data", shiny.title = "IFNB", shiny.dir="ifnb")
+shiny::runApp("ifnb")
+```
+
+Once you have verified that the app works and made any changes to the app as needed, you can create a Dockerfile using the function `make_dockerfile()`.
+
+```{r}
+make_dockerfile(path="ifnb")
+```
+
+This will write out a Dockerfile into the same directory as the app.
+
+**Note!** If using GitHub packages, images are pushed to the personal or org account and not to a specific repository. To link packages to a repository, add the following to the Dockerfile:
+
+`LABEL org.opencontainers.image.source https://github.com/OWNER/REPO`
+
+In the terminal, change to the app directory and build the image using the syntax `docker build -t <image-name> .`. Note that everything in the app folder will be copied into the image.
+
+```{bash}
+cd ifnb
+docker build -t shiny-ifnb .
+```
+
+This will take a while to build and when done, you can list all images and find your app:
+
+```{bash}
+docker images
+```
+
+Launch the app and it should be available in the browser at `http://0.0.0.0:8787`.
+
+```{bash}
+docker run --rm -p 8787:8787 shiny-ifnb
+```
+
+### Distributing the image
+
+The docker image can be distributed through image repositories. The docker image can be run through the terminal and also graphically through Docker Desktop on Mac and Windows.
+
+I will discuss two options: DockerHub and GitHub packages.
+
+#### DockerHub
+
+**Note!** Be mindful of sensitive data since the app/image contains the expression data and metadata.
+
+Tag the image as needed with repo, version etc using the syntax `docker tag <image-name> <hub-name>/<repo-name>:<tag>`.
+
+```{bash}
+docker tag shiny-ifnb royfrancis/shiny-ifnb:v1.0
+docker tag shiny-ifnb royfrancis/shiny-ifnb:latest
+```
+
+To push to DockerHub, use the following syntax: `docker push <hub-name>/<repo-name>:<tag>`
+
+```{bash}
+docker login docker.io
+docker push royfrancis/shiny-ifnb:v1.0
+docker push royfrancis/shiny-ifnb:latest
+```
+
+Once upload is complete, you can choose to remove the local image:
+
+```{bash}
+docker rmi shiny-ifnb royfrancis/shiny-ifnb:v1.0 royfrancis/shiny-ifnb:latest
+docker images
+```
+
+Then try to run the app:
+
+```{bash}
+docker run --rm -p 8787:8787 royfrancis/shiny-ifnb:latest
+```
+
+This should fetch the image from dockerhub and launch the app. The should be available at `http://0.0.0.0:8787`.
+
+#### GitHub packages
+
+GitHub packages are pushed to the personal or org account and not to a specific repository. To link packages to a repository, add the following to the Dockerfile:
+
+`LABEL org.opencontainers.image.source https://github.com/OWNER/REPO`
+
+Create a personal access token [here](https://github.com/settings/tokens). Select **Tokens (Classic)** and check **read:packages** and **write:packages**.
+
+Login to github package repository.
+
+```{bash}
+echo "personalaccesstoken" | docker login ghcr.io -u githubusername --password-stdin
+```
+
+To push to GitHub packages, tag the image using the following syntax: `docker push <hub-name>/<user|org>/<image-name>:<tag>`
+
+```{bash}
+docker tag royfrancis/shiny-ifnb ghcr.io/nbisweden/shiny-ifnb:latest
+docker push ghcr.io/nbisweden/shiny-ifnb:latest
+```
+
+To launch the app:
+
+```{bash}
+docker run --rm -p 8787:8787 ghcr.io/nbisweden/shiny-ifnb:latest
+```
+
+## Singularity
+
+The docker image can be easily converted to a singularity image.
+
+```{bash}
+docker save ghcr.io/nbisweden/shiny-ifnb:latest -o shiny-ifnb.tar
+singularity build --sandbox shiny-ifnb.tmp docker-archive://shiny-ifnb.tar
+singularity build shiny-ifnb.sif shiny-ifnb.tmp
+
+singularity run shiny-ifnb.sif
+```
+
+## Hosting
+
+### ShinyApps.io
+
+The shiny app can be hosted on shinyapps.io directly from the app files using R package [rsconnect](https://shiny.rstudio.com/articles/shinyapps.html).
+
+### SciLifeLab Serve
+
+SciLifeLab users have the possibility of hosting the docker image on [SciLifeLab Serve](https://serve.scilifelab.se/). Login and create a new **Project**. Then **Serve > New > Shiny App**. Fill in the form:
+
+```
+Name: IFNB scRNA-Seq
+Description: IFNB single-cell transcriptomics data
+Subdomain: ifnb.serve.scilifelab.se (Add ifnb as a new domain)
+Permissions: Project
+Persistent Volume: project-vol
+App port: 8787
+Image: ghcr.io/nbisweden/shiny-ifnb:latest
+```
+
+### Cloud
+
+Docker images are versatile and can be hosted through most cloud providers such as [Amazon ECS](https://aws.amazon.com/ecs/), [Google Cloud Run](https://cloud.google.com/run), [Microsoft Azure](https://azure.microsoft.com/en-gb/products/kubernetes-service/docker/), [Vultr](https://www.vultr.com/apps/docker) etc.

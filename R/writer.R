@@ -1,7 +1,9 @@
-#' Write code for loading libraries
-#' @param lib vector of libraries
-#' @rdname wr_lib
-#' @export wr_lib
+#' @title Write code for loading libraries
+#' @description Write code for loading libraries
+#' @param lib A string/vector of libraries
+#' @author John F. Ouyang
+#' @importFrom glue glue
+#' @export
 #'
 wr_lib <- function(lib) {
   oup <- ""
@@ -11,10 +13,11 @@ wr_lib <- function(lib) {
   glue::glue(paste0(oup,"\n"))
 }
 
-#' Write code for font
+#' @title Write code for font
+#' @description Write code for font
 #' @param font Google font name
-#' @rdname wr_font
-#' @export wr_font
+#' @author Roy Francis
+#' @export
 #'
 wr_font <- function(font = "Lato") {
   paste0(
@@ -27,11 +30,14 @@ if(!system.file(package="showtext")=="") showtext::showtext_auto()
   )
 }
 
-#' Write code for loading objects for ui.R and server.R
+#' @title Write code for loading data
+#' @description Write code for loading objects for ui.R and server.R
 #' @param prefix file prefix
 #' @param tabs Vector of tab names to include
-#' @rdname wr_load
-#' @export wr_load
+#' @author John F. Ouyang
+#' @author Roy Francis
+#' @importFrom glue glue
+#' @export
 #'
 wr_load <- function(prefix, tabs) {
 x <- paste0('
@@ -44,10 +50,13 @@ if("mar" %in% tabs) x <- paste0(x,'if(!exists("{prefix}mar")) {prefix}mar = read
 glue::glue(x,"\n")
 }
 
-#' Write code for fixed portion of server.R
+#' @title Write code for fixed portion of server.R
+#' @description Write code for fixed portion of server.R
 #' @param font (Character) Google font
-#' @rdname wr_sv_fix
-#' @export wr_sv_fix
+#' @author John F. Ouyang
+#' @author Roy Francis
+#' @importFrom glue glue
+#' @export
 #'
 wr_sv_fix <- function(font = "Lato") {
   glue::glue('
@@ -1018,8 +1027,11 @@ observe_helpers()
   )
 }
 
-#' Write code for cell info vs gene expression
-#'
+#' @title Write code for server civge
+#' @description Write code for server cell info vs gene expression
+#' @author John F. Ouyang
+#' @author Roy Francis
+#' 
 wr_sv_civge <- function() {
 paste0('  
 ### Tab civge cell info vs gene exp ----
@@ -1119,7 +1131,10 @@ output${prefix}_civge_oup2.svg <- downloadHandler(
 ')
 }
 
-#' Write code for cell info vs cell info
+#' @title Write code for server civci
+#' @description Write code for server cell info vs cell info
+#' @author John F. Ouyang
+#' @author Roy Francis
 #'
 wr_sv_civci <- function() {
 paste0('
@@ -1209,7 +1224,10 @@ output${prefix}_civci_oup2.svg <- downloadHandler(
 ')
 }
 
-#' Write code for gene exp vs gene exp
+#' @title Write code for server gevge
+#' @description Write code for server gene exp vs gene exp
+#' @author John F. Ouyang
+#' @author Roy Francis
 #'
 wr_sv_gevge <- function() {
 paste0('
@@ -1316,7 +1334,10 @@ output${prefix}_gevge_oup2.svg <- downloadHandler(
 ')
 }
 
-#' Write code for gene co-expression
+#' @title Write code for server gec
+#' @description Write code for server gene co-expression
+#' @author John F. Ouyang
+#' @author Roy Francis
 #'
 wr_sv_gec <- function() {
 paste0('
@@ -1377,7 +1398,10 @@ output${prefix}_gec_.dt <- renderDataTable({{
 ')
 }
 
-#' Write code for violinplot / boxplot
+#' @title Write code for server vio
+#' @description Write code for server violinplot / boxplot
+#' @author John F. Ouyang
+#' @author Roy Francis
 #'
 wr_sv_vio <- function() {
 paste0('
@@ -1435,7 +1459,10 @@ output${prefix}_vio_oup.svg <- downloadHandler(
 ')
 }
 
-#' Write code for pro
+#' @title Write code for server pro
+#' @description Write code for server proportion plot
+#' @author John F. Ouyang
+#' @author Roy Francis
 #'
 wr_sv_pro <- function() {
 paste0('
@@ -1492,7 +1519,10 @@ output${prefix}_pro_oup.svg <- downloadHandler(
 ')
 }
 
-#' Write code for heatmap / dotplot
+#' @title Write code for server civge
+#' @description Write code for server heatmap / dotplot
+#' @author John F. Ouyang
+#' @author Roy Francis
 #'
 wr_sv_hea <- function() {
 paste0('
@@ -1556,7 +1586,9 @@ output${prefix}_hea_oup.svg <- downloadHandler(
 ')
 }
 
-#' Write code for gene expression multi
+#' @title Write code for server gem
+#' @description Write code for server gene expression multi
+#' @author Roy Francis
 #'
 wr_sv_gem <- function() {
   paste0('
@@ -1614,8 +1646,9 @@ output${prefix}_gem_oup1.svg <- downloadHandler(
 ')
 }
 
-
-#' Write code for markers
+#' @title Write code for server mar
+#' @description Write code for server markers
+#' @author Roy Francis
 #'
 wr_sv_mar <- function() {
   paste0('
@@ -1629,11 +1662,19 @@ output${prefix}_mar_table <- renderDataTable({{
 ')
 }
 
-#' Write code for main block of server.R
+#' @title Does nothing
+#' @description Does nothing
+#' 
+wr_sv_about <- function() {
+
+}
+
+#' @title Write code for server main block
+#' @description Write code for main block of server.R
 #' @param prefix file prefix
 #' @param subst Conditional
 #' @param font Character denoting font for plots
-#' @param tabs Vector of tab names to include
+#' @param tabs Character vector of tab names to include
 #' @rdname wr_sv_main
 #' @export wr_sv_main
 #'
@@ -1671,10 +1712,10 @@ paste(unlist(lapply(tabs, function(x) eval(parse(text = paste0("wr_sv_",x,"()"))
 )
 }
 
-#' Write code for final portion of server.R
-#'
-#' @rdname wr_sv_end
-#' @export wr_sv_end
+#' @title Write code for server end
+#' @description Write code for final portion of server.R
+#' @author John F. Ouyang
+#' @export
 #'
 wr_sv_end <- function() {
   paste0(
@@ -1686,13 +1727,15 @@ wr_sv_end <- function() {
   )
 }
 
-#' Write code for front portion of ui.R
+#' @title Write code for ui beginning
+#' @description Write code for front portion of ui.R
 #' @param title shiny app title
 #' @param theme bootstrap theme
 #' @param ganalytics Google analytics tracking ID (e.g. "UA-123456789-0")
-#' @importFrom shinythemes shinytheme
-#' @rdname wr_ui_single
-#' @export wr_ui_single
+#' @author John F. Ouyang
+#' @author Roy Francis
+#' @importFrom glue glue
+#' @export
 #'
 wr_ui_single <- function(title, theme = "flatly", ganalytics = NA) {
   if (!is.na(ganalytics)) {
@@ -1709,14 +1752,17 @@ shinyUI(
 fluidPage(style="margin:0;padding:0;",
 tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")),
 {ga}
-theme = shinythemes::shinytheme("{theme}"),
+theme = bslib::bs_theme(bootswatch = "{theme}"),
 navbarPage(
 "{title}"
 '
   )
 }
 
-#' Write code for civge
+#' @title Write code for ui civge
+#' @description Write code for ui cell info vs gene expression
+#' @author John F. Ouyang
+#' @author Roy Francis
 #'
 wr_ui_civge <- function() {
 paste0(',
@@ -1953,8 +1999,10 @@ tabPanel(
 ')
 }
 
-#' Write code for civci
-#'
+#' @title Write code for ui civci
+#' @description Write code for ui cell info vs cell info
+#' @author John F. Ouyang
+#' @author Roy Francis
 #'
 wr_ui_civci <- function() {
 paste0(',
@@ -2177,7 +2225,10 @@ tabPanel(
 ')
 }
 
-#' Write code for gevge
+#' @title Write code for ui gevge
+#' @description Write code for ui gene exp vs gene exp
+#' @author John F. Ouyang
+#' @author Roy Francis
 #'
 wr_ui_gevge <- function() {
 paste0(',
@@ -2397,7 +2448,10 @@ tabPanel(
 ')
 }
 
-#' Write code for gec
+#' @title Write code for ui gec
+#' @description Write code for ui gene co-expression
+#' @author John F. Ouyang
+#' @author Roy Francis
 #'
 wr_ui_gec <- function() {
 paste0(',
@@ -2522,9 +2576,12 @@ tabPanel(
 ')
 }
 
-#' Write code for vio
+#' @title Write code for ui vio
+#' @description Write code for ui violinplot / boxplot
+#' @author John F. Ouyang
+#' @author Roy Francis
 #'
-wr_ui_vio<- function() {
+wr_ui_vio <- function() {
 paste0(',
 # tab vio ----
 tabPanel(
@@ -2631,7 +2688,10 @@ tabPanel(
 ')
 }
 
-#' Write code for pro
+#' @title Write code for ui pro
+#' @description Write code for ui proportion plot
+#' @author John F. Ouyang
+#' @author Roy Francis
 #'
 wr_ui_pro <- function() {
 paste0(',
@@ -2732,7 +2792,10 @@ tabPanel(
 ')
 }
 
-#' Write code for hea
+#' @title Write code for ui hea
+#' @description Write code for ui heatmap / dotplot
+#' @author John F. Ouyang
+#' @author Roy Francis
 #'
 wr_ui_hea <- function() {
 paste0(',
@@ -2850,7 +2913,9 @@ tabPanel(
 ')
 }
 
-#' Write code for gem
+#' @title Write code for ui gem
+#' @description Write code for ui gene expression multi
+#' @author Roy Francis
 #'
 wr_ui_gem <- function() {
 paste0(',
@@ -2971,7 +3036,9 @@ tabPanel(
 ')
 }
 
-#' Write code for mar
+#' @title Write code for ui mar
+#' @description Write code for ui markers
+#' @author ROy Francis
 #'
 wr_ui_mar <- function() {
   paste0(',
@@ -3019,8 +3086,9 @@ tabPanel(
 ')
 }
 
-
-#' Write code for about page
+#' @title Write code for about page
+#' @description Write code for about page
+#' @author Roy Francis
 #'
 wr_ui_about <- function() {
 paste0('\n,
@@ -3038,26 +3106,28 @@ tabPanel(
 )
 }
 
-#' Write code for main block of ui.R
+#' @title Write code for main block of ui.R
+#' @description Write code for main block of ui.R
 #' @param prefix file prefix
 #' @param subst Conditional
 #' @param ptsiz Point size
 #' @param tabs Vector of tab names to include
-#' @param about Should about page be added as a tab?
-#' @rdname wr_ui_main
-#' @export wr_ui_main
+#' @importFrom glue glue
+#' @export
 #'
-wr_ui_main <- function(prefix, subst = "", ptsiz = "1.25", tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea"), about = TRUE) {
+wr_ui_main <- function(prefix, subst = "", ptsiz = "1.25", tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea", "about")) {
   glue::glue(
     paste(unlist(lapply(tabs, function(x) eval(parse(text = paste0("wr_ui_",x,"()"))))), collapse = "\n"),
     "\n"
   )
 }
 
-#' Write code for final portion of ui.R
-#'
-#' @rdname wr_ui_end
-#' @export wr_ui_end
+#' @title Write code for final portion of ui.R
+#' @description Write code for final portion of ui.R
+#' @author John F. Ouyang
+#' @author Roy Francis
+#' @importFrom glue glue
+#' @export
 #'
 wr_ui_end <- function() {
   glue::glue(
@@ -3069,11 +3139,11 @@ wr_ui_end <- function() {
   )
 }
 
-#' Write code for google-analytics.html
+#' @title Write code for google-analytics.html
+#' @description Write code for google-analytics.html
 #' @param gaID Google analytics tracking ID (e.g. "UA-123456789-0")
-#'
-#' @rdname wr_ui_ga
-#' @export wr_ui_ga
+#' @importFrom glue glue
+#' @export
 #'
 wr_ui_ga <- function(gaID) {
   glue::glue(
@@ -3089,26 +3159,35 @@ wr_ui_ga <- function(gaID) {
   )
 }
 
-#' Write code for about. about.md
-#' @rdname wr_about
-#' @export wr_about
+#' @title Write code for about. about.md
+#' @description Write code for about. about.md
+#' @author Roy Francis
+#' @importFrom glue glue
+#' @importFrom utils packageVersion
+#' @export
 #'
 wr_about <- function(){
-  paste('
-### About
+  v <- utils::packageVersion("easyshiny")
+  glue::glue(paste('
+## About
 
-App description and author info.
+### Acknowledgements
 
-')  
+This app was created using [easyshiny](https://github.com/NBISweden/easyshiny). easyshiny is built on [shinyCell](https://github.com/SGDDNB/ShinyCell)
+
+Ouyang, J. F., Kamaraj, U. S., Cao, E. Y., & Rackham, O. J. (2021). ShinyCell: simple and sharable visualization of single-cell gene expression data. [Bioinformatics, 37(19), 3374-3376](https://doi.org/10.1093/bioinformatics/btab209).
+
+easyshiny v{v}.
+'))
 }
 
-#' Write code for custom css. www/styles.css
+#' @title Write code for custom css. www/styles.css
+#' @description Write code for custom css. www/styles.css
 #' @rdname wr_css
 #' @export wr_css
 #'
 wr_css <- function(){
-  paste('
-/* easyshiny */
+  paste('/* easyshiny */
 /* custom css styles */
 
 .page {
@@ -3127,18 +3206,6 @@ wr_css <- function(){
 
 .input-panel-section {
   margin-bottom: 1em;
-}
-
-a:hover,
-a:focus,
-a:active,
-.navbar-default .navbar-nav>li>a:hover,
-.navbar-default .navbar-nav>li>a:focus,
-.navbar-default .navbar-nav>li>a:active,
-.navbar-default .navbar-brand:hover,
-.navbar-default .navbar-brand:focus,
-.navbar-default .navbar-brand:active {
-  color: #bcbcbc;
 }
 
 .btn {

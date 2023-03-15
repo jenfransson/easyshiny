@@ -1,27 +1,24 @@
-#' Shows the legends for single-cell metadata
-#'
-#' Shows the legends for single-cell metadata based on the shinycell config 
+#' @title Shows the legends for single-cell metadata
+#' @description Shows the legends for single-cell metadata based on the shinycell config 
 #' data.table. This allows user to visualise the different metadata to be 
 #' plotted and make any modifications if necessary. Note that the display name 
 #' is shown here instead of the actual name. For more information regarding 
 #' display name, see \code{?mod_meta_name}.
-#'
 #' @param scConf shinycell config data.table
 #' @param fontSize font size of legends. Decrease it if you have too many 
 #'   items to display
-#'
 #' @return gtable plot showing the legends for different metadata
-#'
 #' @author John F. Ouyang
-#'
+#' @author Roy Francis
 #' @import data.table ggplot2 RColorBrewer
-#'
+#' @importFrom patchwork wrap_plots
+#' @importFrom ggplotify as.ggplot
 #' @examples
 #' \dontrun{
 #' showLegend(scConf)
-#'
 #' }
 #' @export
+#' 
 show_legend <- function(scConf, fontSize = 14){
   
   # Start making config data.table
@@ -62,8 +59,8 @@ show_legend <- function(scConf, fontSize = 14){
   scLegend[["continuous"]] = ggLeg
 
   # Plot all legends
-  legMulti = lapply(scLegend, ggplotify::as.ggplot)
-  print(patchwork::wrap_plots(legMulti, ncol=1))
+  legMulti = lapply(scLegend, as.ggplot)
+  print(wrap_plots(legMulti, ncol=1))
 
   return(scLegend)
 }

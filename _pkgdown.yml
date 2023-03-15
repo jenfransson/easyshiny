@@ -1,0 +1,36 @@
+title: easyshiny
+url: https://github.com/nbisweden/easyshiny
+template:
+  params:
+    bootswatch: flatly
+
+authors:
+  Roy Francis:
+    href: https://royfrancis.com
+
+navbar:
+  structure:
+    left:
+    - home
+    - articles
+    - reference
+    - news
+    right:
+    - github
+  components:
+    home:
+      icon: fa-home fa-lg
+      href: index.html
+    reference:
+      text: Reference
+      href: reference/index.html
+    news:
+      text: Versions
+      href: news/index.html
+    github:
+      icon: fa-github fa-lg fas
+      href: https://github.com/nbisweden/easyshiny
+
+home:
+  sidebar:
+    structure: [links, license, citation, authors, dev]

@@ -1,6 +1,5 @@
-#' Generate data files required for shiny app
-#'
-#' Generate data files required for shiny app. Five files will be generated, 
+#' @title Generate data files required for shiny app
+#' @description Generate data files required for shiny app. Five files will be generated, 
 #' namely (i) the shinycell config \code{prefix_conf.rds}, (ii) the gene 
 #' mapping object config \code{prefix_gene.rds}, (iii) the single-cell gene 
 #' expression \code{prefix_gexpr.h5}, (iv) the single-cell metadata 
@@ -9,7 +8,6 @@
 #' use of multiple single-cell datasets in one Shiny app. Note that both 
 #' \code{make_file} and \code{make_code} functions are ran when 
 #' running the wrapper function \code{make_app}.
-#'
 #' @param obj input single-cell object for Seurat (v3+) / SingleCellExperiment 
 #'   data or input file path for h5ad / loom files
 #' @param scConf shinycell config data.table
@@ -44,27 +42,26 @@
 #'   reductions. Default is to use UMAP if not TSNE embeddings
 #' @param chunkSize number of genes written to h5file at any one time. Lower 
 #'   this number to reduce memory consumption. Should not be less than 10
-#' @param tabs Vector of tab names to include
+#' @param mar Logical indicating if marker genes are used
 #' @return data files required for shiny app
-#'
 #' @author John F. Ouyang
-#'
-#' @import data.table hdf5r reticulate hdf5r
+#' @author Roy Francis
+#' @import data.table hdf5r reticulate
 #' @importFrom methods slot
-#' @importFrom SummarizedExperiment assay
-#'
 #' @export
+#' 
 make_file <- function(
   obj, scConf, gex.assay = NA, gex.slot = c("data", "scale.data", "counts"), 
   gene.mapping = FALSE, shiny.prefix = "sc1", shiny.dir = "shinyApp/",
   default.gene1 = NA, default.gene2 = NA, default.multigene = NA, 
-  default.dimred = NA, chunkSize = 500, tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea")){
+  default.dimred = NA, chunkSize = 500, mar = FALSE){
   
   ### Preprocessing and checks
   
   # Generate defaults for gex.assay / gex.slot ----
   if(class(obj)[1] == "Seurat"){
     # Seurat Object
+    if(system.file(package = "Seurat")=="") stop("Package 'Seurat' is missing.")
     if(is.na(gex.assay[1])){gex.assay = "RNA"}
     gex.matdim = dim(slot(obj@assays[[gex.assay[1]]], gex.slot[1]))
     gex.rownm = rownames(slot(obj@assays[[gex.assay[1]]], gex.slot[1]))
@@ -80,6 +77,7 @@ make_file <- function(
     
   } else if (class(obj)[1] == "SingleCellExperiment"){
     # SCE Object
+    if(system.file(package = "SingleCellExperiment")=="") stop("Package 'SingleCellExperiment' is missing.")
     if(is.null(colnames(obj)[1])){
       colnames(obj) = paste0("cell_", seq(ncol(obj)))
     }    # Populate cell IDs if they are not present
@@ -94,6 +92,7 @@ make_file <- function(
     
   } else if (tolower(tools::file_ext(obj)) == "h5ad"){
     # h5ad file
+    if(system.file(package = "reticulate")=="") stop("Package 'reticulate' is missing.")
     if(is.na(gex.assay[1])){gex.assay = "X"}
     # Can just check X since inpH5$layers should have same dimensions
     ad <- import("anndata", convert = FALSE)
@@ -140,10 +139,10 @@ make_file <- function(
   # Perform gene.mapping if specified (also map defGenes)
   if(gene.mapping[1] == TRUE){
     if(sum(grepl("^ENSG000", gex.rownm)) >= sum(grepl("^ENMUSG000", gex.rownm))){
-      tmp1 = fread(system.file("extdata", "geneMapHS.txt.gz", 
+      tmp1 = data.table::fread(system.file("extdata", "geneMapHS.txt.gz", 
                                package = "easyshiny"))
     } else {
-      tmp1 = fread(system.file("extdata", "geneMapMM.txt.gz", 
+      tmp1 = data.table::fread(system.file("extdata", "geneMapMM.txt.gz", 
                                package = "easyshiny"))
     }
     gene.mapping = tmp1$geneName
@@ -429,7 +428,7 @@ make_file <- function(
   sc1conf = sc1conf[, -c("fUI", "default"), with = FALSE]
   
   ## marker objects ----
-  if("mar" %in% tabs){
+  if(mar){
     if(class(obj)[1] == "Seurat"){
       if(length(obj@misc) == 0) warning("Marker slot (obj@misc) is empty.")
       if(is.null(obj@misc$mar)) warning("Marker slot (obj@misc$mar) is empty.")

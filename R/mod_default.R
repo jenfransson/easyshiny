@@ -1,27 +1,21 @@
-#' Set the default metadata to display
-#'
-#' Set the default metadata to display in the shiny app. Default1 is used when 
+#' @title Set the default metadata to display
+#' @description Set the default metadata to display in the shiny app. Default1 is used when 
 #' plotting metadata with gene expression or when plotting two metadata 
 #' simultaneously. Default2 is used when plotting two metadata simultaneously.
-#'
 #' @param scConf shinycell config data.table
 #' @param default1 metadata to set as the 1st default metadata to display. 
 #'   Users can either use the actual metadata column names or display names
 #' @param default2 metadata to set as the 2nd default metadata to display. 
 #'   Users can either use the actual metadata column names or display names
-#' 
 #' @return updated shinycell config data.table
-#'
 #' @author John F. Ouyang
-#'
 #' @import data.table
-#'
 #' @examples
 #' \dontrun{
 #' scConf = mod_default(scConf, default1 = "library", default2 = "cluster")
 #' }
-#'
 #' @export
+#' 
 mod_default <- function(scConf, default1, default2){
   # Check that only one metadata is provided
   if(length(default1) != 1){stop("Please specify only one default1 metadata!")}
