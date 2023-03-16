@@ -89,7 +89,7 @@ docker run --rm -p 8787:8787 shiny-ifnb
 
 The docker image can be distributed through image repositories. The docker image can be run through the terminal and also graphically through [Docker Desktop](https://www.docker.com/products/docker-desktop/) on Linux, Mac and Windows.
 
-I will discuss two options: DockerHub and GitHub packages.
+Two options for distributing the docker image is discussed: [**DockerHub**](https://hub.docker.com/) and [**GitHub packages**](https://github.com/features/packages).
 
 #### DockerHub
 
@@ -184,9 +184,9 @@ App port: 8787
 Image: royfrancis/shiny-ifnb
 ```
 
-For subdomain, **ifnb** was added as a new domain to have a persistent URL. The image refers to DockerHub username and repo.
+For subdomain, **ifnb** was added as a new domain to have a persistent URL. The `Image` refers to DockerHub username and repo. `Permissions` sets app access to those registered to the **Project** or completely open to **Public**.
 
-The app is available at [https://ifnb.serve.scilifelab.se/](https://ifnb.serve.scilifelab.se/).
+The app will be available at [https://ifnb.serve.scilifelab.se/](https://ifnb.serve.scilifelab.se/).
 
 ### Cloud
 

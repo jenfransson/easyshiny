@@ -92,7 +92,7 @@
                         <h4 data-toc-skip class="author">Roy
 Francis</h4>
             
-            <h4 data-toc-skip class="date">15-Mar-2023</h4>
+            <h4 data-toc-skip class="date">16-Mar-2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nbisweden/easyshiny/blob/HEAD/vignettes/deploy.Rmd"><code>vignettes/deploy.Rmd</code></a></small>
       <div class="hidden name"><code>deploy.Rmd</code></div>
@@ -176,7 +176,8 @@ images and find your app:</p>
 docker image can be run through the terminal and also graphically
 through <a href="https://www.docker.com/products/docker-desktop/" class="external-link">Docker
 Desktop</a> on Linux, Mac and Windows.</p>
-<p>I will discuss two options: DockerHub and GitHub packages.</p>
+<p>Two options for distributing the docker image is discussed: <a href="https://hub.docker.com/" class="external-link"><strong>DockerHub</strong></a> and <a href="https://github.com/features/packages" class="external-link"><strong>GitHub
+packages</strong></a>.</p>
 <div class="section level4">
 <h4 id="dockerhub">DockerHub<a class="anchor" aria-label="anchor" href="#dockerhub"></a>
 </h4>
@@ -255,9 +256,11 @@ Persistent Volume: project-vol
 App port: 8787
 Image: royfrancis/shiny-ifnb</code></pre>
 <p>For subdomain, <strong>ifnb</strong> was added as a new domain to
-have a persistent URL. The image refers to DockerHub username and
-repo.</p>
-<p>The app is available at <a href="https://ifnb.serve.scilifelab.se/" class="external-link">https://ifnb.serve.scilifelab.se/</a>.</p>
+have a persistent URL. The <code>Image</code> refers to DockerHub
+username and repo. <code>Permissions</code> sets app access to those
+registered to the <strong>Project</strong> or completely open to
+<strong>Public</strong>.</p>
+<p>The app will be available at <a href="https://ifnb.serve.scilifelab.se/" class="external-link">https://ifnb.serve.scilifelab.se/</a>.</p>
 </div>
 <div class="section level3">
 <h3 id="cloud">Cloud<a class="anchor" aria-label="anchor" href="#cloud"></a>

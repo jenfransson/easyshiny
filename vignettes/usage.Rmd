@@ -68,7 +68,7 @@ To launch the app, run:
 shiny::runApp("pbmc")
 ```
 
-Tip! Use `shiny::runApp("app",launch.browser=F)` if running from the terminal.
+**Tip!** Use `Rscript -e 'shiny::runApp("app",launch.browser=F)'` if running from the terminal.
 
 ![](images/preview-pbmc.jpg)
 
@@ -198,7 +198,7 @@ shiny::runApp("app")
 
 ### Marker genes
 
-Amrker gene functionality is only implemented for Seurat objects for now. To display marker genes, `Seurat::FindAllMarkers()` need to be run and resulting table added to the Seurat object slot `misc` as a named list. To simplify this, one can use this function:
+Marker gene functionality is only implemented for Seurat objects for now. To display marker genes, `Seurat::FindAllMarkers()` need to be run and resulting table added to the Seurat object slot `misc` as a named list. To simplify this, one can use this function:
 
 ```{r}
 #' @description Find all markers by identity

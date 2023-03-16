@@ -92,7 +92,7 @@
                         <h4 data-toc-skip class="author">Roy
 Francis</h4>
             
-            <h4 data-toc-skip class="date">15-Mar-2023</h4>
+            <h4 data-toc-skip class="date">16-Mar-2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nbisweden/easyshiny/blob/HEAD/vignettes/usage.Rmd"><code>vignettes/usage.Rmd</code></a></small>
       <div class="hidden name"><code>usage.Rmd</code></div>
@@ -141,7 +141,8 @@ the following files:</p>
 <p>To launch the app, run:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://shiny.rstudio.com/reference/shiny/latest/runApp.html" class="external-link">runApp</a></span><span class="op">(</span><span class="st">"pbmc"</span><span class="op">)</span></span></code></pre></div>
-<p>Tip! Use <code>shiny::runApp("app",launch.browser=F)</code> if
+<p><strong>Tip!</strong> Use
+<code>Rscript -e 'shiny::runApp("app",launch.browser=F)'</code> if
 running from the terminal.</p>
 <p><img src="images/preview-pbmc.jpg"></p>
 </div>
@@ -302,7 +303,7 @@ it as needed. Markdown formatting is supported. The
 <div class="section level3">
 <h3 id="marker-genes">Marker genes<a class="anchor" aria-label="anchor" href="#marker-genes"></a>
 </h3>
-<p>Amrker gene functionality is only implemented for Seurat objects for
+<p>Marker gene functionality is only implemented for Seurat objects for
 now. To display marker genes, <code><a href="https://satijalab.org/seurat/reference/FindAllMarkers.html" class="external-link">Seurat::FindAllMarkers()</a></code> need
 to be run and resulting table added to the Seurat object slot
 <code>misc</code> as a named list. To simplify this, one can use this
