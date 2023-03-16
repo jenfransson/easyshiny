@@ -1750,7 +1750,7 @@ wr_ui_single <- function(title, theme = "flatly", ganalytics = NA) {
 ### UI code
 shinyUI(
 fluidPage(style="margin:0;padding:0;",
-tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")),
+tags$head(includeCSS("www/styles.css")),
 {ga}
 theme = bslib::bs_theme(bootswatch = "{theme}"),
 navbarPage(
@@ -3177,7 +3177,7 @@ This app was created using [easyshiny](https://github.com/NBISweden/easyshiny). 
 
 Ouyang, J. F., Kamaraj, U. S., Cao, E. Y., & Rackham, O. J. (2021). ShinyCell: simple and sharable visualization of single-cell gene expression data. [Bioinformatics, 37(19), 3374-3376](https://doi.org/10.1093/bioinformatics/btab209).
 
-easyshiny v{v}.
+`easyshiny v{v}`.
 '))
 }
 
