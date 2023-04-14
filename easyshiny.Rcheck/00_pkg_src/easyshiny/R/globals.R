@@ -1,1 +1,0 @@
-utils::globalVariables(c("ID","fID","UI","X","Y","nlvl","default","sampleID","dimred","grp"))
