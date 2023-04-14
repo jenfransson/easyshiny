@@ -155,23 +155,28 @@ app as needed, you can create a Dockerfile using the function
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/make_dockerfile.html">make_dockerfile</a></span><span class="op">(</span>path<span class="op">=</span><span class="st">"ifnb"</span><span class="op">)</span></span></code></pre></div>
 <p>This will write out a Dockerfile into the same directory as the
 app.</p>
-<p><strong>Note!</strong> If using GitHub packages, images are pushed to
-the personal or org account and not to a specific repository. To link
-packages to a repository, add the following to the Dockerfile:</p>
-<p><code>LABEL org.opencontainers.image.source https://github.com/OWNER/REPO</code></p>
+<div style="color: #8a6d3b;background-color: #fcf8e3;border-color:#faebcc; padding:6px; border-radius:4px; margin: 1em 0;">
+<p style="color: #8a6d3b;background-color: #fcf8e3;">
+  <i class="fas fa-exclamation-circle"></i>   If using GitHub packages,
+images are pushed to the personal or org account and not to a specific
+repository. To link packages to a repository, add the following to the
+Dockerfile:
+</p>
+<pre><code>LABEL org.opencontainers.image.source https://github.com/OWNER/REPO</code></pre>
+</div>
 <p>In the terminal, change to the app directory and build the image
 using the syntax <code>docker build -t &lt;image-name&gt; .</code>. My
 docker image will be named <code>shiny-ifnb</code>. You can name it <a href="https://docs.docker.com/engine/reference/commandline/tag/" class="external-link">anything</a>
 you like. Note that everything in the app folder will be copied into the
 image.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ifnb</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">-t</span> shiny-ifnb .</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ifnb</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">-t</span> shiny-ifnb .</span></code></pre></div>
 <p>This will take a while to build and when done, you can list all
 images and find your app:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> images</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> images</span></code></pre></div>
 <p>Launch the app and it should be available in the browser at
 <code>http://0.0.0.0:3838</code>.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 3838:3838 shiny-ifnb</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 3838:3838 shiny-ifnb</span></code></pre></div>
 <div class="section level3">
 <h3 id="distributing-the-image">Distributing the image<a class="anchor" aria-label="anchor" href="#distributing-the-image"></a>
 </h3>
@@ -184,30 +189,36 @@ packages</strong></a>.</p>
 <div class="section level4">
 <h4 id="dockerhub">DockerHub<a class="anchor" aria-label="anchor" href="#dockerhub"></a>
 </h4>
-<p><strong>Note!</strong> Be mindful of sensitive data since the
-app/image contains the expression data and metadata.</p>
+<p style="color: #8a6d3b;background-color: #fcf8e3;border-color:#faebcc;padding: 6px;border-radius: 4px;">
+  <i class="fas fa-exclamation-circle"></i>   Be mindful of access
+permissions to the image, since the app/image contains the expression
+data and metadata.
+</p>
 <p>Tag the image as needed with repo, version etc using the syntax
 <code>docker tag &lt;image-name&gt; &lt;hub-name&gt;/&lt;repo-name&gt;:&lt;tag&gt;</code>.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> tag shiny-ifnb royfrancis/shiny-ifnb:v1.0</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> tag shiny-ifnb royfrancis/shiny-ifnb:latest</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> tag shiny-ifnb royfrancis/shiny-ifnb:v1.0</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> tag shiny-ifnb royfrancis/shiny-ifnb:latest</span></code></pre></div>
 <p>To push to DockerHub, use the following syntax:
 <code>docker push &lt;hub-name&gt;/&lt;repo-name&gt;:&lt;tag&gt;</code></p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> login docker.io</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> push royfrancis/shiny-ifnb:v1.0</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> push royfrancis/shiny-ifnb:latest</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> login docker.io</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> push royfrancis/shiny-ifnb:v1.0</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> push royfrancis/shiny-ifnb:latest</span></code></pre></div>
 <p>Once upload is complete, you can choose to remove the local
 image:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rmi shiny-ifnb royfrancis/shiny-ifnb:v1.0 royfrancis/shiny-ifnb:latest</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> images</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rmi shiny-ifnb royfrancis/shiny-ifnb:v1.0 royfrancis/shiny-ifnb:latest</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> images</span></code></pre></div>
 <p>Then try to run the app:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 3838:3838 royfrancis/shiny-ifnb:latest</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 3838:3838 royfrancis/shiny-ifnb:latest</span></code></pre></div>
 <p>This should fetch the image from dockerhub and launch the app. The
 should be available at <code>http://0.0.0.0:3838</code>.</p>
 </div>
 <div class="section level4">
 <h4 id="github-packages">GitHub packages<a class="anchor" aria-label="anchor" href="#github-packages"></a>
 </h4>
-<p>Note that SciLifeLab Serve does not support GitHub packages yet.</p>
+<p style="color: #8a6d3b;background-color: #fcf8e3;border-color:#faebcc;padding: 6px;border-radius: 4px;">
+  <i class="fas fa-exclamation-circle"></i>   Note that SciLifeLab Serve
+does not support GitHub packages yet.
+</p>
 <p>GitHub packages are pushed to a personal or organisation account and
 not to a specific repository. To link packages to a repository, add the
 following to the Dockerfile:</p>
@@ -216,13 +227,13 @@ following to the Dockerfile:</p>
 <strong>Tokens (Classic)</strong> and check permissions
 <strong>read:packages</strong> and <strong>write:packages</strong>.</p>
 <p>Login to github package repository.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"personalaccesstoken"</span> <span class="kw">|</span> <span class="ex">docker</span> login ghcr.io <span class="at">-u</span> githubusername <span class="at">--password-stdin</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"personalaccesstoken"</span> <span class="kw">|</span> <span class="ex">docker</span> login ghcr.io <span class="at">-u</span> githubusername <span class="at">--password-stdin</span></span></code></pre></div>
 <p>To push to GitHub packages, tag the image using the following syntax:
 <code>docker push &lt;hub-name&gt;/&lt;user|org&gt;/&lt;image-name&gt;:&lt;tag&gt;</code></p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> tag royfrancis/shiny-ifnb ghcr.io/nbisweden/shiny-ifnb:latest</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> push ghcr.io/nbisweden/shiny-ifnb:latest</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> tag royfrancis/shiny-ifnb ghcr.io/nbisweden/shiny-ifnb:latest</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> push ghcr.io/nbisweden/shiny-ifnb:latest</span></code></pre></div>
 <p>To launch the app:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 3838:3838 ghcr.io/nbisweden/shiny-ifnb:latest</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 3838:3838 ghcr.io/nbisweden/shiny-ifnb:latest</span></code></pre></div>
 </div>
 </div>
 </div>
@@ -230,11 +241,11 @@ following to the Dockerfile:</p>
 <h2 id="singularity">Singularity<a class="anchor" aria-label="anchor" href="#singularity"></a>
 </h2>
 <p>The docker image can be easily converted to a singularity image.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> save ghcr.io/nbisweden/shiny-ifnb:latest <span class="at">-o</span> shiny-ifnb.tar</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">singularity</span> build <span class="at">--sandbox</span> shiny-ifnb.tmp docker-archive://shiny-ifnb.tar</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="ex">singularity</span> build shiny-ifnb.sif shiny-ifnb.tmp</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="ex">singularity</span> run shiny-ifnb.sif</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> save ghcr.io/nbisweden/shiny-ifnb:latest <span class="at">-o</span> shiny-ifnb.tar</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">singularity</span> build <span class="at">--sandbox</span> shiny-ifnb.tmp docker-archive://shiny-ifnb.tar</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="ex">singularity</span> build shiny-ifnb.sif shiny-ifnb.tmp</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="ex">singularity</span> run shiny-ifnb.sif</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="hosting">Hosting<a class="anchor" aria-label="anchor" href="#hosting"></a>
@@ -248,8 +259,10 @@ files using R package <a href="https://shiny.rstudio.com/articles/shinyapps.html
 <div class="section level3">
 <h3 id="scilifelab-serve">SciLifeLab Serve<a class="anchor" aria-label="anchor" href="#scilifelab-serve"></a>
 </h3>
-<p>Note that SciLifeLab Serve does not support GitHub Packages yet. The
-image must be on DockerHub.</p>
+<p style="color: #8a6d3b;background-color: #fcf8e3;border-color:#faebcc;padding: 6px;border-radius: 4px;">
+  <i class="fas fa-exclamation-circle"></i>   Note that SciLifeLab Serve
+does not support GitHub Packages yet. The image must be on DockerHub.
+</p>
 <p>SciLifeLab users have the possibility of hosting the docker image on
 <a href="https://serve.scilifelab.se/" class="external-link">SciLifeLab Serve</a>. Login and
 create a new <strong>Project</strong>. Then <strong>Serve &gt; New &gt;

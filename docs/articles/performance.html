@@ -106,7 +106,7 @@ Francis</h4>
     
 <p><strong>easyshiny</strong> is intended as quick solution for small to
 medium scale datasets. It is not built for hundred-thousands or million
-cell scale. For that, see <a href="https://cellxgene.cziscience.com/" class="external-link">cellxgene</a> for example. In
+cell scale. For that, see <a href="https://cellxgene.cziscience.com/" class="external-link">cellxgene</a>, for example. In
 this vignette, we will look at RAM requirements and cell numbers.</p>
 <p>A sample dataset with 400,000 cells was downsampled to different
 number of cells to evaluate memory usage. When building the app, the
@@ -190,8 +190,11 @@ cells as follows:</p>
 <p>The app memory usage (in GB) can be estimated from the number of
 cells as follows:</p>
 <pre><code><span><span class="va">app_memory_usage_gb</span> <span class="op">=</span> <span class="fl">2.912e-01</span> <span class="op">+</span> <span class="op">(</span><span class="va">number_of_cells</span> <span class="op">*</span> <span class="fl">2.563e-05</span><span class="op">)</span></span></code></pre>
-<p>Note that it is unknown if the data can be extrapolated beyond the
-range. Also note the test data has 26349 features.</p>
+<p style="color: #8a6d3b;background-color: #fcf8e3;border-color:#faebcc;padding: 6px;border-radius: 4px;">
+  <i class="fas fa-exclamation-circle"></i>   It is unknown if the data
+can be extrapolated beyond the range. Also note that the sample data has
+26349 features.
+</p>
 <p>Apart from memory usage, it is worth noting that the usability of the
 app is also affected by CPU. On my system, roughly 100,000 cells was the
 limit of smooth interaction with widgets. Beyond that, the app was slow

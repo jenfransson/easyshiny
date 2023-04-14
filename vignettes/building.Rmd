@@ -7,6 +7,8 @@ output:
     theme: flatly
     highlight: tango
     number_sections: true
+template:
+  bootstrap:5
 ---
 
 ```{r setup, include=FALSE}
@@ -68,7 +70,9 @@ To launch the app, run:
 shiny::runApp("pbmc")
 ```
 
-**Tip!** Use `Rscript -e 'shiny::runApp("app",launch.browser=F)'` if running from the terminal.
+<p style="color: #8a6d3b;background-color: #fcf8e3;border-color:#faebcc;padding: 6px;border-radius: 4px;" style="inline-block">
+&nbsp; <i class="fas fa-lightbulb"></i> &nbsp; Use `Rscript -e 'shiny::runApp("app",launch.browser=F)'` if running from the terminal.
+</p>
 
 ![](images/preview-pbmc.jpg)
 

@@ -7,6 +7,8 @@ output:
     theme: flatly
     highlight: tango
     number_sections: true
+template:
+  bootstrap:5
 ---
 
 ```{r setup, include=FALSE}
@@ -62,9 +64,15 @@ make_dockerfile(path="ifnb")
 
 This will write out a Dockerfile into the same directory as the app.
 
-**Note!** If using GitHub packages, images are pushed to the personal or org account and not to a specific repository. To link packages to a repository, add the following to the Dockerfile:
+<div style="color: #8a6d3b;background-color: #fcf8e3;border-color:#faebcc; padding:6px; border-radius:4px; margin: 1em 0;" style="block">
+<p style="color: #8a6d3b;background-color: #fcf8e3;">
+&nbsp; <i class="fas fa-exclamation-circle"></i> &nbsp; If using GitHub packages, images are pushed to the personal or org account and not to a specific repository. To link packages to a repository, add the following to the Dockerfile:
+</p>
 
-`LABEL org.opencontainers.image.source https://github.com/OWNER/REPO`
+```
+LABEL org.opencontainers.image.source https://github.com/OWNER/REPO
+```
+</div>
 
 In the terminal, change to the app directory and build the image using the syntax `docker build -t <image-name> .`. My docker image will be named `shiny-ifnb`. You can name it [anything](https://docs.docker.com/engine/reference/commandline/tag/) you like. Note that everything in the app folder will be copied into the image.
 
@@ -93,7 +101,9 @@ Two options for distributing the docker image is discussed: [**DockerHub**](http
 
 #### DockerHub
 
-**Note!** Be mindful of sensitive data since the app/image contains the expression data and metadata.
+<p style="color: #8a6d3b;background-color: #fcf8e3;border-color:#faebcc;padding: 6px;border-radius: 4px;" style="inline-block">
+&nbsp; <i class="fas fa-exclamation-circle"></i> &nbsp; Be mindful of access permissions to the image, since the app/image contains the expression data and metadata.
+</p>
 
 Tag the image as needed with repo, version etc using the syntax `docker tag <image-name> <hub-name>/<repo-name>:<tag>`.
 
@@ -127,7 +137,9 @@ This should fetch the image from dockerhub and launch the app. The should be ava
 
 #### GitHub packages
 
-Note that SciLifeLab Serve does not support GitHub packages yet.
+<p style="color: #8a6d3b;background-color: #fcf8e3;border-color:#faebcc;padding: 6px;border-radius: 4px;" style="inline-block">
+&nbsp; <i class="fas fa-exclamation-circle"></i> &nbsp; Note that SciLifeLab Serve does not support GitHub packages yet.
+</p>
 
 GitHub packages are pushed to a personal or organisation account and not to a specific repository. To link packages to a repository, add the following to the Dockerfile:
 
@@ -174,7 +186,9 @@ The shiny app can be hosted on shinyapps.io directly from the app files using R 
 
 ### SciLifeLab Serve
 
-Note that SciLifeLab Serve does not support GitHub Packages yet. The image must be on DockerHub.
+<p style="color: #8a6d3b;background-color: #fcf8e3;border-color:#faebcc;padding: 6px;border-radius: 4px;" style="inline-block">
+&nbsp; <i class="fas fa-exclamation-circle"></i> &nbsp; Note that SciLifeLab Serve does not support GitHub Packages yet. The image must be on DockerHub.
+</p>
 
 SciLifeLab users have the possibility of hosting the docker image on [SciLifeLab Serve](https://serve.scilifelab.se/). Login and create a new **Project**. Then **Serve > New > Shiny App**. Fill in the form:
 
