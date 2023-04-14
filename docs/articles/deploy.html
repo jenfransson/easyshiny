@@ -34,7 +34,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">easyshiny</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3</span>
       </span>
     </div>
 
@@ -54,10 +54,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/building.html">Building apps</a>
+    </li>
+    <li>
       <a href="../articles/deploy.html">Deploying your app</a>
     </li>
     <li>
-      <a href="../articles/usage.html">Usage</a>
+      <a href="../articles/performance.html">Resource usage</a>
     </li>
   </ul>
 </li>
@@ -92,7 +95,7 @@
                         <h4 data-toc-skip class="author">Roy
 Francis</h4>
             
-            <h4 data-toc-skip class="date">16-Mar-2023</h4>
+            <h4 data-toc-skip class="date">12-Apr-2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nbisweden/easyshiny/blob/HEAD/vignettes/deploy.Rmd"><code>vignettes/deploy.Rmd</code></a></small>
       <div class="hidden name"><code>deploy.Rmd</code></div>
@@ -167,8 +170,8 @@ image.</p>
 images and find your app:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> images</span></code></pre></div>
 <p>Launch the app and it should be available in the browser at
-<code>http://0.0.0.0:8787</code>.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 8787:8787 shiny-ifnb</span></code></pre></div>
+<code>http://0.0.0.0:3838</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 3838:3838 shiny-ifnb</span></code></pre></div>
 <div class="section level3">
 <h3 id="distributing-the-image">Distributing the image<a class="anchor" aria-label="anchor" href="#distributing-the-image"></a>
 </h3>
@@ -197,13 +200,14 @@ image:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rmi shiny-ifnb royfrancis/shiny-ifnb:v1.0 royfrancis/shiny-ifnb:latest</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> images</span></code></pre></div>
 <p>Then try to run the app:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 8787:8787 royfrancis/shiny-ifnb:latest</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 3838:3838 royfrancis/shiny-ifnb:latest</span></code></pre></div>
 <p>This should fetch the image from dockerhub and launch the app. The
-should be available at <code>http://0.0.0.0:8787</code>.</p>
+should be available at <code>http://0.0.0.0:3838</code>.</p>
 </div>
 <div class="section level4">
 <h4 id="github-packages">GitHub packages<a class="anchor" aria-label="anchor" href="#github-packages"></a>
 </h4>
+<p>Note that SciLifeLab Serve does not support GitHub packages yet.</p>
 <p>GitHub packages are pushed to a personal or organisation account and
 not to a specific repository. To link packages to a repository, add the
 following to the Dockerfile:</p>
@@ -218,7 +222,7 @@ following to the Dockerfile:</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> tag royfrancis/shiny-ifnb ghcr.io/nbisweden/shiny-ifnb:latest</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> push ghcr.io/nbisweden/shiny-ifnb:latest</span></code></pre></div>
 <p>To launch the app:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 8787:8787 ghcr.io/nbisweden/shiny-ifnb:latest</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 3838:3838 ghcr.io/nbisweden/shiny-ifnb:latest</span></code></pre></div>
 </div>
 </div>
 </div>
@@ -244,6 +248,8 @@ files using R package <a href="https://shiny.rstudio.com/articles/shinyapps.html
 <div class="section level3">
 <h3 id="scilifelab-serve">SciLifeLab Serve<a class="anchor" aria-label="anchor" href="#scilifelab-serve"></a>
 </h3>
+<p>Note that SciLifeLab Serve does not support GitHub Packages yet. The
+image must be on DockerHub.</p>
 <p>SciLifeLab users have the possibility of hosting the docker image on
 <a href="https://serve.scilifelab.se/" class="external-link">SciLifeLab Serve</a>. Login and
 create a new <strong>Project</strong>. Then <strong>Serve &gt; New &gt;
@@ -253,7 +259,7 @@ Description: IFNB single-cell transcriptomics data
 Subdomain: ifnb.serve.scilifelab.se
 Permissions: Project
 Persistent Volume: project-vol
-App port: 8787
+App port: 3838
 Image: royfrancis/shiny-ifnb</code></pre>
 <p>For subdomain, <strong>ifnb</strong> was added as a new domain to
 have a persistent URL. The <code>Image</code> refers to DockerHub

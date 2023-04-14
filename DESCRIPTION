@@ -1,7 +1,7 @@
 Package: easyshiny
 Type: Package
 Title: Shiny Interactive Web App for Single-Cell Transcriptomics
-Version: 0.2
+Version: 0.3
 Author: ´Roy Francis
 Maintainer: Roy Francis <roy.francis@outlook.com>
 Description: Quick shiny web app for interactive exploration of single-cell transcriptomic data.

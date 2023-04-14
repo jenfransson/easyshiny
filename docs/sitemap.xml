@@ -7,13 +7,16 @@
     <loc>https://github.com/nbisweden/easyshiny/LICENSE-text.html</loc>
   </url>
   <url>
+    <loc>https://github.com/nbisweden/easyshiny/articles/building.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/nbisweden/easyshiny/articles/deploy.html</loc>
   </url>
   <url>
     <loc>https://github.com/nbisweden/easyshiny/articles/index.html</loc>
   </url>
   <url>
-    <loc>https://github.com/nbisweden/easyshiny/articles/usage.html</loc>
+    <loc>https://github.com/nbisweden/easyshiny/articles/performance.html</loc>
   </url>
   <url>
     <loc>https://github.com/nbisweden/easyshiny/authors.html</loc>
@@ -56,6 +59,9 @@
   </url>
   <url>
     <loc>https://github.com/nbisweden/easyshiny/reference/make_meta_categorical.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/nbisweden/easyshiny/reference/make_shiny_config.html</loc>
   </url>
   <url>
     <loc>https://github.com/nbisweden/easyshiny/reference/mod_colour.html</loc>

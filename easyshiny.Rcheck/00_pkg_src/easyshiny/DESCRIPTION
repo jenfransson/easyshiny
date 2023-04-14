@@ -1,0 +1,20 @@
+Package: easyshiny
+Type: Package
+Title: Shiny Interactive Web App for Single-Cell Transcriptomics
+Version: 0.3
+Author: ´Roy Francis
+Maintainer: Roy Francis <roy.francis@outlook.com>
+Description: Quick shiny web app for interactive exploration of single-cell transcriptomic data.
+License: GPL-3 + file LICENSE
+Depends: R (>= 4.0.0), data.table (>= 1.12.2), hdf5r (>= 1.2.0),
+        reticulate (>= 1.13), ggplot2 (>= 3.3.0), shiny
+Imports: glue, ggplotify, Matrix, methods, patchwork, RColorBrewer,
+        readr (>= 1.4.0), utils
+Suggests: Seurat (>= 3.0.0), SingleCellExperiment (>= 1.4.1),
+        SummarizedExperiment, showtext, bslib, DT, ggdendro, ggrepel,
+        magrittr, shinycssloaders, shinyhelper
+Encoding: UTF-8
+BugReports: https://github.com/nbisweden/easyshiny/issues
+RoxygenNote: 7.2.3
+NeedsCompilation: no
+Packaged: 2023-04-14 08:28:55 UTC; roy

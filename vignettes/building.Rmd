@@ -1,5 +1,5 @@
 ---
-title: "Usage"
+title: "Building apps"
 author: "Roy Francis"
 date: "`r format(Sys.time(), '%d-%b-%Y')`"
 output:
@@ -39,7 +39,7 @@ Since it has been already processed (normalisation, scaling, PCA, UMAP), we can 
 
 ```{r}
 pbmc_conf <- create_config(pbmc_small)
-make_app(pbmc_small, pbmc_conf, gex.assay="RNA", gex.slot="data", shiny.title = "PBMC", shiny.dir="pbmc")
+make_app(pbmc_small, pbmc_conf, gex.assay = "RNA", gex.slot = "data", shiny.title = "PBMC", shiny.dir = "pbmc")
 ```
 
 This creates a directory called **pbmc** which contains the following files:
@@ -96,12 +96,12 @@ obj <- obj |>
   ScaleData() |>
   FindVariableFeatures() |>
   RunPCA() |>
-  RunUMAP(dims=1:20)
+  RunUMAP(dims = 1:20)
 ```
 
 ```{r}
 panc8_conf <- create_config(obj)
-make_app(obj, panc8_conf, gex.assay="RNA", gex.slot="data", shiny.title = "Panc8", shiny.dir="panc8")
+make_app(obj, panc8_conf, gex.assay = "RNA", gex.slot = "data", shiny.title = "Panc8", shiny.dir = "panc8")
 shiny::runApp("panc8")
 ```
 
@@ -243,6 +243,24 @@ shiny::runApp("pbmc")
 ```
 
 ![](images/mar.jpg)
+
+When using markers with multiple datasets, it is necessary to set `mar=TRUE` in `make_file()`.
+
+```{r}
+pbmc_small@misc$markers <- fam(pbmc_small, "letter.idents")
+
+pbmc_conf1 <- create_config(pbmc_small)
+make_file(pbmc_small, pbmc_conf1, gex.assay = "RNA", gex.slot = "data", shiny.prefix = "sc1", shiny.dir = "app", mar = TRUE)
+pbmc_conf2 <- create_config(pbmc_small)
+make_file(pbmc_small, pbmc_conf2, gex.assay = "RNA", gex.slot = "data", shiny.prefix = "sc2", shiny.dir = "app", mar = TRUE)
+make_code_multi(
+  shiny.title = "Multi-data",
+  shiny.prefix = c("sc1", "sc2"),
+  shiny.headers = c("PBMC 1", "PBMC 2"),
+  shiny.dir = "app",
+  tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea", "mar", "about"))
+  shiny::runApp("app")
+```
 
 ### Theme
 

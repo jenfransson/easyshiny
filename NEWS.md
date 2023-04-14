@@ -1,3 +1,11 @@
+# easyshiny 0.3
+
+- 14-Apr-2023
+- Added shiny-server.config for Dockerfile. Extends timeout.
+- Changed shiny port to 3838
+- Added performance documentation
+- Updated build, deploy documentation
+
 # easyshiny 0.2
 
 - 12-Mar-2023

@@ -79,10 +79,10 @@ This will take a while to build and when done, you can list all images and find 
 docker images
 ```
 
-Launch the app and it should be available in the browser at `http://0.0.0.0:8787`.
+Launch the app and it should be available in the browser at `http://0.0.0.0:3838`.
 
 ```{bash}
-docker run --rm -p 8787:8787 shiny-ifnb
+docker run --rm -p 3838:3838 shiny-ifnb
 ```
 
 ### Distributing the image
@@ -120,12 +120,14 @@ docker images
 Then try to run the app:
 
 ```{bash}
-docker run --rm -p 8787:8787 royfrancis/shiny-ifnb:latest
+docker run --rm -p 3838:3838 royfrancis/shiny-ifnb:latest
 ```
 
-This should fetch the image from dockerhub and launch the app. The should be available at `http://0.0.0.0:8787`.
+This should fetch the image from dockerhub and launch the app. The should be available at `http://0.0.0.0:3838`.
 
 #### GitHub packages
+
+Note that SciLifeLab Serve does not support GitHub packages yet.
 
 GitHub packages are pushed to a personal or organisation account and not to a specific repository. To link packages to a repository, add the following to the Dockerfile:
 
@@ -149,7 +151,7 @@ docker push ghcr.io/nbisweden/shiny-ifnb:latest
 To launch the app:
 
 ```{bash}
-docker run --rm -p 8787:8787 ghcr.io/nbisweden/shiny-ifnb:latest
+docker run --rm -p 3838:3838 ghcr.io/nbisweden/shiny-ifnb:latest
 ```
 
 ## Singularity
@@ -172,6 +174,8 @@ The shiny app can be hosted on shinyapps.io directly from the app files using R 
 
 ### SciLifeLab Serve
 
+Note that SciLifeLab Serve does not support GitHub Packages yet. The image must be on DockerHub.
+
 SciLifeLab users have the possibility of hosting the docker image on [SciLifeLab Serve](https://serve.scilifelab.se/). Login and create a new **Project**. Then **Serve > New > Shiny App**. Fill in the form:
 
 ```
@@ -180,7 +184,7 @@ Description: IFNB single-cell transcriptomics data
 Subdomain: ifnb.serve.scilifelab.se
 Permissions: Project
 Persistent Volume: project-vol
-App port: 8787
+App port: 3838
 Image: royfrancis/shiny-ifnb
 ```
 
