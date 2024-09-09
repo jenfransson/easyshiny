@@ -28,7 +28,8 @@
 #' @importFrom utils packageVersion
 #' @export
 #'
-make_code_multi <- function(shiny.title, shiny.prefix, shiny.headers, shiny.dir, enableSubset = TRUE, defPtSiz = 1.25, theme = "flatly", tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea", "about"), font = "Lato", ganalytics = NA) {
+make_code_multi <- function(shiny.title, shiny.prefix, shiny.headers, shiny.dir, enableSubset = TRUE, defPtSiz = 1.25, theme = "flatly",
+                            tabs = c("civge", "civci", "gevge", "gem", "scgege","sccige", "gec", "vio", "pro", "hea", "about"), font = "Lato", ganalytics = NA) {
   
   ### Checks
   tbs <- c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea", "mar", "about")
