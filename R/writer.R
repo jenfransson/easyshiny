@@ -3078,13 +3078,17 @@ tabPanel(
                  div(
                    class = "input-panel input-panel-section",
                    h4("Genes"),
-                   selectInput("{prefix}_scgege_inp1", "Gene 1:", choices = NULL) %>%
+                   selectInput("{prefix}_scgege_inp1", "Colour by:",
+                               choices = {prefix}conf$UI,
+                               selected = {prefix}def$meta1
+                    ) %>%
                      helper(
                        type = "inline", size = "m", fade = TRUE,
-                       title = "Gene expression for x-axis",
+                       title = "Cell info to colour cells",
                        content = c(
-                         "- Select gene to plot on x-axis",
-                         "- Type in gene names for unlisted genes"
+                         "- Select cell info to colour cells",
+                         "- Categorical covariates have a fixed colour palette",
+                         "- Continuous covariates are coloured in a red colour scheme"
                        )
                      ),
                    selectInput("{prefix}_scgege_inp2", "Gene 2:", choices = NULL) %>%
