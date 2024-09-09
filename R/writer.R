@@ -3097,7 +3097,7 @@ tabPanel(
                        )
                      ),
                      
-                   selectInput("{prefix}_scgege_inp3", "Colour by:", "Colour by:",
+                   selectInput("{prefix}_scgege_inp3", "Colour by:",
                                choices = {prefix}conf$UI,
                                selected = {prefix}def$meta1
                     ) %>%
@@ -3343,7 +3343,7 @@ tabPanel(
                        )
                      ),
                      
-                  selectInput("{prefix}_sccige_inp3", "Colour by:", "Colour by:",
+                  selectInput("{prefix}_sccige_inp3", "Colour by:", 
                                choices = {prefix}conf$UI,
                                selected = {prefix}def$meta1
                     ) %>%
