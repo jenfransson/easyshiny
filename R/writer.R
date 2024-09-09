@@ -187,6 +187,48 @@ scScatter <- function(dtab, bgCells = FALSE, inpdrX, inpdrY, inpsiz, inpcol, inp
   return(ggOut)
 }}
 
+
+# @description DR scatterplot for gene expression
+# @param dtab (Data.table) with columns X, Y, geneName and val
+# @param inpMeta (data.frame) Metadata table
+# @param bgCells (Logical) Background points
+# @param inpdrX (Character) X axis variable for DR
+# @param inpdrY (Character) Y axis variable for DR
+# @param inpsiz (Numeric) Point size
+# @param inpcol (Character) Custom colour label
+# @param inpord (Character) Custom plotting order
+# @param inpfsz (Character) Custom font size
+# @param inppasp (Character) Custom aspect ratio
+# @param inptxt (Logical) Show XY labels
+#
+scScatter_meta <- function(dtab, bgCells = FALSE, inpdrX, inpdrY, inpsiz, inpcol, inpfsz, inpasp, inptxt){{
+  
+  if(any(!c("X", "Y", "geneName", "val") %in% colnames(dtab))) "Input missing one or more columns: X, Y, geneName, val."
+  
+  ggOut <- ggplot(dtab, aes(X, Y, color = val))
+  rat <- (max(dtab$X) - min(dtab$X)) / (max(dtab$Y) - min(dtab$Y))
+  ltitle <- dtab$geneName[1]
+  
+  if (bgCells) {{
+    ggOut <- ggOut +
+      geom_point(data = ggData2, color = "snow2", size = inpsiz, shape = 20)
+  }}
+  
+  ggOut <- ggOut +
+    geom_point(size = inpsiz, shape = 20) + xlab(inpdrX) + ylab(inpdrY) +
+    scale_color_gradientn(ltitle, colours = cList[[inpcol]]) +
+    #guides(color = guide_colorbar(barwidth = 20)) + 
+    sctheme(base_size = sList[inpfsz], XYval = inptxt, lpos = "right")
+  
+  if (inpasp == "Square") {{
+    ggOut <- ggOut + coord_fixed(ratio = rat)
+  }} else if (inpasp == "Fixed") {{
+    ggOut <- ggOut + coord_fixed()
+  }}
+  
+  return(ggOut)
+}}
+
 # @description Plot gene expression on dimred for any number of input genes
 # @param inpConf (data.frame) Configuration table
 # @param inpMeta (data.frame) Metadata table
@@ -711,6 +753,277 @@ scDRcoexNum <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inpH5, i
   
   return(ggData)
 }}
+
+
+# @description Gene Co-expression on scatter plot
+# @param inpConf (data.frame) Configuration table
+# @param inpMeta (data.frame) Metadata table
+# @param inp1 (Character) Gene name to use - REMOVE
+# @param inp2 (Character) Gene name to use - REMOVE
+# @param inp3 (Character) Metadata to colour points - REMOVE
+# @param inpsub1 (Character) Name of metadata column for subsetting
+# @param inpsub2 (Character/Vector) Levels under metadata column for subsetting
+# @param inpH5 (Character) Path to gene expression h5 file (sc1gexpr.h5)
+# @param inpGene (integer) Named integer vector of gene expression values (sc1gene.rds)
+# @param inpsiz (Numeric) Point size
+# @param inpord (Character) Custom plotting order
+# @param inpfsz (Character) Custom font size
+# @param inppasp (Character) Custom aspect ratio
+#
+scsccoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
+                     inpsub2, inpH5, inpGene, inpsiz, inpord, inpfsz,
+                     inpasp) {
+  
+  if (is.null(inpsub1)) { inpsub1 <- inpConf$UI[1] }
+  
+  # Prepare ggData
+  
+  ggData <- inpMeta[, c(
+    inpConf[UI == inpsub1]$ID,
+    inpConf[UI == inp3]$ID
+  ),
+  with = FALSE
+  ]
+  colnames(ggData) <- c("sub", "val3")
+  
+  h5file <- H5File$new(inpH5, mode = "r")
+  h5data <- h5file[["grp"]][["data"]]
+  ggData$val1 <- h5data$read(args = list(inpGene[inp1], quote(expr = )))
+  ggData[val1 < 0]$val1 <- 0
+  ggData$val2 <- h5data$read(args = list(inpGene[inp2], quote(expr = )))
+  ggData[val2 < 0]$val2 <- 0
+  h5file$close_all()
+  bgCells <- FALSE
+  
+  if (length(inpsub2) != 0 & length(inpsub2) != nlevels(ggData$sub)) {
+    bgCells <- TRUE
+    ggData2 <- ggData[!sub %in% inpsub2]
+    ggData <- ggData[sub %in% inpsub2]
+  }
+  
+  rat <- (max(ggData$val1) - min(ggData$val1)) / (max(ggData$val2) - min(ggData$val2))
+  
+  
+  ggData$v0 <- ggData$val1 + ggData$val2
+  
+  if (inpord == "Max") {
+    ggData <- ggData[order(v0)]
+  } else if (inpord == "Min") {
+    ggData <- ggData[order(-v0)]
+  } else if (inpord == "Random") {
+    ggData <- ggData[sample(nrow(ggData))]
+  }
+  
+  
+  
+  
+  # Actual ggplot
+  ggOut <- ggplot(ggData, aes(val1, val2, color = val3))
+  
+  if(is.numeric(ggData$val3)){
+    ggOut = ggOut + scale_color_gradientn("", colours = cList[[1]]) +
+      guides(color = guide_colorbar(title = inp3))
+  }else{
+    # Do factoring if required
+    if (!is.na(inpConf[UI == inp3]$fCL)) {
+      ggCol <- strsplit(inpConf[UI == inp3]$fCL, "\\|")[[1]]
+      names(ggCol) <- levels(ggData$val3)
+      ggLvl <- levels(ggData$val3)[levels(ggData$val3) %in% unique(ggData$val3)]
+      ggData$val3 <- factor(ggData$val3, levels = ggLvl)
+      ggCol <- ggCol[ggLvl]
+    }
+    ggOut = ggOut + scale_color_manual("", values = ggCol)  +
+      guides(color = guide_legend(
+        override.aes = list(size = 5),
+        nrow = inpConf[UI == inp3]$fRow
+      ))
+  }
+  
+  
+  if (bgCells) {
+    ggOut <- ggOut + 
+      geom_point(data = ggData2, color = "snow2", size = inpsiz, shape = 20)
+  }
+  
+  
+  
+  ggOut <- ggOut +
+    geom_point(size = inpsiz, shape = 20) +
+    xlab(inp1) + ylab(inp2) +
+    labs(color = inp3) +
+    sctheme(base_size = sList[inpfsz], XYval = TRUE)
+  
+  
+  if (inpasp == "Square") {
+    ggOut <- ggOut + coord_fixed(ratio = rat)
+  } else if (inpasp == "Fixed") {
+    ggOut <- ggOut + coord_fixed()
+  }
+  
+  return(ggOut)
+}
+
+
+# @description Cell Info vs Gene Co-expression on scatter plot
+# @param inpConf (data.frame) Configuration table
+# @param inpMeta (data.frame) Metadata table
+# @param inp1 (Character) Cell info on x axis
+# @param inp2 (Character) Gene on y axis
+# @param inp3 (Character) Metadata to colour points
+# @param inpsub1 (Character) Name of metadata column for subsetting
+# @param inpsub2 (Character/Vector) Levels under metadata column for subsetting
+# @param inpH5 (Character) Path to gene expression h5 file (sc1gexpr.h5)
+# @param inpGene (integer) Named integer vector of gene expression values (sc1gene.rds)
+# @param inpsiz (Numeric) Point size
+# @param inpcol (Character) Custom colour label
+# @param inpord (Character) Custom plotting order
+# @param inpfsz (Character) Custom font size
+# @param inppasp (Character) Custom aspect ratio
+#
+scsccigecoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
+                         inpsub2, inpH5, inpGene, inpsiz, inpord, inpfsz) {
+  
+  # inpConf = E8_Retina_no_rep2conf
+  # inpMeta = E8_Retina_no_rep2meta
+  # inp1 = input$E8_Retina_no_rep2_scgege_inp1
+  # inp2 = input$E8_Retina_no_rep2_scgege_inp2
+  # inpsub1 = input$E8_Retina_no_rep2_scgege_sub1
+  # inpsub2 = input$E8_Retina_no_rep2_scgege_sub2
+  # inpH5 = "E8_Retina_no_rep2gexpr.h5"
+  # inpord = input$E8_Retina_no_rep2_scgege_ord1
+  # inpsiz = input$E8_Retina_no_rep2_scgege_siz
+  # inpfsz = input$E8_Retina_no_rep2_scgege_fsz
+  
+  if (is.null(inpsub1)) { inpsub1 <- inpConf$UI[1] }
+  
+  # Prepare ggData
+  
+  ggData <- inpMeta[, c(
+    inpConf[UI == inpsub1]$ID,
+    inpConf[UI == inp1]$ID,
+    inpConf[UI == inp3]$ID
+  ),
+  with = FALSE
+  ]
+  colnames(ggData) <- c("sub", "val1", "val3")
+  
+  h5file <- H5File$new(inpH5, mode = "r")
+  h5data <- h5file[["grp"]][["data"]]
+  ggData$val2 <- h5data$read(args = list(inpGene[inp2], quote(expr = )))
+  ggData[val2 < 0]$val2 <- 0
+  h5file$close_all()
+  bgCells <- FALSE
+  
+  if (length(inpsub2) != 0 & length(inpsub2) != nlevels(ggData$sub)) {
+    bgCells <- TRUE
+    ggData2 <- ggData[!sub %in% inpsub2]
+    ggData <- ggData[sub %in% inpsub2]
+  }
+  
+  ggData$v0 <- as.numeric(as.factor(ggData$val1)) + ggData$val2
+  
+  if (inpord == "Max") {
+    ggData <- ggData[order(v0)]
+  } else if (inpord == "Min") {
+    ggData <- ggData[order(-v0)]
+  } else if (inpord == "Random") {
+    ggData <- ggData[sample(nrow(ggData))]
+  }
+  
+  # Do factoring if required
+  if (!is.na(inpConf[UI == inp3]$fCL)) {
+    ggCol <- strsplit(inpConf[UI == inp3]$fCL, "\\|")[[1]]
+    names(ggCol) <- levels(ggData$val3)
+    ggLvl <- levels(ggData$val3)[levels(ggData$val3) %in% unique(ggData$val3)]
+    ggData$val3 <- factor(ggData$val3, levels = ggLvl)
+    ggCol <- ggCol[ggLvl]
+  }
+  
+  # Actual ggplot
+  ggOut <- ggplot(ggData, aes(val1, val2, color = val3))
+  
+  if(is.numeric(ggData$val3)){
+    ggOut = ggOut + scale_color_gradientn("", colours = cList[[1]]) +
+      guides(color = guide_colorbar(title = inp3))
+  }else{
+    # Do factoring if required
+    if (!is.na(inpConf[UI == inp3]$fCL)) {
+      ggCol <- strsplit(inpConf[UI == inp3]$fCL, "\\|")[[1]]
+      names(ggCol) <- levels(ggData$val3)
+      ggLvl <- levels(ggData$val3)[levels(ggData$val3) %in% unique(ggData$val3)]
+      ggData$val3 <- factor(ggData$val3, levels = ggLvl)
+      ggCol <- ggCol[ggLvl]
+    }
+    ggOut = ggOut + scale_color_manual("", values = ggCol)  +
+      guides(color = guide_legend(
+        override.aes = list(size = 5),
+        nrow = inpConf[UI == inp3]$fRow
+      ))
+  }
+  
+  
+  if (bgCells) {
+    if(is.numeric(ggData$val1)){
+      ggOut <- ggOut + 
+        geom_point(data = ggData2, color = "snow2", size = inpsiz, shape = 20)
+    }
+  }
+  
+  ggOut <- ggOut +
+    geom_point(size = inpsiz, shape = 20) +
+    xlab(inp1) + ylab(inp2) +
+    labs(color = inp3) +
+    sctheme(base_size = sList[inpfsz], XYval = TRUE)
+  
+  
+  return(ggOut)
+  
+}
+
+scsccigeNum <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inpH5, inpGene) {
+  
+  if (is.null(inpsub1)) {
+    inpsub1 <- inpConf$UI[1]
+  }
+  
+  # Prepare ggData
+  ggData <- inpMeta[, c(inpConf[UI == inpsub1]$ID, inpConf[UI == inp1]$ID), with = FALSE]
+  colnames(ggData) <- c("sub", "val1")
+  
+  h5file <- H5File$new(inpH5, mode = "r")
+  h5data <- h5file[["grp"]][["data"]]
+  ggData$val2 <- h5data$read(args = list(inpGene[inp2], quote(expr = )))
+  ggData[val2 < 0]$val2 <- 0
+  h5file$close_all()
+  if (length(inpsub2) != 0 & length(inpsub2) != nlevels(ggData$sub)) { ggData <- ggData[sub %in% inpsub2] }
+  
+  
+  
+  if(is.numeric(ggData$val1)){
+    # Actual data.table
+    ggData$express <- "none"
+    ggData[val1 > 0]$express <- inp1
+    ggData[val2 > 0]$express <- inp2
+    ggData[val1 > 0 & val2 > 0]$express <- "both"
+    ggData$express <- factor(ggData$express, levels = unique(c("both", inp1, inp2, "none")))
+    ggData <- ggData[, .(nCells = .N), by = "express"]
+    ggData$percent <- 100 * ggData$nCells / sum(ggData$nCells)
+    ggData <- ggData[order(express)]
+    colnames(ggData)[1] <- "expression > 0"
+  }else{
+    ggData2 = as.data.frame(table(ggData$val1))
+    ggData =  as.data.frame(table(ggData$val1,factor(ggData$val2>0, levels = c(TRUE, FALSE))))
+    
+    ggData$percent = 100 * ggData$Freq/ggData2$Freq[match(ggData$Var1, ggData2$Var1)]
+    ggData$nCells = paste(ggData$Freq, "/", ggData2$Freq[match(ggData$Var1, ggData2$Var1)])
+    
+    ggData = ggData[ggData$Var2 == TRUE,c("Var1","nCells","percent")]
+    colnames(ggData)[1] = paste(inp2, " > 0")
+  }
+  
+  return(ggData)
+}
+
 
 # Plot violin / boxplot / lineplot
 # @description Violin plot gene expression
@@ -1398,6 +1711,163 @@ output${prefix}_gec_.dt <- renderDataTable({{
 ')
 }
 
+#' @title Write code for server scgege
+#' @description Write code for server gene co-expression
+#' @author John F. Ouyang
+#' @author Roy Francis
+#' @author Jennifer Fransson
+#'
+wr_sv_scgege <- function() {
+  paste0('
+### Tab scgege gene co-expression ----
+
+{subst}  output${prefix}_scgege_sub1.ui <- renderUI({{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_scgege_sub1]$fID, "\\\\|")[[1]]
+{subst}    checkboxGroupInput("{prefix}_scgege_sub2", "Groups to display:", inline = TRUE, choices = sub, selected = sub)
+{subst}  }})
+{subst}  observeEvent(input${prefix}_scgege_sub1non, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_scgege_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_scgege_sub2", label = "Groups to display:", choices = sub, selected = NULL, inline = TRUE)
+{subst}  }})
+{subst}  observeEvent(input${prefix}_scgege_sub1all, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_scgege_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_scgege_sub2", label = "Groups to display:", choices = sub, selected = sub, inline = TRUE)
+{subst}  }})
+
+output${prefix}_scgege_oup1 <- renderPlot({{
+  scsccoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_scgege_inp1, inp2 = input${prefix}_scgege_inp2, inp3 = input${prefix}_scgege_inp3, 
+           inpsub1 = input${prefix}_scgege_sub1, inpsub2 = input${prefix}_scgege_sub2, inpH5 = "{prefix}gexpr.h5", inpGene = {prefix}gene,
+           inpord = input${prefix}_scgege_ord1, inpsiz = input${prefix}_scgege_siz, 
+           inpfsz = input${prefix}_scgege_fsz, inpasp = input${prefix}_scgege_asp)
+}})
+
+output${prefix}_scgege_oup1.ui <- renderUI({{
+  show_progress(imageOutput("{prefix}_scgege_oup1", height = pList2[input${prefix}_scgege_psz]))
+}})
+
+output${prefix}_scgege_oup1.png <- downloadHandler(
+  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_scgege_drX, "_", input${prefix}_scgege_drY, "_", input${prefix}_scgege_inp1, "_", input${prefix}_scgege_inp2, ".png")) }},
+  content = function(file) {{ ggsave(
+    file, device = "png", bg = "white", dpi = input${prefix}_scgege_oup1.res,
+    plot = scsccoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_scgege_inp1, inp2 = input${prefix}_scgege_inp2, inp3 = input${prefix}_scgege_inp3, 
+           inpsub1 = input${prefix}_scgege_sub1, inpsub2 = input${prefix}_scgege_sub2, inpH5 = "{prefix}gexpr.h5", inpGene = {prefix}gene,
+           inpord = input${prefix}_scgege_ord1, inpsiz = input${prefix}_scgege_siz, 
+           inpfsz = input${prefix}_scgege_fsz, inpasp = input${prefix}_scgege_asp)
+           )
+}})
+
+output${prefix}_scgege_oup1.pdf <- downloadHandler(
+  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_scgege_drX, "_", input${prefix}_scgege_drY, "_", input${prefix}_scgege_inp1, "_", input${prefix}_scgege_inp2, ".pdf")) }},
+  content = function(file) {{
+    ggsave(
+    file, device = "pdf", useDingbats = FALSE, bg = "white", onefile = TRUE,
+    plot = scsccoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_scgege_inp1, inp2 = input${prefix}_scgege_inp2, inp3 = input${prefix}_scgege_inp3, 
+       inpsub1 = input${prefix}_scgege_sub1, inpsub2 = input${prefix}_scgege_sub2, inpH5 = "{prefix}gexpr.h5", inpGene = {prefix}gene,
+       inpord = input${prefix}_scgege_ord1, inpsiz = input${prefix}_scgege_siz, 
+       inpfsz = input${prefix}_scgege_fsz, inpasp = input${prefix}_scgege_asp)
+       )
+}})
+
+output${prefix}_scgege_oup1.svg <- downloadHandler(
+  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_scgege_drX, "_", input${prefix}_scgege_drY, "_", input${prefix}_scgege_inp1, "_", input${prefix}_scgege_inp2, ".svg")) }},
+  content = function(file) {{
+    ggsave(
+    file, device = "svg", bg = "white",
+    plot = scsccoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_scgege_inp1, inp2 = input${prefix}_scgege_inp2, inp3 = input${prefix}_scgege_inp3, 
+       inpsub1 = input${prefix}_scgege_sub1, inpsub2 = input${prefix}_scgege_sub2, inpH5 = "{prefix}gexpr.h5", inpGene = {prefix}gene,
+       inpord = input${prefix}_scgege_ord1, inpsiz = input${prefix}_scgege_siz, 
+       inpfsz = input${prefix}_scgege_fsz, inpasp = input${prefix}_scgege_asp)
+       )
+}})
+
+output${prefix}_scgege_.dt <- renderDataTable({{
+  ggData = scDRcoexNum({prefix}conf, {prefix}meta, input${prefix}_scgege_inp1, input${prefix}_scgege_inp2, input${prefix}_scgege_sub1, input${prefix}_scgege_sub2, "{prefix}gexpr.h5", {prefix}gene)
+  datatable(ggData, rownames = FALSE, extensions = "Buttons", options = list(pageLength = -1, dom = "tB", buttons = c("copy", "csv", "excel"))) %>%
+            formatRound(columns = c("percent"), digits = 2)
+}}) # End of tab scgege
+
+')
+}
+
+#' @title Write code for server sccige
+#' @description Write code for server gene co-expression
+#' @author John F. Ouyang
+#' @author Roy Francis
+#' @author Jennifer Fransson
+#'
+wr_sv_sccige <- function() {
+  paste0('
+### Tab sccige cell info gene co-expression ----
+
+{subst}  output${prefix}_sccige_sub1.ui <- renderUI({{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_sccige_sub1]$fID, "\\\\|")[[1]]
+{subst}    checkboxGroupInput("{prefix}_sccige_sub2", "Groups to display:", inline = TRUE, choices = sub, selected = sub)
+{subst}  }})
+{subst}  observeEvent(input${prefix}_sccige_sub1non, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_sccige_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_sccige_sub2", label = "Groups to display:", choices = sub, selected = NULL, inline = TRUE)
+{subst}  }})
+{subst}  observeEvent(input${prefix}_sccige_sub1all, {{
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_sccige_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_sccige_sub2", label = "Groups to display:", choices = sub, selected = sub, inline = TRUE)
+{subst}  }})
+
+output${prefix}_sccige_oup1 <- renderPlot({{
+  scsccigecoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_sccige_inp1, inp2 = input${prefix}_sccige_inp2, inp3 = input${prefix}_sccige_inp3, 
+               inpsub1 = input${prefix}_sccige_sub1, inpsub2 = input${prefix}_sccige_sub2, inpH5 = "{prefix}gexpr.h5", inpGene = {prefix}gene,
+               inpord = input${prefix}_sccige_ord1, inpsiz = input${prefix}_sccige_siz, 
+               inpfsz = input${prefix}_sccige_fsz)
+}})
+
+output${prefix}_sccige_oup1.ui <- renderUI({{
+  show_progress(imageOutput("{prefix}_sccige_oup1", height = pList2[input${prefix}_sccige_psz]))
+}})
+
+output${prefix}_sccige_oup1.png <- downloadHandler(
+  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_sccige_drX, "_", input${prefix}_sccige_drY, "_", input${prefix}_sccige_inp1, "_", input${prefix}_sccige_inp2, ".png")) }},
+  content = function(file) {{ ggsave(
+    file, device = "png", bg = "white", dpi = input${prefix}_sccige_oup1.res,
+    plot = scsccigecoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_sccige_inp1, inp2 = input${prefix}_sccige_inp2, inp3 = input${prefix}_sccige_inp3, 
+               inpsub1 = input${prefix}_sccige_sub1, inpsub2 = input${prefix}_sccige_sub2, inpH5 = "{prefix}gexpr.h5", inpGene = {prefix}gene,
+               inpord = input${prefix}_sccige_ord1, inpsiz = input${prefix}_sccige_siz, 
+               inpfsz = input${prefix}_sccige_fsz)
+           )
+}})
+
+output${prefix}_sccige_oup1.pdf <- downloadHandler(
+  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_sccige_drX, "_", input${prefix}_sccige_drY, "_", input${prefix}_sccige_inp1, "_", input${prefix}_sccige_inp2, ".pdf")) }},
+  content = function(file) {{
+    ggsave(
+    file, device = "pdf", useDingbats = FALSE, bg = "white", onefile = TRUE,
+    plot = scsccigecoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_sccige_inp1, inp2 = input${prefix}_sccige_inp2, inp3 = input${prefix}_sccige_inp3, 
+               inpsub1 = input${prefix}_sccige_sub1, inpsub2 = input${prefix}_sccige_sub2, inpH5 = "{prefix}gexpr.h5", inpGene = {prefix}gene,
+               inpord = input${prefix}_sccige_ord1, inpsiz = input${prefix}_sccige_siz, 
+               inpfsz = input${prefix}_sccige_fsz)
+       )
+}})
+
+output${prefix}_sccige_oup1.svg <- downloadHandler(
+  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_sccige_drX, "_", input${prefix}_sccige_drY, "_", input${prefix}_sccige_inp1, "_", input${prefix}_sccige_inp2, ".svg")) }},
+  content = function(file) {{
+    ggsave(
+    file, device = "svg", bg = "white",
+    plot = scsccigecoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_sccige_inp1, inp2 = input${prefix}_sccige_inp2, inp3 = input${prefix}_sccige_inp3, 
+               inpsub1 = input${prefix}_sccige_sub1, inpsub2 = input${prefix}_sccige_sub2, inpH5 = "{prefix}gexpr.h5", inpGene = {prefix}gene,
+               inpord = input${prefix}_sccige_ord1, inpsiz = input${prefix}_sccige_siz, 
+               inpfsz = input${prefix}_sccige_fsz)
+       )
+}})
+
+output${prefix}_sccige_.dt <- renderDataTable({{
+  ggData = scsccigeNum({prefix}conf, {prefix}meta, input${prefix}_sccige_inp1, input${prefix}_sccige_inp2, input${prefix}_sccige_sub1, input${prefix}_sccige_sub2, "{prefix}gexpr.h5", {prefix}gene)
+  datatable(ggData, rownames = FALSE, extensions = "Buttons", options = list(pageLength = -1, dom = "tB", buttons = c("copy", "csv", "excel"))) %>%
+            formatRound(columns = c("percent"), digits = 2)
+}}) # End of tab sccige
+
+')
+}
+
+
 #' @title Write code for server vio
 #' @description Write code for server violinplot / boxplot
 #' @author John F. Ouyang
@@ -1678,7 +2148,7 @@ wr_sv_about <- function() {
 #' @rdname wr_sv_main
 #' @export wr_sv_main
 #'
-wr_sv_main <- function(prefix, subst = "", font = NULL, tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea")) {
+wr_sv_main <- function(prefix, subst = "", font = NULL, tabs = c("civge", "civci", "gevge", "gem", "gec", "scgege", "sccige","vio", "pro", "hea")) {
   
 glue::glue(
 'optCrt="{{ option_create: function(data,escape) {{return(\'<div class=\\"create\\"><strong>\' + \'</strong></div>\');}} }}"
@@ -1693,6 +2163,15 @@ updateSelectizeInput(session, "{prefix}_gevge_inp2", choices = names({prefix}gen
                        maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))
 updateSelectizeInput(session, "{prefix}_gec_inp1", choices = names({prefix}gene), server = TRUE,
                      selected = {prefix}def$gene1, options = list(
+                       maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))
+updateSelectizeInput(session, "{prefix}_scgege_inp1", choices = names({prefix}gene), server = TRUE,
+                     selected = {prefix}def$gene1, options = list(
+                       maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))
+updateSelectizeInput(session, "{prefix}_scgege_inp2", choices = names({prefix}gene), server = TRUE,
+                     selected = {prefix}def$gene2, options = list(
+                       maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))
+updateSelectizeInput(session, "{prefix}_sccige_inp2", choices = names({prefix}gene), server = TRUE,
+                     selected = {prefix}def$gene2, options = list(
                        maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))
 updateSelectizeInput(session, "{prefix}_gec_inp2", choices = names({prefix}gene), server = TRUE,
                      selected = {prefix}def$gene2, options = list(
@@ -2454,7 +2933,7 @@ tabPanel(
 #' @author Roy Francis
 #'
 wr_ui_gec <- function() {
-paste0(',
+  paste0(',
 # tab gec ----
 tabPanel(
   "Gene coexpression",
@@ -2573,6 +3052,363 @@ tabPanel(
     ) # col
   ) # row
 ) # End of tab gec
+')
+}
+
+#' @title Write code for ui scgege
+#' @description Write code for ui gene co-expression
+#' @author John F. Ouyang
+#' @author Roy Francis
+#' @author Jennifer Fransson
+#'
+wr_ui_scgege <- function() {
+  paste0(',
+# tab scgege ----
+tabPanel(
+  "Gene vs gene scatter",
+  fluidRow(
+    class = "container page",
+    column(
+      12,
+      # row 1 ----
+      fluidRow(
+        class = "tab-section",
+        column(
+          12,
+          h3("Coexpression of two genes in scatter plot"),
+          p("Visualise the coexpression of two genes in a scatter plot.")
+        )
+      ),
+      # row 2 ----
+      fluidRow(
+        class = "tab-section",
+        # row 2 col 1
+        column(4,
+               column(
+                 12,
+                 div(
+                   class = "input-panel input-panel-section",
+                   h4("Genes"),
+                   selectInput("{prefix}_scgege_inp1", "Gene 1:", choices = NULL) %>%
+                     helper(
+                       type = "inline", size = "m", fade = TRUE,
+                       title = "Gene expression for x-axis",
+                       content = c(
+                         "- Select gene to plot on x-axis",
+                         "- Type in gene names for unlisted genes"
+                       )
+                     ),
+                   selectInput("{prefix}_scgege_inp2", "Gene 2:", choices = NULL) %>%
+                     helper(
+                       type = "inline", size = "m", fade = TRUE,
+                       title = "Gene expression for y-axis",
+                       content = c(
+                         "- Select gene to plot on y-axis",
+                         "- Type in gene names for unlisted genes"
+                       )
+                     ),
+                   selectInput("{prefix}_scgege_inp3", "Colour by:", choices = NULL) %>%
+                     helper(
+                       type = "inline", size = "m", fade = TRUE,
+                       title = "Cell info to colour cells",
+                       content = c(
+                         "- Select cell info to colour cells",
+                         "- Categorical covariates have a fixed colour palette",
+                         "- Continuous covariates are coloured in a red colour scheme"
+                       )
+                     ),
+                   {subst}checkboxInput("{prefix}_scgege_togL", "Subset cells"),
+                   {subst}conditionalPanel(
+                    {subst}condition = "input.{prefix}_scgege_togL == true",
+                    {subst}selectInput("{prefix}_scgege_sub1", "Cell info to subset:", choices = {prefix}conf[grp == TRUE]$UI, selected = {prefix}def$grp1),
+                     {subst}uiOutput("{prefix}_scgege_sub1.ui"),
+                     {subst}actionButton("{prefix}_scgege_sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+                     {subst}actionButton("{prefix}_scgege_sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+                   {subst}),
+                   checkboxInput("{prefix}_scgege_tog0", "Adjust graphics"),
+                   conditionalPanel(
+                     condition = "input.{prefix}_scgege_tog0 == true",
+                     radioButtons("{prefix}_scgege_ord1", "Plot order:",
+                                  choices = c("Max", "Min", "Original", "Random"),
+                                  selected = "Max", inline = TRUE
+                     ),
+                     sliderInput("{prefix}_scgege_siz", "Point size:",
+                                 min = 0, max = 4, value = 1.25, step = 0.25
+                     ),
+                     radioButtons("{prefix}_scgege_psz", "Plot size:",
+                                  choices = c("Small", "Medium", "Large"),
+                                  selected = "Medium", inline = TRUE
+                     ),
+                     radioButtons("{prefix}_scgege_fsz", "Font size:",
+                                  choices = c("Small", "Medium", "Large"),
+                                  selected = "Small", inline = TRUE
+                     ),
+                     radioButtons("{prefix}_scgege_asp", "Aspect ratio:",
+                                  choices = c("Square", "Fixed", "Free"),
+                                  selected = "Square", inline = TRUE
+                     )
+                   )
+                 ),
+                 div(class="input-panel input-panel-section",
+                     numericInput("{prefix}_scgege_oup1.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
+                     downloadButton("{prefix}_scgege_oup1.png", "Download PNG", class = "btn-sm"),
+                     downloadButton("{prefix}_scgege_oup1.pdf", "Download PDF", class = "btn-sm"),
+                     downloadButton("{prefix}_scgege_oup1.svg", "Download SVG", class = "btn-sm"),
+                 ),
+                 div(class="input-panel-section",
+                     h4("Cell numbers"),
+                     dataTableOutput("{prefix}_scgege_.dt")
+                 )
+               )
+        ), # row 2 col 1
+        # row 2 col 2
+        column(
+          8,
+          uiOutput("{prefix}_scgege_oup1.ui"),
+        )
+      ), # end of row 2
+      hr()
+    ) # col
+  ) # row
+) # End of tab scgege
+')
+}
+
+
+wr_ui_gec <- function() {
+  paste0(',
+# tab gec ----
+tabPanel(
+  "Gene coexpression",
+  fluidRow(
+    class = "container page",
+    column(
+      12,
+      # row 1 ----
+      fluidRow(
+        class = "tab-section",
+        column(
+          12,
+          h3("Coexpression of two genes on reduced dimensions"),
+          p("Visualise the coexpression of two genes on low-dimensional representions.")
+        )
+      ),
+      # row 2 ----
+      fluidRow(
+        class = "tab-section",
+        # row 2 col 1
+        column(4,
+               column(
+                 12,
+                 div(
+                   class = "input-panel input-panel-section",
+                   h4("Dimension Reduction"),
+                   selectInput("{prefix}_gec_drX", "X-axis:",
+                               choices = {prefix}conf[dimred == TRUE]$UI,
+                               selected = {prefix}def$dimred[1]
+                   ),
+                   selectInput("{prefix}_gec_drY", "Y-axis:",
+                               choices = {prefix}conf[dimred == TRUE]$UI,
+                               selected = {prefix}def$dimred[2]
+                   ),
+                   selectInput("{prefix}_gec_inp1", "Gene 1:", choices = NULL) %>%
+                     helper(
+                       type = "inline", size = "m", fade = TRUE,
+                       title = "Gene expression to colour cells",
+                       content = c(
+                         "- Select gene to colour cells by gene expression",
+                         "- Type in gene names for unlisted genes",
+                         "- Gene expression are coloured in a White-Red colour scheme which can be changed in the plot controls"
+                       )
+                     ),
+                   selectInput("{prefix}_gec_inp2", "Gene 2:", choices = NULL) %>%
+                     helper(
+                       type = "inline", size = "m", fade = TRUE,
+                       title = "Gene expression to colour cells",
+                       content = c(
+                         "- Select gene to colour cells by gene expression",
+                         "- Type in gene names for unlisted genes",
+                         "- Gene expression are coloured in a White-Blue colour scheme which can be changed in the plot controls"
+                       )
+                     ),
+                   {subst}checkboxInput("{prefix}_gec_togL", "Subset cells"),
+                   {subst}conditionalPanel(
+                    {subst}condition = "input.{prefix}_gec_togL == true",
+                    {subst}selectInput("{prefix}_gec_sub1", "Cell info to subset:", choices = {prefix}conf[grp == TRUE]$UI, selected = {prefix}def$grp1),
+                     {subst}uiOutput("{prefix}_gec_sub1.ui"),
+                     {subst}actionButton("{prefix}_gec_sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+                     {subst}actionButton("{prefix}_gec_sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+                   {subst}),
+                   checkboxInput("{prefix}_gec_tog0", "Adjust graphics"),
+                   conditionalPanel(
+                     condition = "input.{prefix}_gec_tog0 == true",
+                     radioButtons("{prefix}_gec_col1", "Colour:",
+                                  choices = c(
+                                    "Red (Gene1); Blue (Gene2)",
+                                    "Orange (Gene1); Blue (Gene2)",
+                                    "Red (Gene1); Green (Gene2)",
+                                    "Green (Gene1); Blue (Gene2)"
+                                  ),
+                                  selected = "Red (Gene1); Blue (Gene2)"
+                     ),
+                     radioButtons("{prefix}_gec_ord1", "Plot order:",
+                                  choices = c("Max", "Min", "Original", "Random"),
+                                  selected = "Max", inline = TRUE
+                     ),
+                     sliderInput("{prefix}_gec_siz", "Point size:",
+                                 min = 0, max = 4, value = 1.25, step = 0.25
+                     ),
+                     radioButtons("{prefix}_gec_psz", "Plot size:",
+                                  choices = c("Small", "Medium", "Large"),
+                                  selected = "Medium", inline = TRUE
+                     ),
+                     radioButtons("{prefix}_gec_fsz", "Font size:",
+                                  choices = c("Small", "Medium", "Large"),
+                                  selected = "Small", inline = TRUE
+                     ),
+                     radioButtons("{prefix}_gec_asp", "Aspect ratio:",
+                                  choices = c("Square", "Fixed", "Free"),
+                                  selected = "Square", inline = TRUE
+                     ),
+                     checkboxInput("{prefix}_gec_txt", "Show axis text", value = FALSE)
+                   )
+                 ),
+                 div(class="input-panel input-panel-section",
+                     numericInput("{prefix}_gec_oup1.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
+                     downloadButton("{prefix}_gec_oup1.png", "Download PNG", class = "btn-sm"),
+                     downloadButton("{prefix}_gec_oup1.pdf", "Download PDF", class = "btn-sm"),
+                     downloadButton("{prefix}_gec_oup1.svg", "Download SVG", class = "btn-sm"),
+                 ),
+                 div(class="input-panel-section",
+                     h4("Cell numbers"),
+                     dataTableOutput("{prefix}_gec_.dt")
+                 )
+               )
+        ), # row 2 col 1
+        # row 2 col 2
+        column(
+          8,
+          uiOutput("{prefix}_gec_oup1.ui"),
+        )
+      ), # end of row 2
+      hr()
+    ) # col
+  ) # row
+) # End of tab gec
+')
+}
+
+#' @title Write code for ui sccige
+#' @description Write code for ui gene co-expression
+#' @author John F. Ouyang
+#' @author Roy Francis
+#' @author Jennifer Fransson
+#'
+wr_ui_sccige <- function() {
+  paste0(',
+# tab sccige ----
+tabPanel(
+  "Cell info vs gene scatter",
+  fluidRow(
+    class = "container page",
+    column(
+      12,
+      # row 1 ----
+      fluidRow(
+        class = "tab-section",
+        column(
+          12,
+          h3("Coexpression of cell info and a gene in scatter plot"),
+          p("Visualise the coexpression of cell info and a gene in a scatter plot.")
+        )
+      ),
+      # row 2 ----
+      fluidRow(
+        class = "tab-section",
+        # row 2 col 1
+        column(4,
+               column(
+                 12,
+                 div(
+                   class = "input-panel input-panel-section",
+                   h4("Genes"),
+                   selectInput("{prefix}_sccige_inp1", "Gene 1:", choices = NULL) %>%
+                     helper(
+                       type = "inline", size = "m", fade = TRUE,
+                       title = "Cell info for x-axis",
+                       content = c(
+                         "- Select cell info to plot on x-axis"
+                       )
+                     ),
+                   selectInput("{prefix}_sccige_inp2", "Gene 2:", choices = NULL) %>%
+                     helper(
+                       type = "inline", size = "m", fade = TRUE,
+                       title = "Gene expression for y-axis",
+                       content = c(
+                         "- Select gene to plot on y-axis",
+                         "- Type in gene names for unlisted genes"
+                       )
+                     ),
+                   selectInput("{prefix}_sccige_inp3", "Colour by:", choices = NULL) %>%
+                     helper(
+                       type = "inline", size = "m", fade = TRUE,
+                       title = "Cell info to colour cells",
+                       content = c(
+                         "- Select cell info to colour cells",
+                         "- Categorical covariates have a fixed colour palette",
+                         "- Continuous covariates are coloured in a red colour scheme"
+                       )
+                     ),
+                   {subst}checkboxInput("{prefix}_sccige_togL", "Subset cells"),
+                   {subst}conditionalPanel(
+                    {subst}condition = "input.{prefix}_sccige_togL == true",
+                    {subst}selectInput("{prefix}_sccige_sub1", "Cell info to subset:", choices = {prefix}conf[grp == TRUE]$UI, selected = {prefix}def$grp1),
+                     {subst}uiOutput("{prefix}_sccige_sub1.ui"),
+                     {subst}actionButton("{prefix}_sccige_sub1all", "Select all groups", class = "btn btn-primary btn-sm"),
+                     {subst}actionButton("{prefix}_sccige_sub1non", "Deselect all groups", class = "btn btn-primary btn-sm")
+                   {subst}),
+                   checkboxInput("{prefix}_sccige_tog0", "Adjust graphics"),
+                   conditionalPanel(
+                     condition = "input.{prefix}_sccige_tog0 == true",
+                     radioButtons("{prefix}_sccige_ord1", "Plot order:",
+                                  choices = c("Max", "Min", "Original", "Random"),
+                                  selected = "Max", inline = TRUE
+                     ),
+                     sliderInput("{prefix}_sccige_siz", "Point size:",
+                                 min = 0, max = 4, value = 1.25, step = 0.25
+                     ),
+                     radioButtons("{prefix}_sccige_psz", "Plot size:",
+                                  choices = c("Small", "Medium", "Large"),
+                                  selected = "Medium", inline = TRUE
+                     ),
+                     radioButtons("{prefix}_sccige_fsz", "Font size:",
+                                  choices = c("Small", "Medium", "Large"),
+                                  selected = "Small", inline = TRUE
+                     )
+                   )
+                 ),
+                 div(class="input-panel input-panel-section",
+                     numericInput("{prefix}_sccige_oup1.res", "Resolution:", min = 72, max = 600, value = 150, step = 5),
+                     downloadButton("{prefix}_sccige_oup1.png", "Download PNG", class = "btn-sm"),
+                     downloadButton("{prefix}_sccige_oup1.pdf", "Download PDF", class = "btn-sm"),
+                     downloadButton("{prefix}_sccige_oup1.svg", "Download SVG", class = "btn-sm"),
+                 ),
+                 div(class="input-panel-section",
+                     h4("Cell numbers"),
+                     dataTableOutput("{prefix}_sccige_.dt")
+                 )
+               )
+        ), # row 2 col 1
+        # row 2 col 2
+        column(
+          8,
+          uiOutput("{prefix}_sccige_oup1.ui"),
+        )
+      ), # end of row 2
+      hr()
+    ) # col
+  ) # row
+) # End of tab sccige
 ')
 }
 
@@ -3115,7 +3951,7 @@ tabPanel(
 #' @importFrom glue glue
 #' @export
 #'
-wr_ui_main <- function(prefix, subst = "", ptsiz = "1.25", tabs = c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea", "about")) {
+wr_ui_main <- function(prefix, subst = "", ptsiz = "1.25", tabs = c("civge", "civci", "gevge", "gem", "gec", "scgege","sccige","vio", "pro", "hea", "about")) {
   glue::glue(
     paste(unlist(lapply(tabs, function(x) eval(parse(text = paste0("wr_ui_",x,"()"))))), collapse = "\n"),
     "\n"
