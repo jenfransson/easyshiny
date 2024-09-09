@@ -3096,7 +3096,11 @@ tabPanel(
                          "- Type in gene names for unlisted genes"
                        )
                      ),
-                   selectInput("{prefix}_scgege_inp3", "Colour by:", choices = NULL) %>%
+                     
+                   selectInput("{prefix}_scgege_inp3", "Colour by:", "Colour by:",
+                               choices = {prefix}conf$UI,
+                               selected = {prefix}def$meta1
+                    ) %>%
                      helper(
                        type = "inline", size = "m", fade = TRUE,
                        title = "Cell info to colour cells",
@@ -3338,7 +3342,11 @@ tabPanel(
                          "- Type in gene names for unlisted genes"
                        )
                      ),
-                   selectInput("{prefix}_sccige_inp3", "Colour by:", choices = NULL) %>%
+                     
+                  selectInput("{prefix}_sccige_inp3", "Colour by:", "Colour by:",
+                               choices = {prefix}conf$UI,
+                               selected = {prefix}def$meta1
+                    ) %>%
                      helper(
                        type = "inline", size = "m", fade = TRUE,
                        title = "Cell info to colour cells",
