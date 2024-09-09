@@ -29,10 +29,10 @@
 #' @export
 #'
 make_code_multi <- function(shiny.title, shiny.prefix, shiny.headers, shiny.dir, enableSubset = TRUE, defPtSiz = 1.25, theme = "flatly",
-                            tabs = c("civge", "civci", "gevge", "gem", "scgege","sccige", "gec", "vio", "pro", "hea", "about"), font = "Lato", ganalytics = NA) {
+                            tabs = c("civge", "civci", "gevge", "gem", "gec", "scgege","sccige", "vio", "pro", "hea", "about"), font = "Lato", ganalytics = NA) {
   
   ### Checks
-  tbs <- c("civge", "civci", "gevge", "gem", "gec", "vio", "pro", "hea", "mar", "about")
+  tbs <- c("civge", "civci", "gevge", "gem", "gec", "scgege","sccige", "vio", "pro", "hea", "mar", "about")
   if(length(tabs) < 1) stop("At least 1 tab must be specified.")
   if(any(!tabs %in% tbs)) stop(paste("One of more tabs are incorrect. Tab options are:",paste(tbs,collapse=", "),"."))
   if("about" %in% tabs) {
