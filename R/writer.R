@@ -1735,7 +1735,7 @@ output${prefix}_scgege_oup1.ui <- renderUI({{
 }})
 
 output${prefix}_scgege_oup1.png <- downloadHandler(
-  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_scgege_drX, "_", input${prefix}_scgege_drY, "_", input${prefix}_scgege_inp1, "_", input${prefix}_scgege_inp2, ".png")) }},
+  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_scgege_inp1, "_", input${prefix}_scgege_inp2, ".png")) }},
   content = function(file) {{ ggsave(
     file, device = "png", bg = "white", dpi = input${prefix}_scgege_oup1.res,
     plot = scsccoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_scgege_inp1, inp2 = input${prefix}_scgege_inp2, inp3 = input${prefix}_scgege_inp3, 
@@ -1746,7 +1746,7 @@ output${prefix}_scgege_oup1.png <- downloadHandler(
 }})
 
 output${prefix}_scgege_oup1.pdf <- downloadHandler(
-  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_scgege_drX, "_", input${prefix}_scgege_drY, "_", input${prefix}_scgege_inp1, "_", input${prefix}_scgege_inp2, ".pdf")) }},
+  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_scgege_inp1, "_", input${prefix}_scgege_inp2, ".pdf")) }},
   content = function(file) {{
     ggsave(
     file, device = "pdf", useDingbats = FALSE, bg = "white", onefile = TRUE,
@@ -1758,7 +1758,7 @@ output${prefix}_scgege_oup1.pdf <- downloadHandler(
 }})
 
 output${prefix}_scgege_oup1.svg <- downloadHandler(
-  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_scgege_drX, "_", input${prefix}_scgege_drY, "_", input${prefix}_scgege_inp1, "_", input${prefix}_scgege_inp2, ".svg")) }},
+  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_scgege_inp1, "_", input${prefix}_scgege_inp2, ".svg")) }},
   content = function(file) {{
     ggsave(
     file, device = "svg", bg = "white",
@@ -1813,7 +1813,7 @@ output${prefix}_sccige_oup1.ui <- renderUI({{
 }})
 
 output${prefix}_sccige_oup1.png <- downloadHandler(
-  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_sccige_drX, "_", input${prefix}_sccige_drY, "_", input${prefix}_sccige_inp1, "_", input${prefix}_sccige_inp2, ".png")) }},
+  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_sccige_inp1, "_", input${prefix}_sccige_inp2, ".png")) }},
   content = function(file) {{ ggsave(
     file, device = "png", bg = "white", dpi = input${prefix}_sccige_oup1.res,
     plot = scsccigecoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_sccige_inp1, inp2 = input${prefix}_sccige_inp2, inp3 = input${prefix}_sccige_inp3, 
@@ -1824,7 +1824,7 @@ output${prefix}_sccige_oup1.png <- downloadHandler(
 }})
 
 output${prefix}_sccige_oup1.pdf <- downloadHandler(
-  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_sccige_drX, "_", input${prefix}_sccige_drY, "_", input${prefix}_sccige_inp1, "_", input${prefix}_sccige_inp2, ".pdf")) }},
+  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_sccige_inp1, "_", input${prefix}_sccige_inp2, ".pdf")) }},
   content = function(file) {{
     ggsave(
     file, device = "pdf", useDingbats = FALSE, bg = "white", onefile = TRUE,
@@ -1836,7 +1836,7 @@ output${prefix}_sccige_oup1.pdf <- downloadHandler(
 }})
 
 output${prefix}_sccige_oup1.svg <- downloadHandler(
-  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_sccige_drX, "_", input${prefix}_sccige_drY, "_", input${prefix}_sccige_inp1, "_", input${prefix}_sccige_inp2, ".svg")) }},
+  filename = function() {{ tolower(paste0("{prefix}", "_", input${prefix}_sccige_inp1, "_", input${prefix}_sccige_inp2, ".svg")) }},
   content = function(file) {{
     ggsave(
     file, device = "svg", bg = "white",
