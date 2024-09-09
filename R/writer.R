@@ -826,7 +826,7 @@ scsccoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
   }else{
     # Do factoring if required
     if (!is.na(inpConf[UI == inp3]$fCL)) {
-      ggCol <- strsplit(inpConf[UI == inp3]$fCL, "\\|")[[1]]
+      ggCol <- strsplit(inpConf[UI == inp3]$fCL, "\\\\|")[[1]]
       names(ggCol) <- levels(ggData$val3)
       ggLvl <- levels(ggData$val3)[levels(ggData$val3) %in% unique(ggData$val3)]
       ggData$val3 <- factor(ggData$val3, levels = ggLvl)
@@ -932,7 +932,7 @@ scsccigecoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
   
   # Do factoring if required
   if (!is.na(inpConf[UI == inp3]$fCL)) {
-    ggCol <- strsplit(inpConf[UI == inp3]$fCL, "\\|")[[1]]
+    ggCol <- strsplit(inpConf[UI == inp3]$fCL, "\\\\|")[[1]]
     names(ggCol) <- levels(ggData$val3)
     ggLvl <- levels(ggData$val3)[levels(ggData$val3) %in% unique(ggData$val3)]
     ggData$val3 <- factor(ggData$val3, levels = ggLvl)
@@ -948,7 +948,7 @@ scsccigecoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
   }else{
     # Do factoring if required
     if (!is.na(inpConf[UI == inp3]$fCL)) {
-      ggCol <- strsplit(inpConf[UI == inp3]$fCL, "\\|")[[1]]
+      ggCol <- strsplit(inpConf[UI == inp3]$fCL, "\\\\|")[[1]]
       names(ggCol) <- levels(ggData$val3)
       ggLvl <- levels(ggData$val3)[levels(ggData$val3) %in% unique(ggData$val3)]
       ggData$val3 <- factor(ggData$val3, levels = ggLvl)
