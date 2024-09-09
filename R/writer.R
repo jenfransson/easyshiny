@@ -772,9 +772,9 @@ scDRcoexNum <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inpH5, i
 #
 scsccoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
                      inpsub2, inpH5, inpGene, inpsiz, inpord, inpfsz,
-                     inpasp) {
+                     inpasp) {{
   
-  if (is.null(inpsub1)) { inpsub1 <- inpConf$UI[1] }
+  if (is.null(inpsub1)) {{ inpsub1 <- inpConf$UI[1] }}
   
   # Prepare ggData
   
@@ -795,24 +795,24 @@ scsccoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
   h5file$close_all()
   bgCells <- FALSE
   
-  if (length(inpsub2) != 0 & length(inpsub2) != nlevels(ggData$sub)) {
+  if (length(inpsub2) != 0 & length(inpsub2) != nlevels(ggData$sub)) {{
     bgCells <- TRUE
     ggData2 <- ggData[!sub %in% inpsub2]
     ggData <- ggData[sub %in% inpsub2]
-  }
+  }}
   
   rat <- (max(ggData$val1) - min(ggData$val1)) / (max(ggData$val2) - min(ggData$val2))
   
   
   ggData$v0 <- ggData$val1 + ggData$val2
   
-  if (inpord == "Max") {
+  if (inpord == "Max") {{
     ggData <- ggData[order(v0)]
-  } else if (inpord == "Min") {
+  }} else if (inpord == "Min") {{
     ggData <- ggData[order(-v0)]
-  } else if (inpord == "Random") {
+  }} else if (inpord == "Random") {{
     ggData <- ggData[sample(nrow(ggData))]
-  }
+  }}
   
   
   
@@ -820,30 +820,30 @@ scsccoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
   # Actual ggplot
   ggOut <- ggplot(ggData, aes(val1, val2, color = val3))
   
-  if(is.numeric(ggData$val3)){
+  if(is.numeric(ggData$val3)){{
     ggOut = ggOut + scale_color_gradientn("", colours = cList[[1]]) +
       guides(color = guide_colorbar(title = inp3))
-  }else{
+  }}else{{
     # Do factoring if required
-    if (!is.na(inpConf[UI == inp3]$fCL)) {
+    if (!is.na(inpConf[UI == inp3]$fCL)) {{
       ggCol <- strsplit(inpConf[UI == inp3]$fCL, "\\\\|")[[1]]
       names(ggCol) <- levels(ggData$val3)
       ggLvl <- levels(ggData$val3)[levels(ggData$val3) %in% unique(ggData$val3)]
       ggData$val3 <- factor(ggData$val3, levels = ggLvl)
       ggCol <- ggCol[ggLvl]
-    }
+    }}
     ggOut = ggOut + scale_color_manual("", values = ggCol)  +
       guides(color = guide_legend(
         override.aes = list(size = 5),
         nrow = inpConf[UI == inp3]$fRow
       ))
-  }
+  }}
   
   
-  if (bgCells) {
+  if (bgCells) {{
     ggOut <- ggOut + 
       geom_point(data = ggData2, color = "snow2", size = inpsiz, shape = 20)
-  }
+  }}
   
   
   
@@ -854,14 +854,14 @@ scsccoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
     sctheme(base_size = sList[inpfsz], XYval = TRUE)
   
   
-  if (inpasp == "Square") {
+  if (inpasp == "Square") {{
     ggOut <- ggOut + coord_fixed(ratio = rat)
-  } else if (inpasp == "Fixed") {
+  }} else if (inpasp == "Fixed") {{
     ggOut <- ggOut + coord_fixed()
-  }
+  }}
   
   return(ggOut)
-}
+}}
 
 
 # @description Cell Info vs Gene Co-expression on scatter plot
@@ -881,20 +881,9 @@ scsccoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
 # @param inppasp (Character) Custom aspect ratio
 #
 scsccigecoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
-                         inpsub2, inpH5, inpGene, inpsiz, inpord, inpfsz) {
+                         inpsub2, inpH5, inpGene, inpsiz, inpord, inpfsz) {{
   
-  # inpConf = E8_Retina_no_rep2conf
-  # inpMeta = E8_Retina_no_rep2meta
-  # inp1 = input$E8_Retina_no_rep2_scgege_inp1
-  # inp2 = input$E8_Retina_no_rep2_scgege_inp2
-  # inpsub1 = input$E8_Retina_no_rep2_scgege_sub1
-  # inpsub2 = input$E8_Retina_no_rep2_scgege_sub2
-  # inpH5 = "E8_Retina_no_rep2gexpr.h5"
-  # inpord = input$E8_Retina_no_rep2_scgege_ord1
-  # inpsiz = input$E8_Retina_no_rep2_scgege_siz
-  # inpfsz = input$E8_Retina_no_rep2_scgege_fsz
-  
-  if (is.null(inpsub1)) { inpsub1 <- inpConf$UI[1] }
+  if (is.null(inpsub1)) {{ inpsub1 <- inpConf$UI[1] }}
   
   # Prepare ggData
   
@@ -914,60 +903,60 @@ scsccigecoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
   h5file$close_all()
   bgCells <- FALSE
   
-  if (length(inpsub2) != 0 & length(inpsub2) != nlevels(ggData$sub)) {
+  if (length(inpsub2) != 0 & length(inpsub2) != nlevels(ggData$sub)) {{
     bgCells <- TRUE
     ggData2 <- ggData[!sub %in% inpsub2]
     ggData <- ggData[sub %in% inpsub2]
-  }
+  }}
   
   ggData$v0 <- as.numeric(as.factor(ggData$val1)) + ggData$val2
   
-  if (inpord == "Max") {
+  if (inpord == "Max") {{
     ggData <- ggData[order(v0)]
-  } else if (inpord == "Min") {
+  }} else if (inpord == "Min") {{
     ggData <- ggData[order(-v0)]
-  } else if (inpord == "Random") {
+  }} else if (inpord == "Random") {{
     ggData <- ggData[sample(nrow(ggData))]
-  }
+  }}
   
   # Do factoring if required
-  if (!is.na(inpConf[UI == inp3]$fCL)) {
+  if (!is.na(inpConf[UI == inp3]$fCL)) {{
     ggCol <- strsplit(inpConf[UI == inp3]$fCL, "\\\\|")[[1]]
     names(ggCol) <- levels(ggData$val3)
     ggLvl <- levels(ggData$val3)[levels(ggData$val3) %in% unique(ggData$val3)]
     ggData$val3 <- factor(ggData$val3, levels = ggLvl)
     ggCol <- ggCol[ggLvl]
-  }
+  }}
   
   # Actual ggplot
   ggOut <- ggplot(ggData, aes(val1, val2, color = val3))
   
-  if(is.numeric(ggData$val3)){
+  if(is.numeric(ggData$val3)){{
     ggOut = ggOut + scale_color_gradientn("", colours = cList[[1]]) +
       guides(color = guide_colorbar(title = inp3))
-  }else{
+  }}else{{
     # Do factoring if required
-    if (!is.na(inpConf[UI == inp3]$fCL)) {
+    if (!is.na(inpConf[UI == inp3]$fCL)) {{
       ggCol <- strsplit(inpConf[UI == inp3]$fCL, "\\\\|")[[1]]
       names(ggCol) <- levels(ggData$val3)
       ggLvl <- levels(ggData$val3)[levels(ggData$val3) %in% unique(ggData$val3)]
       ggData$val3 <- factor(ggData$val3, levels = ggLvl)
       ggCol <- ggCol[ggLvl]
-    }
+    }}
     ggOut = ggOut + scale_color_manual("", values = ggCol)  +
       guides(color = guide_legend(
         override.aes = list(size = 5),
         nrow = inpConf[UI == inp3]$fRow
       ))
-  }
+  }}
   
   
-  if (bgCells) {
-    if(is.numeric(ggData$val1)){
+  if (bgCells) {{
+    if(is.numeric(ggData$val1)){{
       ggOut <- ggOut + 
         geom_point(data = ggData2, color = "snow2", size = inpsiz, shape = 20)
-    }
-  }
+    }}
+  }}
   
   ggOut <- ggOut +
     geom_point(size = inpsiz, shape = 20) +
@@ -978,13 +967,13 @@ scsccigecoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
   
   return(ggOut)
   
-}
+}}
 
-scsccigeNum <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inpH5, inpGene) {
+scsccigeNum <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inpH5, inpGene) {{
   
-  if (is.null(inpsub1)) {
+  if (is.null(inpsub1)) {{
     inpsub1 <- inpConf$UI[1]
-  }
+  }}
   
   # Prepare ggData
   ggData <- inpMeta[, c(inpConf[UI == inpsub1]$ID, inpConf[UI == inp1]$ID), with = FALSE]
@@ -995,11 +984,11 @@ scsccigeNum <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inpH5, i
   ggData$val2 <- h5data$read(args = list(inpGene[inp2], quote(expr = )))
   ggData[val2 < 0]$val2 <- 0
   h5file$close_all()
-  if (length(inpsub2) != 0 & length(inpsub2) != nlevels(ggData$sub)) { ggData <- ggData[sub %in% inpsub2] }
+  if (length(inpsub2) != 0 & length(inpsub2) != nlevels(ggData$sub)) {{ ggData <- ggData[sub %in% inpsub2] }}
   
   
   
-  if(is.numeric(ggData$val1)){
+  if(is.numeric(ggData$val1)){{
     # Actual data.table
     ggData$express <- "none"
     ggData[val1 > 0]$express <- inp1
@@ -1010,7 +999,7 @@ scsccigeNum <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inpH5, i
     ggData$percent <- 100 * ggData$nCells / sum(ggData$nCells)
     ggData <- ggData[order(express)]
     colnames(ggData)[1] <- "expression > 0"
-  }else{
+  }}else{{
     ggData2 = as.data.frame(table(ggData$val1))
     ggData =  as.data.frame(table(ggData$val1,factor(ggData$val2>0, levels = c(TRUE, FALSE))))
     
@@ -1019,10 +1008,10 @@ scsccigeNum <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inpH5, i
     
     ggData = ggData[ggData$Var2 == TRUE,c("Var1","nCells","percent")]
     colnames(ggData)[1] = paste(inp2, " > 0")
-  }
+  }}
   
   return(ggData)
-}
+}}
 
 
 # Plot violin / boxplot / lineplot
