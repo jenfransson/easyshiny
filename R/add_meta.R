@@ -81,8 +81,8 @@ add_meta <- function(scConf, meta, obj, maxLevels = 50){
     tmpConf = data.table(ID = iMeta, UI = iMeta, fID = NA, fUI = NA, 
                          fCL = NA, fRow = NA, default = 0, grp = FALSE)
     
-    # Convert to factors if metadata contains characters
-    if(is.character(objMeta[[iMeta]])){
+    # Convert to factors if metadata contains characters or logicals
+    if(is.character(objMeta[[iMeta]]) | is.logical(objMeta[[iMeta]])){
       objMeta[[iMeta]] = factor(objMeta[[iMeta]])
     }
     
