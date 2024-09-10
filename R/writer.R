@@ -769,10 +769,15 @@ scDRcoexNum <- function(inpConf, inpMeta, inp1, inp2, inpsub1, inpsub2, inpH5, i
 # @param inpord (Character) Custom plotting order
 # @param inpfsz (Character) Custom font size
 # @param inppasp (Character) Custom aspect ratio
+# @param inpregr (Character) Regression type (one of None, Linear or Loess)
 #
 scsccoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
                      inpsub2, inpH5, inpGene, inpsiz, inpord, inpfsz,
-                     inpasp) {{
+                     inpasp, inpregr = "None") {{
+                     
+  if(!(inpregr %in% c("Linear", "Loess", "None"))){{
+    stop("Regression must be one of None, Linear or Loess")
+  }}
   
   if (is.null(inpsub1)) {{ inpsub1 <- inpConf$UI[1] }}
   
@@ -853,6 +858,9 @@ scsccoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
     labs(color = inp3) +
     sctheme(base_size = sList[inpfsz], XYval = TRUE)
   
+  if(inpregr %in% c("Linear", "Loess")){{
+    ggOut <- ggOut + geom_smooth(formula = y~x, method = ifelse(inpregr == "Linear", "lm", "loess"), linetype = 2, color = "#888888")
+  }}
   
   if (inpasp == "Square") {{
     ggOut <- ggOut + coord_fixed(ratio = rat)
@@ -879,10 +887,15 @@ scsccoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
 # @param inpord (Character) Custom plotting order
 # @param inpfsz (Character) Custom font size
 # @param inppasp (Character) Custom aspect ratio
+# @param inpregr (Character) Regression type (one of None, Linear or Loess)
 #
 scsccigecoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
-                         inpsub2, inpH5, inpGene, inpsiz, inpord, inpfsz) {{
+                         inpsub2, inpH5, inpGene, inpsiz, inpord, inpfsz, inpregr = "None") {{
   
+  if(!(inpregr %in% c("Linear", "Loess", "None"))){{
+    stop("Regression must be one of None, Linear or Loess")
+  }}
+    
   if (is.null(inpsub1)) {{ inpsub1 <- inpConf$UI[1] }}
   
   # Prepare ggData
@@ -964,6 +977,13 @@ scsccigecoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
     labs(color = inp3) +
     sctheme(base_size = sList[inpfsz], XYval = TRUE)
   
+  if(inpregr %in% c("Linear", "Loess")){{
+    if(is.numeric(ggData$val1)){{
+      ggOut <- ggOut + geom_smooth(formula = y~x, method = ifelse(inpregr == "Linear", "lm", "loess"), linetype = 2, color = "#888888")
+    }}else{{
+      warning("Regression is only added when both axes are numeric")
+    }}
+  }}
   
   return(ggOut)
   
@@ -1727,7 +1747,8 @@ output${prefix}_scgege_oup1 <- renderPlot({{
   scsccoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_scgege_inp1, inp2 = input${prefix}_scgege_inp2, inp3 = input${prefix}_scgege_inp3, 
            inpsub1 = input${prefix}_scgege_sub1, inpsub2 = input${prefix}_scgege_sub2, inpH5 = "{prefix}gexpr.h5", inpGene = {prefix}gene,
            inpord = input${prefix}_scgege_ord1, inpsiz = input${prefix}_scgege_siz, 
-           inpfsz = input${prefix}_scgege_fsz, inpasp = input${prefix}_scgege_asp)
+           inpfsz = input${prefix}_scgege_fsz, inpasp = input${prefix}_scgege_asp, 
+           inpregr = input${prefix}_scgege_regr)
 }})
 
 output${prefix}_scgege_oup1.ui <- renderUI({{
@@ -1741,7 +1762,8 @@ output${prefix}_scgege_oup1.png <- downloadHandler(
     plot = scsccoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_scgege_inp1, inp2 = input${prefix}_scgege_inp2, inp3 = input${prefix}_scgege_inp3, 
            inpsub1 = input${prefix}_scgege_sub1, inpsub2 = input${prefix}_scgege_sub2, inpH5 = "{prefix}gexpr.h5", inpGene = {prefix}gene,
            inpord = input${prefix}_scgege_ord1, inpsiz = input${prefix}_scgege_siz, 
-           inpfsz = input${prefix}_scgege_fsz, inpasp = input${prefix}_scgege_asp)
+           inpfsz = input${prefix}_scgege_fsz, inpasp = input${prefix}_scgege_asp, 
+           inpregr = input${prefix}_scgege_regr)
            )
 }})
 
@@ -1753,7 +1775,8 @@ output${prefix}_scgege_oup1.pdf <- downloadHandler(
     plot = scsccoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_scgege_inp1, inp2 = input${prefix}_scgege_inp2, inp3 = input${prefix}_scgege_inp3, 
        inpsub1 = input${prefix}_scgege_sub1, inpsub2 = input${prefix}_scgege_sub2, inpH5 = "{prefix}gexpr.h5", inpGene = {prefix}gene,
        inpord = input${prefix}_scgege_ord1, inpsiz = input${prefix}_scgege_siz, 
-       inpfsz = input${prefix}_scgege_fsz, inpasp = input${prefix}_scgege_asp)
+       inpfsz = input${prefix}_scgege_fsz, inpasp = input${prefix}_scgege_asp, 
+           inpregr = input${prefix}_scgege_regr)
        )
 }})
 
@@ -1765,7 +1788,8 @@ output${prefix}_scgege_oup1.svg <- downloadHandler(
     plot = scsccoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_scgege_inp1, inp2 = input${prefix}_scgege_inp2, inp3 = input${prefix}_scgege_inp3, 
        inpsub1 = input${prefix}_scgege_sub1, inpsub2 = input${prefix}_scgege_sub2, inpH5 = "{prefix}gexpr.h5", inpGene = {prefix}gene,
        inpord = input${prefix}_scgege_ord1, inpsiz = input${prefix}_scgege_siz, 
-       inpfsz = input${prefix}_scgege_fsz, inpasp = input${prefix}_scgege_asp)
+       inpfsz = input${prefix}_scgege_fsz, inpasp = input${prefix}_scgege_asp, 
+       inpregr = input${prefix}_scgege_regr)
        )
 }})
 
@@ -1805,7 +1829,7 @@ output${prefix}_sccige_oup1 <- renderPlot({{
   scsccigecoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_sccige_inp1, inp2 = input${prefix}_sccige_inp2, inp3 = input${prefix}_sccige_inp3, 
                inpsub1 = input${prefix}_sccige_sub1, inpsub2 = input${prefix}_sccige_sub2, inpH5 = "{prefix}gexpr.h5", inpGene = {prefix}gene,
                inpord = input${prefix}_sccige_ord1, inpsiz = input${prefix}_sccige_siz, 
-               inpfsz = input${prefix}_sccige_fsz)
+               inpfsz = input${prefix}_sccige_fsz, inpregr = input${prefix}_sccige_regr)
 }})
 
 output${prefix}_sccige_oup1.ui <- renderUI({{
@@ -1819,7 +1843,7 @@ output${prefix}_sccige_oup1.png <- downloadHandler(
     plot = scsccigecoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_sccige_inp1, inp2 = input${prefix}_sccige_inp2, inp3 = input${prefix}_sccige_inp3, 
                inpsub1 = input${prefix}_sccige_sub1, inpsub2 = input${prefix}_sccige_sub2, inpH5 = "{prefix}gexpr.h5", inpGene = {prefix}gene,
                inpord = input${prefix}_sccige_ord1, inpsiz = input${prefix}_sccige_siz, 
-               inpfsz = input${prefix}_sccige_fsz)
+               inpfsz = input${prefix}_sccige_fsz, inpregr = input${prefix}_sccige_regr)
            )
 }})
 
@@ -1831,7 +1855,7 @@ output${prefix}_sccige_oup1.pdf <- downloadHandler(
     plot = scsccigecoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_sccige_inp1, inp2 = input${prefix}_sccige_inp2, inp3 = input${prefix}_sccige_inp3, 
                inpsub1 = input${prefix}_sccige_sub1, inpsub2 = input${prefix}_sccige_sub2, inpH5 = "{prefix}gexpr.h5", inpGene = {prefix}gene,
                inpord = input${prefix}_sccige_ord1, inpsiz = input${prefix}_sccige_siz, 
-               inpfsz = input${prefix}_sccige_fsz)
+               inpfsz = input${prefix}_sccige_fsz, inpregr = input${prefix}_sccige_regr)
        )
 }})
 
@@ -1843,7 +1867,7 @@ output${prefix}_sccige_oup1.svg <- downloadHandler(
     plot = scsccigecoex(inpConf = {prefix}conf, inpMeta = {prefix}meta, inp1 = input${prefix}_sccige_inp1, inp2 = input${prefix}_sccige_inp2, inp3 = input${prefix}_sccige_inp3, 
                inpsub1 = input${prefix}_sccige_sub1, inpsub2 = input${prefix}_sccige_sub2, inpH5 = "{prefix}gexpr.h5", inpGene = {prefix}gene,
                inpord = input${prefix}_sccige_ord1, inpsiz = input${prefix}_sccige_siz, 
-               inpfsz = input${prefix}_sccige_fsz)
+               inpfsz = input${prefix}_sccige_fsz, inpregr = input${prefix}_sccige_regr)
        )
 }})
 
@@ -3110,6 +3134,10 @@ tabPanel(
                          "- Continuous covariates are coloured in a red colour scheme"
                        )
                      ),
+                     radioButtons("{prefix}_scgege_regr", "Regression:",
+                       choices = c("None", "Linear", "Loess"),
+                       selected = "None", inline = TRUE
+                     ),
                    {subst}checkboxInput("{prefix}_scgege_togL", "Subset cells"),
                    {subst}conditionalPanel(
                     {subst}condition = "input.{prefix}_scgege_togL == true",
@@ -3358,6 +3386,10 @@ tabPanel(
                          "- Categorical covariates have a fixed colour palette",
                          "- Continuous covariates are coloured in a red colour scheme"
                        )
+                     ),
+                     radioButtons("{prefix}_sccige_regr", "Regression:",
+                       choices = c("None", "Linear", "Loess"),
+                       selected = "None", inline = TRUE
                      ),
                    {subst}checkboxInput("{prefix}_sccige_togL", "Subset cells"),
                    {subst}conditionalPanel(
