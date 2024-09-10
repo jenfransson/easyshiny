@@ -3353,7 +3353,7 @@ tabPanel(
                  div(
                    class = "input-panel input-panel-section",
                    h4("Genes"),
-                   selectInput("{prefix}_sccige_inp1", "Colour by:", 
+                   selectInput("{prefix}_sccige_inp1", "Cell info:", 
                                choices = {prefix}conf$UI,
                                selected = {prefix}def$meta1
                     ) %>%
@@ -3364,7 +3364,7 @@ tabPanel(
                          "- Select cell info to plot on x-axis"
                        )
                      ),
-                   selectInput("{prefix}_sccige_inp2", "Gene 2:", choices = NULL) %>%
+                   selectInput("{prefix}_sccige_inp2", "Gene:", choices = NULL) %>%
                      helper(
                        type = "inline", size = "m", fade = TRUE,
                        title = "Gene expression for y-axis",
