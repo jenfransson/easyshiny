@@ -2039,10 +2039,10 @@ updateSelectizeInput(session, "{prefix}_gec_inp2", choices = names({prefix}gene)
                      selected = {prefix}def$gene2, options = list(
                        maxOptions = 7, create = TRUE, persist = TRUE, render = I(optCrt)))
 updateSelectizeInput(session, "{prefix}_gem_inp", choices = names({prefix}gene), server = TRUE,
-                     selected = {prefix}def$genes[1:9], options = list(
+                     selected = {prefix}def$genes[1:min(length({prefix}def$genes),9)], options = list(
                      create = TRUE, persist = TRUE, render = I(optCrt)))
 updateSelectizeInput(session, "{prefix}_hea_inp", choices = names({prefix}gene), server = TRUE,
-                     selected = {prefix}def$genes[1:12], options = list(
+                     selected = {prefix}def$genes[1:min(length({prefix}def$genes),12)], options = list(
                      create = TRUE, persist = TRUE, render = I(optCrt)))
 updateSelectizeInput(session, "{prefix}_vio_inp2", server = TRUE,
                      choices = c({prefix}conf[is.na(fID)]$UI,names({prefix}gene)),
