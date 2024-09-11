@@ -830,8 +830,8 @@ scsccoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
     ggData <- ggData[sub %in% inpsub2]
   }}
   
-  rat <- (max(ggData$val1) - min(ggData$val1)) / (max(ggData$val2) - min(ggData$val2))
-  
+  rat <- (max(ggData$val1, na.rm = TRUE) - min(ggData$val1, na.rm = TRUE)) / 
+    (max(ggData$val2, na.rm = TRUE) - min(ggData$val2, na.rm = TRUE))
   
   ggData$v0 <- ggData$val1 + ggData$val2
   
