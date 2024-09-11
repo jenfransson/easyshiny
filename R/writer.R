@@ -1289,6 +1289,11 @@ paste0('
 {subst}    sub = strsplit({prefix}conf[UI == input${prefix}_civge_sub1]$fID, "\\\\|")[[1]]
 {subst}    checkboxGroupInput("{prefix}_civge_sub2", "Groups to display:", inline = TRUE, choices = sub, selected = sub)
 {subst}  }})
+{subst}  observeEvent(input${prefix}_civge_togL, {{
+{subst}  if(!input${prefix}_civge_togL){
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_civge_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_civge_sub2", label = "Groups to display:", choices = sub, selected = sub, inline = TRUE)
+{subst}  }})
 {subst}  observeEvent(input${prefix}_civge_sub1non, {{
 {subst}    sub = strsplit({prefix}conf[UI == input${prefix}_civge_sub1]$fID, "\\\\|")[[1]]
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_civge_sub2", label = "Groups to display:", choices = sub, selected = NULL, inline = TRUE)
@@ -1393,6 +1398,11 @@ paste0('
 {subst}    sub = strsplit({prefix}conf[UI == input${prefix}_civci_sub1]$fID, "\\\\|")[[1]]
 {subst}    checkboxGroupInput("{prefix}_civci_sub2", "Groups to display:", inline = TRUE, choices = sub, selected = sub)
 {subst}  }})
+{subst}  observeEvent(input${prefix}_civci_togL, {{
+{subst}  if(!input${prefix}_civci_togL){
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_civci_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_civci_sub2", label = "Groups to display:", choices = sub, selected = sub, inline = TRUE)
+{subst}  }})
 {subst}  observeEvent(input${prefix}_civci_sub1non, {{
 {subst}    sub = strsplit({prefix}conf[UI == input${prefix}_civci_sub1]$fID, "\\\\|")[[1]]
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_civci_sub2", label = "Groups to display:", choices = sub, selected = NULL, inline = TRUE)
@@ -1485,6 +1495,11 @@ paste0('
 {subst}  output${prefix}_gevge_sub1.ui <- renderUI({{
 {subst}    sub = strsplit({prefix}conf[UI == input${prefix}_gevge_sub1]$fID, "\\\\|")[[1]]
 {subst}    checkboxGroupInput("{prefix}_gevge_sub2", "Groups to display:", inline = TRUE, choices = sub, selected = sub)
+{subst}  }})
+{subst}  observeEvent(input${prefix}_gevge_togL, {{
+{subst}  if(!input${prefix}_gevge_togL){
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_gevge_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_gevge_sub2", label = "Groups to display:", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 {subst}  observeEvent(input${prefix}_gevge_sub1non, {{
 {subst}    sub = strsplit({prefix}conf[UI == input${prefix}_gevge_sub1]$fID, "\\\\|")[[1]]
@@ -1596,6 +1611,11 @@ paste0('
 {subst}    sub = strsplit({prefix}conf[UI == input${prefix}_gec_sub1]$fID, "\\\\|")[[1]]
 {subst}    checkboxGroupInput("{prefix}_gec_sub2", "Groups to display:", inline = TRUE, choices = sub, selected = sub)
 {subst}  }})
+{subst}  observeEvent(input${prefix}_gec_togL, {{
+{subst}  if(!input${prefix}_gec_togL){
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_gec_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_gec_sub2", label = "Groups to display:", choices = sub, selected = sub, inline = TRUE)
+{subst}  }})
 {subst}  observeEvent(input${prefix}_gec_sub1non, {{
 {subst}    sub = strsplit({prefix}conf[UI == input${prefix}_gec_sub1]$fID, "\\\\|")[[1]]
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_gec_sub2", label = "Groups to display:", choices = sub, selected = NULL, inline = TRUE)
@@ -1658,6 +1678,11 @@ wr_sv_scgege <- function() {
 {subst}  output${prefix}_scgege_sub1.ui <- renderUI({{
 {subst}    sub = strsplit({prefix}conf[UI == input${prefix}_scgege_sub1]$fID, "\\\\|")[[1]]
 {subst}    checkboxGroupInput("{prefix}_scgege_sub2", "Groups to display:", inline = TRUE, choices = sub, selected = sub)
+{subst}  }})
+{subst}  observeEvent(input${prefix}_scgege_togL, {{
+{subst}  if(!input${prefix}_scgege_togL){
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_scgege_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_scgege_sub2", label = "Groups to display:", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 {subst}  observeEvent(input${prefix}_scgege_sub1non, {{
 {subst}    sub = strsplit({prefix}conf[UI == input${prefix}_scgege_sub1]$fID, "\\\\|")[[1]]
@@ -1742,6 +1767,11 @@ paste0('
 {subst}    sub = strsplit({prefix}conf[UI == input${prefix}_vio_sub1]$fID, "\\\\|")[[1]]
 {subst}    checkboxGroupInput("{prefix}_vio_sub2", "Groups to display:", inline = TRUE, choices = sub, selected = sub)
 {subst}  }})
+{subst}  observeEvent(input${prefix}_vio_togL, {{
+{subst}  if(!input${prefix}_vio_togL){
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_vio_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_vio_sub2", label = "Groups to display:", choices = sub, selected = sub, inline = TRUE)
+{subst}  }})
 {subst}  observeEvent(input${prefix}_vio_sub1non, {{
 {subst}    sub = strsplit({prefix}conf[UI == input${prefix}_vio_sub1]$fID, "\\\\|")[[1]]
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_vio_sub2", label = "Groups to display:", choices = sub, selected = NULL, inline = TRUE)
@@ -1803,6 +1833,11 @@ paste0('
 {subst}    sub = strsplit({prefix}conf[UI == input${prefix}_pro_sub1]$fID, "\\\\|")[[1]]
 {subst}    checkboxGroupInput("{prefix}_pro_sub2", "Groups to display:", inline = TRUE, choices = sub, selected = sub)
 {subst}  }})
+{subst}  observeEvent(input${prefix}_pro_togL, {{
+{subst}  if(!input${prefix}_pro_togL){
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_pro_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_pro_sub2", label = "Groups to display:", choices = sub, selected = sub, inline = TRUE)
+{subst}  }})
 {subst}  observeEvent(input${prefix}_pro_sub1non, {{
 {subst}    sub = strsplit({prefix}conf[UI == input${prefix}_pro_sub1]$fID, "\\\\|")[[1]]
 {subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_pro_sub2", label = "Groups to display:", choices = sub, selected = NULL, inline = TRUE)
@@ -1862,6 +1897,11 @@ paste0('
 {subst}  output${prefix}_hea_sub1.ui <- renderUI({{
 {subst}    sub = strsplit({prefix}conf[UI == input${prefix}_hea_sub1]$fID, "\\\\|")[[1]]
 {subst}    checkboxGroupInput("{prefix}_hea_sub2", "Groups to display:", inline = TRUE, choices = sub, selected = sub)
+{subst}  }})
+{subst}  observeEvent(input${prefix}_hea_togL, {{
+{subst}  if(!input${prefix}_hea_togL){
+{subst}    sub = strsplit({prefix}conf[UI == input${prefix}_hea_sub1]$fID, "\\\\|")[[1]]
+{subst}    updateCheckboxGroupInput(session, inputId = "{prefix}_hea_sub2", label = "Groups to display:", choices = sub, selected = sub, inline = TRUE)
 {subst}  }})
 {subst}  observeEvent(input${prefix}_hea_sub1non, {{
 {subst}    sub = strsplit({prefix}conf[UI == input${prefix}_hea_sub1]$fID, "\\\\|")[[1]]
@@ -1928,6 +1968,11 @@ wr_sv_gem <- function() {
 output${prefix}_gem_sub1.ui <- renderUI({{
   sub = strsplit({prefix}conf[UI == input${prefix}_gem_sub1]$fID, "\\\\|")[[1]]
   checkboxGroupInput("{prefix}_gem_sub2", "Groups to display:", inline = TRUE, choices = sub, selected = sub)
+}})
+observeEvent(input${prefix}_gem_togL, {{
+if(!input${prefix}_gem_togL){
+  sub = strsplit({prefix}conf[UI == input${prefix}_gem_sub1]$fID, "\\\\|")[[1]]
+  updateCheckboxGroupInput(session, inputId = "{prefix}_gem_sub2", label = "Groups to display:", choices = sub, selected = sub, inline = TRUE)
 }})
 observeEvent(input${prefix}_gem_sub1non, {{
   sub = strsplit({prefix}conf[UI == input${prefix}_gem_sub1]$fID, "\\\\|")[[1]]
