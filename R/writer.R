@@ -884,7 +884,7 @@ scsccoex <- function(inpConf, inpMeta, inp1, inp2, inp3, inpsub1,
     sctheme(base_size = sList[inpfsz], XYval = TRUE)
   
   if(inpregr %in% c("Linear", "Loess")){{
-    ggOut <- ggOut + geom_smooth(formula = y~x, method = ifelse(inpregr == "Linear", "lm", "loess"), linetype = 2, color = "#888888")
+    ggOut <- ggOut + geom_smooth(formula = y~x, method = ifelse(inpregr == "Linear", "lm", "loess"), linetype = 2, color = "black")
   }}
   
   if (inpasp == "Square") {{
