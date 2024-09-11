@@ -2030,9 +2030,9 @@ updateSelectizeInput(session, "{prefix}_scgege_inp1", server = TRUE,
                      selected = {prefix}def$gene1, options = list(
                      maxOptions = length({prefix}conf[is.na(fID)]$UI) + 3,
                      create = TRUE, persist = TRUE, render = I(optCrt)))
-updateSelectizeInput(session, "{prefix}_scgege_inp1", server = TRUE,
+updateSelectizeInput(session, "{prefix}_scgege_inp2", server = TRUE,
                      choices = c({prefix}conf[is.na(fID)]$UI,names({prefix}gene)),
-                     selected = {prefix}def$gene1, options = list(
+                     selected = {prefix}def$gene2, options = list(
                      maxOptions = length({prefix}conf[is.na(fID)]$UI) + 3,
                      create = TRUE, persist = TRUE, render = I(optCrt)))
 updateSelectizeInput(session, "{prefix}_gec_inp2", choices = names({prefix}gene), server = TRUE,
@@ -2925,7 +2925,7 @@ wr_ui_scgege <- function() {
   paste0(',
 # tab scgege ----
 tabPanel(
-  "Gene vs gene scatter",
+  "Gene/cell info scatterplot",
   fluidRow(
     class = "container page",
     column(
