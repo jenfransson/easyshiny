@@ -2935,8 +2935,8 @@ tabPanel(
         class = "tab-section",
         column(
           12,
-          h3("Coexpression of two genes in scatter plot"),
-          p("Visualise the coexpression of two genes in a scatter plot.")
+          h3("Coexpression of two variables in scatter plot"),
+          p("Visualise the coexpression of genes and/or continuous cell information in a scatter plot. Note that random noise is added to gene expression to facilitate interpretation.")
         )
       ),
       # row 2 ----
