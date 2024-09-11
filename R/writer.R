@@ -2949,7 +2949,7 @@ tabPanel(
                  div(
                    class = "input-panel input-panel-section",
                    h4("Genes"),
-                   selectInput("{prefix}_scgege_inp1", "Gene 1:", choices = NULL) %>%
+                   selectInput("{prefix}_scgege_inp1", "Gene / Cell info x-axis:", choices = NULL) %>%
                      helper(
                        type = "inline", size = "m", fade = TRUE,
                        title = "Gene expression for x-axis",
@@ -2958,7 +2958,7 @@ tabPanel(
                          "- Type in gene names for unlisted genes"
                        )
                      ),
-                   selectInput("{prefix}_scgege_inp2", "Gene 2:", choices = NULL) %>%
+                   selectInput("{prefix}_scgege_inp2", "Gene / Cell info y-axis", choices = NULL) %>%
                      helper(
                        type = "inline", size = "m", fade = TRUE,
                        title = "Gene expression for y-axis",
